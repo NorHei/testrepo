@@ -24,7 +24,7 @@ $admin = new admin('Pages', 'pages_add', false);
 if (!$admin->checkFTAN())
 {
     $admin->print_header();
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS']);
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
 }
 
 // Include the WB functions file

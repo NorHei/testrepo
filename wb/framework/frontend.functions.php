@@ -14,7 +14,7 @@
  * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/framework/frontend.functions.php $
  * @lastmodified    $Date: 2012-02-06 16:32:03 +0100 (Mo, 06. Feb 2012) $
  *
-*/
+ */
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
 if(!defined('WB_PATH')) {
@@ -35,10 +35,12 @@ if(!defined('WB_PATH')) {
     $include_head_links    = '';
 
 // workout to included frontend.css, fronten.js and frontend_body.js in snippets
-    $sql  = 'SELECT `directory` FROM `'.TABLE_PREFIX.'addons` ';
-    $sql .= 'WHERE `type`=\'module\' AND `function`=\'snippet\'';
+    $sql = 'SELECT `type`,`function`,`directory` FROM `'.TABLE_PREFIX.'addons` '
+         . 'WHERE `type`=\'module\' AND `function` IN (\'snippet\',\'wysiwyg\')';
+    $sql  = 'SELECT `directory` FROM `'.TABLE_PREFIX.'addons` '
+          . 'WHERE `type`=\'module\' AND `function`=\'snippet\' ';
     if(($resSnippets = $database->query($sql))) {
-        while($recSnippet = $resSnippets->fetchRow()) {
+        while($recSnippet = $resSnippets->fetchRow( MYSQLI_ASSOC)) {
             $module_dir = $recSnippet['directory'];
             if (file_exists(WB_PATH.'/modules/'.$module_dir.'/include.php')) {
                 include(WB_PATH.'/modules/'.$module_dir.'/include.php');
@@ -293,7 +295,7 @@ if (!function_exists('page_content')) {
                 if($query_sections->numRows() == 0) { return; }
             }
             // Loop through them and include their module file
-            while($section = $query_sections->fetchRow()) {
+            while($section = $query_sections->fetchRow(MYSQLI_ASSOC)) {
                 // skip this section if it is out of publication-date
                 $now = time();
                 if( !(($now<=$section['publ_end'] || $section['publ_end']==0) && ($now>=$section['publ_start'] || $section['publ_start']==0)) ) {
@@ -559,7 +561,7 @@ if(!function_exists('register_frontend_modfiles'))
             return;
         }
 
-        global $wb, $database, $include_head_link_css, $include_head_links;
+        global $wb, $database, $include_head_link_css, $include_head_links, $page_id;
         // define default baselink and filename for optional module javascript and stylesheet files
         $head_links = "";
 
@@ -594,7 +596,7 @@ if(!function_exists('register_frontend_modfiles'))
         if( $file_id != 'jquery')
         {
             // gather information for all models embedded on actual page
-            $page_id = $wb->page_id;
+//            $page_id = $wb->page_id;
             $sql  = 'SELECT `module` FROM `'.TABLE_PREFIX.'sections` ';
             $sql .= 'WHERE `page_id` = '.(int)$page_id.' AND `module`<>\'wysiwyg\'';
             if( ($query_modules = $database->query($sql)) )

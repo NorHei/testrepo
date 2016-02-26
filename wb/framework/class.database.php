@@ -64,6 +64,8 @@ class database {
         if (!($this->db_handle = mysqli_connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, $port))) {
             $this->connected = false;
             $this->error = mysqli_connect_error();
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
+print_r( $this->error ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
         } else {
             if ($this->sCharset) {
                 @mysqli_query($this->db_handle, 'SET NAMES '.$this->sCharset);
@@ -174,9 +176,16 @@ class database {
  */
     public function field_exists($table_name, $field_name)
     {
+        $bRetval = false;
+        $aMatches = array();
         $sql = 'DESCRIBE `'.$table_name.'` `'.$field_name.'` ';
-        $query = $this->query($sql);
-        return ($query->numRows() != 0);
+        if (($oQuery = $this->query($sql))) {
+            while (($aRecord = $oQuery->fetchRow(MYSQLI_ASSOC))) {
+                $aMatches[] = $aRecord['Field'];
+            }
+            $bRetval = in_array($field_name, $aMatches);
+        }
+        return $bRetval;
     }
 
 /*

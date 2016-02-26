@@ -3,8 +3,9 @@
  *
  * @category        modules
  * @package         output_filter
- * @author          Christian Sommer, WB-Project, Werner v.d. Decken
  * @copyright       WebsiteBaker Org. e.V.
+ * @author          Dietmar Wöllbrink
+ * @author          Manuela v.d.Decken <manuela@isteam.de>
  * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.3
@@ -16,41 +17,67 @@
  */
 // Must include code to stop this file being access directly
 /* -------------------------------------------------------- */
-if(defined('WB_PATH') == false)
-{
-    // Stop this file being access directly
-        die('<head><title>Access denied</title></head><body><h2 style="color:red;margin:3em auto;text-align:center;">Cannot access this file directly</h2></body></html>');
-}
+// Must include code to stop this file being accessed directly
+if(!defined('WB_PATH')) { throw new RuntimeException('Illegal access'); }
 /* -------------------------------------------------------- */
 
-$msg = '';
-$sTable = TABLE_PREFIX.'mod_output_filter';
-if(($sOldType = $database->getTableEngine($sTable))) {
-    if(('myisam' != strtolower($sOldType))) {
-        if(!$database->query('ALTER TABLE `'.$sTable.'` Engine = \'MyISAM\' ')) {
-            $msg = $database->get_error();
+    $sTable = TABLE_PREFIX.'mod_output_filter';
+    $i = (!isset($i) ? 1 : $i);
+    $OK   = "<span class=\"ok\">OK</span>";
+    $FAIL = "<span class=\"error\">FAILED</span>";
+    $iErr = false;
+    $msg = array();
+    $sSqlCreate = '`name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT \'\','
+                . '`value` text COLLATE utf8_unicode_ci NOT NULL, '
+                . 'PRIMARY KEY (`name`)'
+                . ')ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+    $sql = 'CREATE TABLE IF NOT EXISTS `'.$sTable.'` ('.$sSqlCreate;
+    $database->query($sql);
+    $msg[] = '<div style="margin:1em auto;font-size:1.1em;">';
+    $msg[] = '<h4>Step '.$i++.': Updating Output Filter</h4>';
+    // check if table already upgraded
+    if ($database->field_exists($sTable, 'email_filter')) {
+        // read old settings first
+        $sql = 'SELECT * FROM `'.$sTable.'`';
+        if (($oSettings = $database->query($sql))) {
+            if (!($aOldSettings = $oSettings->fetchRow(MYSQLI_ASSOC))) {
+                $msg[] = '<strong>\'Output Filter backup old settings\'</strong> '.$FAIL.'<br />';
+                $iErr = true;
+            }
+            $sql = 'DROP TABLE IF EXISTS `'.$sTable.'`';
+            if (!($database->query($sql))) {
+                $msg[] = '<strong>\'Output Filter drop old table\'</strong> '.$FAIL.'<br />';
+                $iErr = true;
+            }
+            $sql = 'CREATE TABLE `'.$sTable.'` ('.$sSqlCreate;
+            if ($database->query($sql)) {
+                if ($aOldSettings) {
+                // restore old settings if there any
+                    $sNameValPairs = '';
+                    foreach ($aOldSettings as $index => $val) {
+                        $sNameValPairs .= ', (\''.$index.'\', \''.$database->escapeString($val).'\')';
+                    }
+                    $sValues = ltrim($sNameValPairs, ', ');
+                    $sql = 'REPLACE INTO `'.$sTable.'` (`name`, `value`) '
+                         . 'VALUES '.$sValues;
+                    if (!$database->query($sql)) {
+                        $msg[] = '<strong>\'Output Filter restore old settings\'</strong> '.$FAIL.'<br />';
+                        $iErr = true;
+                    }
+                }
+            } else {
+                $msg[] = '<strong>\'Output Filter create new table\'</strong> '.$FAIL.'<br />';
+                $iErr = true;
+            }
+        } else {
+            $msg[] = '<strong>\'Output Filter read old settings\'</strong> '.$FAIL.'<br />';
+            $iErr = true;
         }
-    }
-} else {
-    $msg = $database->get_error();
-}
-// ------------------------------------global $i;
-$table_name = TABLE_PREFIX .'mod_output_filter';
-$field_name = 'sys_rel';
-$i = (!isset($i) ? 1 : $i);
-print "<div style=\"margin:1em auto;font-size:1.1em;\">";
-print "<h4>Step $i: Updating Output Filter</h4>\n";
-$i++;
-$OK   = "<span class=\"ok\">OK</span>";
-$FAIL = "<span class=\"error\">FAILED</span>";
-if ( ($database->field_exists($table_name,$field_name) )) {
-        print "<br /><strong>'Output Filter already updated'</strong> $OK<br />\n";
-} else {
-    $description = 'INT NOT NULL DEFAULT \'0\' FIRST';
-    if( ($database->field_add($table_name,$field_name,$description )) ) {
-        print "<br /><strong>Updating Output Filter</strong> $OK<br />\n";
+        if (!$iErr) {
+            $msg[] = '<strong>\'Output Filter successful updated\'</strong> '.$OK.'<br />';
+        }
     } else {
-            print "<br /><strong>Updating Output Filter</strong> $FAIL<br />\n";
+        $msg[] = '<strong>\'Output Filter already updated\'</strong> '.$OK.'<br />';
     }
-}
-print "</div>";
+    $msg[] = '</div>';
+    print implode("\n", $msg)."\n";

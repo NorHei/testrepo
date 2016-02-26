@@ -9,7 +9,7 @@
  * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.3
- * @requirements    PHP 5.6.3 and higher
+ * @requirements    PHP 5.3.6 and higher
  * @version         $Id: signup.php 1599 2012-02-06 15:59:24Z Luisehahne $
  * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/account/signup.php $
  * @lastmodified    $Date: 2012-02-06 16:59:24 +0100 (Mo, 06. Feb 2012) $
@@ -46,6 +46,7 @@ if(!file_exists(WB_PATH.'/languages/'.DEFAULT_LANGUAGE.'.php')) {
     require_once(WB_PATH.'/languages/'.DEFAULT_LANGUAGE.'.php');
     $load_language = false;
 }
+$_SESSION['display_form'] = true;
 
 $page_id = (isset($_SESSION['PAGE_ID']) && ($_SESSION['PAGE_ID']!='') ? $_SESSION['PAGE_ID'] : 0);
 
@@ -63,11 +64,7 @@ define('MODULE', '');
 define('VISIBILITY', 'public');
 
 // Set the page content include file
-if(isset($_POST['username'])) {
-    define('PAGE_CONTENT', WB_PATH.'/account/signup2.php');
-} else {
     define('PAGE_CONTENT', WB_PATH.'/account/signup_form.php');
-}
 
 // Set auto authentication to false
 $auto_auth = false;

@@ -1,6 +1,8 @@
 <?php
 /*
  * replace all "[wblink{page_id}]" with real links
+ * @copyright       Manuela v.d.Decken <manuela@isteam.de>
+ * @author          Manuela v.d.Decken <manuela@isteam.de>
  * @param string $content : content with tags
  * @return string content with links
  */

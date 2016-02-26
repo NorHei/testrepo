@@ -4,14 +4,14 @@
  * @category        frontend
  * @package         account
  * @author          WebsiteBaker Project
- * @copyright       2004-2009, Ryan Djurovich
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link			http://www.websitebaker2.org/
+ * @copyright       Ryan Djurovich
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
- * @platform        WebsiteBaker 2.8.x
- * @requirements    PHP 5.2.2 and higher
+ * @platform        WebsiteBaker 2.8.3
+ * @requirements    PHP 5.3.6 and higher
  * @version         $Id: logout.php 1599 2012-02-06 15:59:24Z Luisehahne $
- * @filesource		$HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/account/logout.php $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/account/logout.php $
  * @lastmodified    $Date: 2012-02-06 16:59:24 +0100 (Mo, 06. Feb 2012) $
  *
  */
@@ -19,7 +19,7 @@
 require("../config.php");
 
 if(isset($_COOKIE['REMEMBER_KEY'])) {
-	setcookie('REMEMBER_KEY', '', time()-3600, '/');
+    setcookie('REMEMBER_KEY', '', time()-3600, '/');
 }
 
 $redirect = ((isset($_SESSION['HTTP_REFERER']) && $_SESSION['HTTP_REFERER'] != '') ?  $_SESSION['HTTP_REFERER'] : WB_URL.'/index.php');
@@ -37,8 +37,10 @@ unset($_COOKIE[session_name()]);
 session_destroy();
 
 if(INTRO_PAGE) {
-	header('Location: '.WB_URL.PAGES_DIRECTORY.'/index.php');
+    header('Location: '.WB_URL.PAGES_DIRECTORY.'/index.php');
+    exit;
 } else {
-	header('Location: '.$redirect);
+
+    require(WB_PATH.'/index.php');
 }
 

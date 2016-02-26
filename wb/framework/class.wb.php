@@ -26,18 +26,34 @@ require_once(WB_PATH.'/framework/class.database.php');
 // Include new wbmailer class (subclass of PHPmailer)
 require_once(WB_PATH."/framework/class.wbmailer.php");
 
-//require_once(WB_PATH."/framework/SecureForm.php");
+require_once(WB_PATH . '/framework/SecureTokens.php');
 
-class wb extends SecureForm
+class wb extends SecureTokens
 {
 
-     public $password_chars = 'a-zA-Z0-9\_\-\!\#\*\+\@\$\&\:';    // General initialization function
+//     public $password_chars = 'a-zA-Z0-9\_\-\!\#\*\+\@\$\&\:';    // General initialization function
+     public $password_chars = '[\w!#$%&*+\-.:=?@\|]';    // General initialization function
     // performed when frontend or backend is loaded.
 
-    public function  __construct($mode = SecureForm::FRONTEND) {
+//    public function  __construct($mode = SecureForm::FRONTEND) {
+    public function  __construct($mode = 0) {
         parent::__construct($mode);
     }
-
+  /**
+   * Created parse_url utf-8 compatible function
+   * 
+   * @param string $url The string to decode
+   * @return array Associative array containing the different components
+   * 
+   */
+  public function mb_parse_url( $url)
+  {
+    $encodedUrl = preg_replace_callback( '%[^:/?#&=\.]+%usD', create_function( '$aMatches',
+      ';return urlencode($aMatches[0]);'), /*                                   'urlencode(\'$0\')', */ $url);
+    $components = parse_url( $encodedUrl);
+    foreach ( $components as &$component) $component = urldecode( $component);
+    return $components;
+  }
 /* ****************
  * check if one or more group_ids are in both group_lists
  *
@@ -293,6 +309,27 @@ class wb extends SecureForm
         $retval = preg_match("/^((([!#$%&'*+\\-\/\=?^_`{|}~\w])|([!#$%&'*+\\-\/\=?^_`{|}~\w][!#$%&'*+\\-\/\=?^_`{|}~\.\w]{0,}[!#$%&'*+\\-\/\=?^_`{|}~\w]))[@]\w+(([-.]|\-\-)\w+)*\.\w+(([-.]|\-\-)\w+)*)$/", $email);
         return ($retval != false);
     }
+  /**
+   * replace header('Location:...  with new method
+   * if header send failed you get a manuell redirected link, so script don't break
+   *
+   * @param string $location, redirected url
+   * @return void
+   */
+  public function send_header( $location)
+  {
+    if( !headers_sent()) {
+      header( 'Location: '.$location);
+      exit( 0);
+    } else {
+
+      //            $aDebugBacktrace = debug_backtrace();
+      //            array_walk( $aDebugBacktrace, create_function( '$a,$b', 'print "<br /><b>". basename( $a[\'file\'] ). "</b> &nbsp; <font color=\"red\">{$a[\'line\']}</font> &nbsp; <font color=\"green\">{$a[\'function\']} ()</font> &nbsp; -- ". dirname( $a[\'file\'] ). "/";' ) );
+      $msg = "<div style=\"text-align:center;\"><h2>An error has occurred</h2><p>The <strong>Redirect</strong> could not be start automatically.\n".
+        "Please click <a style=\"font-weight:bold;\" "."href=\"".$location."\">on this link</a> to continue!</p></div>\n";
+      throw new Exception( $msg);
+    }
+  }
 
 /* ****************
  * set one or more bit in a integer value
@@ -424,13 +461,13 @@ class wb extends SecureForm
         }
     }
 
-     /**
-      * checks if there is an alternative Theme template
-      *
-      * @param string $sThemeFile set the template.htt
-      * @return string the relative theme path
-      *
-      */
+ /**
+  * checks if there is an alternative Theme template
+  *
+  * @param string $sThemeFile set the template.htt
+  * @return string the relative theme path
+  *
+  */
         function correct_theme_source($sThemeFile = 'start.htt') {
         $sRetval = $sThemeFile;
         if (file_exists(THEME_PATH.'/templates/'.$sThemeFile )) {

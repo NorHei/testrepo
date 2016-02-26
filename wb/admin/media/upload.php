@@ -29,7 +29,7 @@ $admin = new admin('Media', 'media_upload', false);
 if( !$admin->checkFTAN() )
 {
     $admin->print_header();
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'] );
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
 }
 // After check print the header
 $admin->print_header();

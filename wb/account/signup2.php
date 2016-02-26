@@ -14,13 +14,25 @@
  * @filesource      $HeadURL: https://localhost:8443/svn/wb283Sp4/SP4/branches/wb/account/signup2.php $
  * @lastmodified    $Date: 2015-04-27 10:02:19 +0200 (Mo, 27. Apr 2015) $
  *
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
+print_r( $_POST ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
  */
 
 // Must include code to stop this file being access directly
 if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
+// Create new frontend object
+if (!isset($wb) || !($wb instanceof frontend)) {
+    require_once(WB_PATH.'/framework/class.wb.php');
+    $wb = new frontend();
+}
 
-// require_once(WB_PATH.'/framework/class.wb.php');
-$wb = new wb('Start', 'start', false, false);
+/* 
+if (!$wb->checkFTAN())
+{
+    $error[] =  $MESSAGE['GENERIC_SECURITY_ACCESS']."\n";
+    return;
+}
+*/
 
 // Get details entered
 $groups_id = FRONTEND_SIGNUP;
@@ -28,30 +40,21 @@ $active = 1;
 $username = strtolower(strip_tags($wb->get_post_escaped('username')));
 $display_name = strip_tags($wb->get_post_escaped('display_name'));
 $email = $wb->get_post('email');
-
-// Create a javascript back link
-$js_back = WB_URL.'/account/signup.php';
 /*
-if (!$wb->checkFTAN())
-{
-    $wb->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], $js_back, false);
-    exit();
-}
-*/
 // Check values
 if($groups_id == "") {
     $wb->print_error($MESSAGE['USERS_NO_GROUP'], $js_back, false);
 }
+*/
 if(!preg_match('/^[a-z]{1}[a-z0-9_-]{2,}$/i', $username)) {
-    $wb->print_error( $MESSAGE['USERS_NAME_INVALID_CHARS'].' / '.
-                      $MESSAGE['USERS_USERNAME_TOO_SHORT'], $js_back);
+    $error[] =  $MESSAGE['USERS_NAME_INVALID_CHARS']."\n";
 }
 if($email != "") {
     if($wb->validate_email($email) == false) {
-        $wb->print_error($MESSAGE['USERS_INVALID_EMAIL'], $js_back, false);
+        $error[] = $MESSAGE['USERS_INVALID_EMAIL']."\n";
     }
 } else {
-    $wb->print_error($MESSAGE['SIGNUP_NO_EMAIL'], $js_back, false);
+    $error[] = $MESSAGE['SIGNUP_NO_EMAIL']."\n";
 }
 
 $email = $wb->add_slashes($email);
@@ -63,10 +66,10 @@ if(ENABLED_CAPTCHA) {
     if(isset($_POST['captcha']) AND $_POST['captcha'] != ''){
         // Check for a mismatch
         if(!isset($_POST['captcha']) OR !isset($_SESSION['captcha']) OR $_POST['captcha'] != $_SESSION['captcha']) {
-            $wb->print_error($MESSAGE['MOD_FORM_INCORRECT_CAPTCHA'], $js_back, false);
+            $error[] = $MESSAGE['MOD_FORM_INCORRECT_CAPTCHA']."\n";
         }
     } else {
-        $wb->print_error($MESSAGE['MOD_FORM_INCORRECT_CAPTCHA'], $js_back, false);
+        $error[] = $MESSAGE['MOD_FORM_INCORRECT_CAPTCHA']."\n";
     }
 }
 if(isset($_SESSION['captcha'])) { unset($_SESSION['captcha']); }
@@ -88,26 +91,41 @@ $md5_password = md5($new_pass);
 $sql = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` WHERE `username` = \''.$username.'\'';
 $results = $database->query($sql);
 if($results->numRows() > 0) {
-    $wb->print_error($MESSAGE['USERS_USERNAME_TAKEN'], $js_back, false);
+    $error[] = $MESSAGE['USERS_USERNAME_TAKEN']."\n";
 }
 // Check if the email already exists
 $sql = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` WHERE `email` = \''.$wb->add_slashes($email).'\'';
 $results = $database->query($sql);
 if($results->numRows() > 0) {
     if(isset($MESSAGE['USERS_EMAIL_TAKEN'])) {
-        $wb->print_error($MESSAGE['USERS_EMAIL_TAKEN'], $js_back, false);
+        $error[] = $MESSAGE['USERS_EMAIL_TAKEN']."\n";
     } else {
-        $wb->print_error($MESSAGE['USERS_INVALID_EMAIL'], $js_back, false);
+        $error[] = $MESSAGE['USERS_INVALID_EMAIL']."\n";
     }
 }
+
+if(sizeof($error)==0){
 
 // MD5 supplied password
 $md5_password = md5($new_pass);
 
 // Inser the user into the database
 $sql = '';
-$query = "INSERT INTO ".TABLE_PREFIX."users (group_id,groups_id,active,username,password,display_name,email) VALUES ('$groups_id', '$groups_id', '$active', '$username','$md5_password','$display_name','$email')";
-$database->query($query);
+
+$sql  = 'INSERT INTO `'.TABLE_PREFIX.'users` SET '
+      . '`group_id` = '.$groups_id.', '
+      . '`groups_id` = \''.$groups_id.'\', '
+      . '`active` = '.$active.', '
+      . '`username` = \''.$username.'\', '
+      . '`password` = \''.$md5_password.'\', '
+      . '`display_name` = \''.$display_name.'\', '
+      . '`home_folder` = \'\', '
+      . '`email` = \''.$email.'\', '
+      . '`timezone` = \''.DEFAULT_TIMEZONE.'\', '
+      . '`language` = \''.DEFAULT_LANGUAGE.'\''
+      .'';
+
+$database->query($sql);
 
 if($database->is_error()) {
     // Error updating database
@@ -125,10 +143,10 @@ if($database->is_error()) {
     // Try sending the email
     if($wb->mail(SERVER_EMAIL,$mail_to,$mail_subject,$mail_message)) {
         $display_form = false;
-        $wb->print_success($MESSAGE['FORGOT_PASS_PASSWORD_RESET'], WB_URL.'/account/login.php' );
+        $success[] = $MESSAGE['FORGOT_PASS_PASSWORD_RESET'];
     } else {
-        $database->query("DELETE FROM ".TABLE_PREFIX."users WHERE username = '$username'");
-        $wb->print_error($MESSAGE['FORGOT_PASS_CANNOT_EMAIL'], $js_back, false);
+        $database->query("DELETE FROM `".TABLE_PREFIX."users` WHERE `username` = '$username'");
+        $error[] = $MESSAGE['FORGOT_PASS_CANNOT_EMAIL']."\n";
     }
 }
-
+}

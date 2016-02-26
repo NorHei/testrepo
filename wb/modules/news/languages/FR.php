@@ -6,12 +6,12 @@
  * @author          WebsiteBaker Project
  * @copyright       2004-2009, Ryan Djurovich
  * @copyright       2009-2011, Website Baker Org. e.V.
- * @link			http://www.websitebaker2.org/
+ * @link            http://www.websitebaker2.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.x
  * @requirements    PHP 5.2.2 and higher
  * @version         $Id: FR.php 1458 2011-06-26 14:13:05Z Luisehahne $
- * @filesource		$HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/languages/FR.php $
+ * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/languages/FR.php $
  * @lastmodified    $Date: 2011-06-26 16:13:05 +0200 (So, 26. Jun 2011) $
  *
  */

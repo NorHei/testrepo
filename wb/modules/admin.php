@@ -21,40 +21,41 @@
 if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
 /* -------------------------------------------------------- */
 
+// Create new admin object, you can set the next variable in your module
+// to print with or without header, default is with header
+// it is recommed to set the variable before including the /modules/admin.php
+    $admin_header = (!isset($admin_header)) ? true : $admin_header;
+    if(!class_exists('admin', false)){ include(WB_PATH.'/framework/class.admin.php'); }
+    $admin = new admin('Pages', 'pages_modify',(bool)$admin_header);
 // get request method
     $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
+    $aRequestVars  = (isset(${$requestMethod})) ? ${$requestMethod} : null;
 // Get page id (on error page_id == 0))
     $page_id = intval(isset(${$requestMethod}['page_id']) 
                       ? ${$requestMethod}['page_id'] 
                       : (isset($page_id) ? $page_id : 0)
                );
-    if( ($page_id == 0)) {
-        header("Location: index.php");
-        exit(0);
-    }
-// Get section id if there is one (on error section_id == 0)
+
     $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
     $section_id = intval(isset(${$requestMethod}['section_id']) 
                          ? ${$requestMethod}['section_id'] 
                          : (isset($section_id) ? $section_id : 0)
                   );
-    if( ($section_id == 0) && isset($section_required)) {
-        header("Location: $section_required");
-        exit(0);
-    }
+
+$module_dir = basename( dirname($_SERVER["SCRIPT_NAME"]) );
+
 // Create js back link
-// $js_back = 'javascript: history.go(-1);';
 $js_back = ADMIN_URL.'/pages/sections.php?page_id='.$page_id;
-// Create new admin object, you can set the next variable in your module
-// to print with or without header, default is with header
-// it is recommed to set the variable before including the /modules/admin.php
-$admin_header = (!isset($admin_header)) ? true : $admin_header;
-require_once(WB_PATH.'/framework/class.admin.php');
-$admin = new admin('Pages', 'pages_modify',(bool)$admin_header);
+
 // Get perms
 // unset($admin_header);
-
-$page = $admin->get_page_details($page_id,ADMIN_URL.'/pages/index.php' );
+if( !is_numeric( $page_id ) ) {
+        $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
+} elseif ($page_id > 0) {
+      $page = $admin->get_page_details($page_id, ADMIN_URL.'/pages/index.php' );
+} else {
+    $admin->print_error($MESSAGE['PAGES_INSUFFICIENT_PERMISSIONS'], ADMIN_URL );
+}
 
 $old_admin_groups = explode(',', str_replace('_', '', $page['admin_groups']));
 $old_admin_users = explode(',', str_replace('_', '', $page['admin_users']));
@@ -69,16 +70,18 @@ foreach($admin->get_groups_id() as $cur_gid){
 if((!$in_group) && !is_numeric(array_search($admin->get_user_id(), $old_admin_users))) {
     print $admin->get_group_id().$admin->get_user_id();
     // print_r ($old_admin_groups);
-    $admin->print_error($MESSAGE['PAGES']['INSUFFICIENT_PERMISSIONS']);
+    $admin->print_error($MESSAGE['PAGES_INSUFFICIENT_PERMISSIONS']  );
 }
 
 // some additional security checks:
 // Check whether the section_id belongs to the page_id at all
-if ($section_id != 0) {
-    $section = $admin->get_section_details($section_id,ADMIN_URL.'/pages/index.php');
+if( !is_numeric( $section_id ) ) {
+        $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
+    } elseif ($section_id > 0) {
+    $section = $admin->get_section_details($section_id, ADMIN_URL.'/pages/index.php');
     if (!$admin->get_permission($section['module'], 'module'))
     {
-        $admin->print_error($MESSAGE['PAGES']['INSUFFICIENT_PERMISSIONS']);
+        $admin->print_error($MESSAGE['PAGES_INSUFFICIENT_PERMISSIONS'], ADMIN_URL );
     }
 }
 
@@ -90,11 +93,10 @@ if(isset($print_info_banner) && $print_info_banner == true) {
     $user = $admin->get_user_details($page['modified_by']);
 
     // Convert the unix ts for modified_when to human a readable form
+    $modified_ts = 'Unknown';
     if($page['modified_when'] != 0) {
         $modified_ts = gmdate(TIME_FORMAT.', '.DATE_FORMAT, $page['modified_when']+TIMEZONE);
-    } else {
-        $modified_ts = 'Unknown';
-    }
+    } 
 
     // Setup template object, parse vars to it, then parse it
     // Create new template object
@@ -119,7 +121,7 @@ if(isset($print_info_banner) && $print_info_banner == true) {
                 'MODIFIED_BY' => $user['display_name'],
                 'MODIFIED_BY_USERNAME' => $user['username'],
                 'MODIFIED_WHEN' => $modified_ts,
-                'LAST_MODIFIED' => $MESSAGE['PAGES']['LAST_MODIFIED'],
+                'LAST_MODIFIED' => $MESSAGE['PAGES_LAST_MODIFIED'],
                 ));
 
     $template->set_block('main_block', 'show_modify_block', 'show_modify');
@@ -169,9 +171,9 @@ if(isset($print_info_banner) && $print_info_banner == true) {
     // unset($print_info_banner);
     unset($template);
 
-    if (SECTION_BLOCKS) {
+    if (SECTION_BLOCKS && isset($section) ) {
         if (isset($block[$section['block']]) && trim(strip_tags(($block[$section['block']]))) != '')
-                 {
+        {
             $block_name = htmlentities(strip_tags($block[$section['block']]));
         } else {
             if ($section['block'] == 1)
@@ -188,10 +190,10 @@ if(isset($print_info_banner) && $print_info_banner == true) {
                           . $section['module'].'<b>  ID: </b>'.$section_id.'</div>'.PHP_EOL;
         echo $sSectionInfoLine;
     }
-
+//print '<pre>';print_r( $aTokens = unserialize($_SESSION['TOKENS']) );print '</pre>';
 } //
 
 // Work-out if the developer wants us to update the timestamp for when the page was last modified
 if(isset($update_when_modified) && $update_when_modified == true) {
-    $database->query("UPDATE ".TABLE_PREFIX."pages SET modified_when = '".time()."', modified_by = '".$admin->get_user_id()."' WHERE page_id = '$page_id'");
+    $database->query("UPDATE `".TABLE_PREFIX."pages` SET `modified_when` = '".time()."', `modified_by` = '".$admin->get_user_id()."' WHERE `page_id` = '$page_id'");
 }

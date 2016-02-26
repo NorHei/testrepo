@@ -107,9 +107,9 @@ if( ($errMsg=='') && ($message != '')) {
     <button type="button" value="cancel" onClick="javascript: window.location = '<?php print $_SESSION['HTTP_REFERER'] ?>';"><?php print $TEXT['CANCEL'] ?></button>
 </div>
 <h1 style="text-align: center;"><?php echo $MENU['FORGOT']; ?></h1>
-<form name="forgot_pass" action="<?php echo WB_URL.'/account/forgot.php'; ?>" method="post">
+<form name="forgot_pass" action="<?php echo WB_URL.'/account/forgot.php'; ?>" method="post" class="account">
     <input type="hidden" name="url" value="{URL}" />
-        <table summary="" cellpadding="5" cellspacing="0" border="0" align="center" width="500">
+        <table >
         <tr>
             <td height="40" align="center" style="color: #<?php echo $message_color; ?>;" colspan="3">
             <strong><?php echo $message; ?></strong>

@@ -17,9 +17,8 @@
  */
 
 // Print admin header
-require('../../config.php');
-
-require_once(WB_PATH.'/framework/class.admin.php');
+require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 // Include the WB functions file
 require_once(WB_PATH.'/framework/functions.php');
 
@@ -46,7 +45,7 @@ $target = (isset(${$requestMethod}['target'])) ? ${$requestMethod}['target'] : '
 if (!$admin->checkFTAN())
 {
     $admin->print_header();
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS']);
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
 }
 // After check print the header
 $admin->print_header();
@@ -63,7 +62,8 @@ if(file_exists($directory)) {
     $admin->print_error($MESSAGE['MEDIA']['DIR_EXISTS']);
 }
 
-if ( sizeof(createFolderProtectFile( $directory )) )
+//if ( sizeof(createFolderProtectFile( $directory )) )
+if ( !make_dir( $directory ) )
 {
     $admin->print_error($MESSAGE['MEDIA']['DIR_NOT_MADE']);
 } else {

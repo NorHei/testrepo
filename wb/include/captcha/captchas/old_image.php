@@ -27,7 +27,7 @@ require_once("../../../config.php");
 require_once(WB_PATH.'/include/captcha/captcha.php');
 
 if(!isset($_SESSION['captcha_time']))
-	exit;
+    exit;
 //unset($_SESSION['captcha_time']);
 
 // Captcha
@@ -48,19 +48,19 @@ $darkgray = imagecolorallocate($image, 0x50, 0x50, 0x50);
 
 srand((double)microtime()*1000000);
 for($i = 0; $i < 30; $i++) {
-	$x1 = rand(0,$w);
-	$y1 = rand(0,$h);
-	$x2 = rand(0,$w);
-	$y2 = rand(0,$h);
-	imageline($image, $x1, $y1, $x2, $y2 , $gray);  
+    $x1 = rand(0,$w);
+    $y1 = rand(0,$h);
+    $x2 = rand(0,$w);
+    $y2 = rand(0,$h);
+    imageline($image, $x1, $y1, $x2, $y2 , $gray);  
 }
 
 $x = 0;
 for($i = 0; $i < 5; $i++) {
-	$fnt = rand(3,5);
-	$x = $x + rand(12 , 20);
-	$y = rand(7 , 12); 
-	imagestring($image, $fnt, $x, $y, substr($_SESSION['captcha'.$sec_id], $i, 1), $darkgray); 
+    $fnt = rand(3,5);
+    $x = $x + rand(12 , 20);
+    $y = rand(7 , 12); 
+    imagestring($image, $fnt, $x, $y, substr($_SESSION['captcha'.$sec_id], $i, 1), $darkgray); 
 }
 
 imagealphablending($reload, TRUE);

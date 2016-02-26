@@ -4,27 +4,23 @@
  * @category        modules
  * @package         news
  * @author          WebsiteBaker Project
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link			http://www.websitebaker2.org/
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
- * @platform        WebsiteBaker 2.8.x
- * @requirements    PHP 5.2.2 and higher
+ * @platform        WebsiteBaker 2.8.3
+ * @requirements    PHP 5.3.6 and higher
  * @version         $Id: add.php 1538 2011-12-10 15:06:15Z Luisehahne $
- * @filesource		$HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/add.php $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/add.php $
  * @lastmodified    $Date: 2011-12-10 16:06:15 +0100 (Sa, 10. Dez 2011) $
  *
  */
 
 // Must include code to stop this file being access directly
 /* -------------------------------------------------------- */
-if(defined('WB_PATH') == false)
-{
-	// Stop this file being access directly
-		die('<head><title>Access denied</title></head><body><h2 style="color:red;margin:3em auto;text-align:center;">Cannot access this file directly</h2></body></html>');
-}
+if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
 /* -------------------------------------------------------- */
 
-$header = '<table cellpadding=\"0\" cellspacing=\"0\" class=\"loop-header\">'."\n";
+$header = '<table class=\"loop-header\">'."\n";
 $post_loop = '<tr class=\"post-top\">
 <td class=\"post-title\"><a href=\"[LINK]\">[TITLE]</a></td>
 <td class=\"post-date\">[PUBLISHED_DATE], [PUBLISHED_TIME]</td>
@@ -36,14 +32,14 @@ $post_loop = '<tr class=\"post-top\">
 </td>
 </tr>';
 $footer = '</table>
-<table cellpadding="0" cellspacing="0" class="page-header" style="display: [DISPLAY_PREVIOUS_NEXT_LINKS]">
+<table  class="page-header" style="display: [DISPLAY_PREVIOUS_NEXT_LINKS]">
 <tr>
 <td class="page-left">[PREVIOUS_PAGE_LINK]</td>
 <td class="page-center">[OF]</td>
 <td class="page-right">[NEXT_PAGE_LINK]</td>
 </tr>
 </table>';
-$post_header = addslashes('<table cellpadding="0" cellspacing="0" class="post-header">
+$post_header = addslashes('<table  class="post-header">
 <tr>
 <td><h1>[TITLE]</h1></td>
 <td rowspan="3" style="display: [DISPLAY_IMAGE]">[GROUP_IMAGE]</td>

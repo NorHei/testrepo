@@ -14,7 +14,7 @@
  * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/framework/functions.php $
  * @lastmodified    $Date: 2012-02-07 23:48:27 +0100 (Di, 07. Feb 2012) $
  *
-*/
+ */
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
 if(!defined('WB_PATH')) {
@@ -640,6 +640,9 @@ if(!function_exists('page_link'))
 // Create a new directory and/or protected file in the given directory
 function createFolderProtectFile($sAbsDir='',$make_dir=true)
 {
+    return array();
+
+/*
     global $admin, $MESSAGE;
     $retVal = array();
     $wb_path = rtrim(str_replace('\/\\', '/', WB_PATH), '/');
@@ -677,8 +680,8 @@ function createFolderProtectFile($sAbsDir='',$make_dir=true)
             "\t".'header(\''.$sResponse.'\');'."\n".
             "\t".'header(\'Location: '.WB_URL.'/index.php\');'."\n".
             '// *************************************************'."\n";
-        $filename = $sAbsDir.'/index.php';
 
+        $filename = $sAbsDir.'/index.php';
         // write content into file
           if(is_writable($filename) || !file_exists($filename)) {
               if(file_put_contents($filename, $content)) {
@@ -692,10 +695,13 @@ function createFolderProtectFile($sAbsDir='',$make_dir=true)
            $retVal[] = $MESSAGE['GENERIC_BAD_PERMISSIONS'];
          }
          return $retVal;
+*/
 }
 
 function rebuildFolderProtectFile($dir='')
 {
+    return array();
+/*
     global $MESSAGE;
     $retVal = array();
     $dir = rtrim(str_replace('\/\\', '/', $dir), '/');
@@ -714,6 +720,7 @@ function rebuildFolderProtectFile($dir='')
         $retVal[] = $MESSAGE['MEDIA_DIR_ACCESS_DENIED'];
     }
     return $retVal;
+*/
 }
 
 // Create a new file in the pages directory
@@ -732,7 +739,7 @@ function create_access_file($filename,$page_id,$level)
             // can only be dirs
             if(!file_exists($acces_file)) {
                 if(!make_dir($acces_file)) {
-                    $admin->print_error($MESSAGE['PAGES']['CANNOT_CREATE_ACCESS_FILE_FOLDER']);
+                    $admin->print_error($MESSAGE['MEDIA_DIR_NOT_MADE']  );
                 }
             }
         }
@@ -891,6 +898,7 @@ function extract_permission($octal_value, $who, $action)
     if(($who == '') || ($action == '') || (preg_match( '/[^0-7]/', (string)$octal_value ))) {
         return false; // invalid argument, so return false
     }
+
     // convert $octal_value into a decimal-integer to be sure having a valid value
     $right_mask = octdec($octal_value);
     $action_mask = 0;
@@ -913,6 +921,8 @@ function extract_permission($octal_value, $who, $action)
         default:
             return false; // undefined action name, so return false
     }
+//print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.$who[0].'_'.$action[0].' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
+//print_r( $right_mask & $action_mask ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
     // shift action-mask into the right position
     switch($who[0]) { // get who from first char of $who
         case 'u':
@@ -1146,6 +1156,7 @@ function load_language($file)
         $language_author = get_variable_content('language_author', $data, false, false);
         $language_version = get_variable_content('language_version', $data, false, false);
         $language_platform = get_variable_content('language_platform', $data, false, false);
+        $language_description = get_variable_content('language_platform', $data, false, false);
 
         if(isset($language_name))
         {
@@ -1161,14 +1172,15 @@ function load_language($file)
                 $sql  = 'INSERT INTO `'.TABLE_PREFIX.'addons` SET ';
                 $sqlwhere = '';
             }
-            $sql .= '`directory`=\''.$language_code.'\', ';
-            $sql .= '`name`=\''.$language_name.'\', ';
-            $sql .= '`type`=\'language\', ';
-            $sql .= '`version`=\''.$language_version.'\', ';
-            $sql .= '`platform`=\''.$language_platform.'\', ';
-            $sql .= '`author`=\''.addslashes($language_author).'\', ';
-            $sql .= '`license`=\''.addslashes($language_license).'\' ';
-            $sql .= $sqlwhere;
+            $sql .= '`directory`=\''.$language_code.'\', '
+                  . '`name`=\''.$language_name.'\', '
+                  . '`type`=\'language\', '
+                  . '`version`=\''.$language_version.'\', '
+                  . '`platform`=\''.$language_platform.'\', '
+                  . '`author`=\''.addslashes($language_author).'\', '
+                  . '`description`=\'\', '
+                  . '`license`=\''.addslashes($language_license).'\' '
+                  . $sqlwhere;
             $retVal = $database->query($sql);
         }
     }

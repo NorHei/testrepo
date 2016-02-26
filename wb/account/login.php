@@ -45,7 +45,7 @@ define('VISIBILITY', 'public');
 // Set the page content include file
 define('PAGE_CONTENT', WB_PATH.'/account/login_form.php');
 
-require_once(WB_PATH.'/framework/class.login.php');
+require_once(WB_PATH.'/framework/class.Login.php');
 require_once(WB_PATH.'/framework/class.frontend.php');
 
 // Create new frontend object
@@ -64,7 +64,7 @@ $ThemeUrl  = WB_URL.$wb->correct_theme_source('warning.html');
 // Setup template object, parse vars to it, then parse it
 $ThemePath = realpath(WB_PATH.$wb->correct_theme_source('login.htt'));
 
-$thisApp = new login(
+$thisApp = new Login(
                 array(
                         "MAX_ATTEMPS" => "3",
                         "WARNING_URL" => $ThemeUrl."/warning.html",

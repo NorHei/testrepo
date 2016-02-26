@@ -45,14 +45,46 @@ function OutputFilterApi($mFilters, $sContent)
     foreach ($mFilters as $sFilterName) {
         if (!preg_match('/^[a-z][a-z0-9\-]*$/si', $sFilterName)) { continue; }
         $sFilterFile = __DIR__.'/filters/'.'filter'.$sFilterName.'.php';
+        $sFilterFunc = 'doFilter'.$sFilterName;
         if (is_readable($sFilterFile)) {
-            require_once($sFilterFile);
-            $sFilterFunc = 'doFilter'.$sFilterName;
-            if (function_exists($sFilterFunc)) {
-                $sContent = $sFilterFunc($sContent);
+            if (!function_exists($sFilterFunc)) {
+                require($sFilterFile);
             }
+            $sContent = $sFilterFunc($sContent);
         }
     }
     return $sContent;
 }
-
+/* ************************************************************************** */
+/**
+ * function to read the current filter settings
+ * @global object $database
+ * @global object $admin
+ * @param void
+ * @return array contains all settings
+ */
+    function getOutputFilterSettings() {
+        global $database;
+    // set default values
+        $settings = array(
+            'sys_rel'         => false,
+            'opf'             => false,
+            'email_filter'    => false,
+            'mailto_filter'   => false,
+            'at_replacement'  => '(at)',
+            'dot_replacement' => '(dot)'
+        );
+    // request settings from database
+        $sql = 'SELECT * FROM `'.TABLE_PREFIX.'mod_output_filter`';
+        if (($oRes = $database->query($sql))) {
+            while (($aRec = $oRes->fetchRow(MYSQLI_ASSOC))) {
+                $settings[$aRec['name']] = $aRec['value'];
+            }
+        }
+        $settings['OutputFilterMode'] = 0;
+        $settings['OutputFilterMode'] |= ($settings['email_filter'] * pow(2, 0));  // n | 2^0
+        $settings['OutputFilterMode'] |= ($settings['mailto_filter'] * pow(2, 1)); // n | 2^1
+    // return array with filter settings
+        return $settings;
+    }
+/* ************************************************************************** */

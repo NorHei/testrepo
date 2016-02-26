@@ -16,19 +16,19 @@
  -----------------------------------------------------------------------------------------
   DEUTSCHE SPRACHDATEI FUER DAS PREFERENCES MODUL
  -----------------------------------------------------------------------------------------
-	UPDATE HISTORY:
-	Werner von der Decken; 17.05.2008
-	 + erstes release der Deutschen Sprachdatei
+    UPDATE HISTORY:
+    Werner von der Decken; 17.05.2008
+     + erstes release der Deutschen Sprachdatei
  -----------------------------------------------------------------------------------------
 **/
 
 // Array fuer alle sprachabhaengigen Textausgaben im Front- und Backend
 // Hinweis: Verwende nachfolgende Namenskonvention für die Sprachausgabe des Moduls: $MOD_MODULE_DIRECTORY
 $MOD_PREFERENCE = array(
-	'PLEASE_SELECT' => 'bitte w&auml;hlen',
-	'DETAILS_SAVED'	=> 'allgemeine Einstellungen ge&auml;ndert',
-	'SAVE_SETTINGS' => 'Einstellungen speichern',
-	'SAVE_EMAIL' => 'Email speichern',
-	'SAVE_PASSWORD' => 'Passwort speichern',
+    'PLEASE_SELECT' => 'bitte w&auml;hlen',
+    'DETAILS_SAVED'    => 'allgemeine Einstellungen ge&auml;ndert',
+    'SAVE_SETTINGS' => 'Einstellungen speichern',
+    'SAVE_EMAIL' => 'Email speichern',
+    'SAVE_PASSWORD' => 'Passwort speichern',
 );
 ?>

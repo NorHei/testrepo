@@ -27,7 +27,7 @@ require_once("../../../config.php");
 require_once(WB_PATH.'/include/captcha/captcha.php');
 
 if(!isset($_SESSION['captcha_time']))
-	exit;
+    exit;
 //unset($_SESSION['captcha_time']);
 
 // Captcha
@@ -37,24 +37,24 @@ $_SESSION['captcha'.$sec_id] = '';
 mt_srand((double)microtime()*1000000);
 $n = mt_rand(1,3);
 switch ($n) {
-	case 1:
-		$x = mt_rand(1,9);
-		$y = mt_rand(1,9);
-		$_SESSION['captcha'.$sec_id] = $x + $y;
-		$cap = "$x+$y"; 
-		break; 
-	case 2:
-		$x = mt_rand(10,20);
-		$y = mt_rand(1,9);
-		$_SESSION['captcha'.$sec_id] = $x - $y; 
-		$cap = "$x-$y"; 
-		break;
-	case 3:
-		$x = mt_rand(2,10);
-		$y = mt_rand(2,5);
-		$_SESSION['captcha'.$sec_id] = $x * $y; 
-		$cap = "$x*$y"; 
-		break;
+    case 1:
+        $x = mt_rand(1,9);
+        $y = mt_rand(1,9);
+        $_SESSION['captcha'.$sec_id] = $x + $y;
+        $cap = "$x+$y"; 
+        break; 
+    case 2:
+        $x = mt_rand(10,20);
+        $y = mt_rand(1,9);
+        $_SESSION['captcha'.$sec_id] = $x - $y; 
+        $cap = "$x-$y"; 
+        break;
+    case 3:
+        $x = mt_rand(2,10);
+        $y = mt_rand(2,5);
+        $_SESSION['captcha'.$sec_id] = $x * $y; 
+        $cap = "$x*$y"; 
+        break;
 }
 
 // create reload-image
@@ -67,20 +67,20 @@ $gray = imagecolorallocate($image, 0xC0, 0xC0, 0xC0);
 $darkgray = imagecolorallocate($image, 0x30, 0x30, 0x30);
 
 for($i = 0; $i < 30; $i++) {
-	$x1 = mt_rand(0,120);
-	$y1 = mt_rand(0,30);
-	$x2 = mt_rand(0,120);
-	$y2 = mt_rand(0,30);
-	imageline($image, $x1, $y1, $x2, $y2 , $gray);  
+    $x1 = mt_rand(0,120);
+    $y1 = mt_rand(0,30);
+    $x2 = mt_rand(0,120);
+    $y2 = mt_rand(0,30);
+    imageline($image, $x1, $y1, $x2, $y2 , $gray);  
 }
 
 $x = 10;
 $l = strlen($cap);
 for($i = 0; $i < $l; $i++) {
-	$fnt = mt_rand(3,5);
-	$x = $x + mt_rand(12 , 20);
-	$y = mt_rand(7 , 12); 
-	imagestring($image, $fnt, $x, $y, substr($cap, $i, 1), $darkgray); 
+    $fnt = mt_rand(3,5);
+    $x = $x + mt_rand(12 , 20);
+    $y = mt_rand(7 , 12); 
+    imagestring($image, $fnt, $x, $y, substr($cap, $i, 1), $darkgray); 
 }
 
 imagealphablending($reload, TRUE);

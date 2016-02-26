@@ -27,6 +27,14 @@ require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $
 if (function_exists('ini_set')) {
     ini_set('arg_separator.output', '&amp;');
 }
+
+$addBracket = function ()
+{
+    $aList = func_get_args();
+//    return preg_replace('/^(.*)$/', '/\[$1\]/s', $aList);
+    return preg_replace('/^(.*)$/', '[$1]', $aList);
+};
+
 // Check if there is a start point defined
 $position = (isset($_GET['p']) ? intval($_GET['p']) : 0);
 // Get user's username, display name, email, and id - needed for insertion into post info
@@ -150,7 +158,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
         $setting_posts_per_page = '';
     }
 // Print header
-    $aPlaceHolders = makePhExp(
+    $aPlaceHolders = $addBracket(
         'DISPLAY_PREVIOUS_NEXT_LINKS',
         'NEXT_PAGE_LINK',
         'NEXT_LINK',
@@ -174,7 +182,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             $of
         );
     }
-    print (preg_replace($aPlaceHolders, $aReplacements, $setting_header));
+    print (str_replace($aPlaceHolders, $aReplacements, $setting_header));
     if ($num_posts > 0)
     {
         if ($query_extra != '') {
@@ -184,7 +192,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                  .'</div>'.PHP_EOL
             );
         }
-        $aPlaceHolders = makePhExp(
+        $aPlaceHolders = $addBracket(
             'PAGE_TITLE',
             'GROUP_ID',
             'GROUP_TITLE',
@@ -302,12 +310,12 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                         $aReplacements[] = $MOD_NEWS['TEXT_READ_MORE'];
                     }
                 }
-                print (preg_replace($aPlaceHolders, $aReplacements, $setting_post_loop));
+                print (str_replace($aPlaceHolders, $aReplacements, $setting_post_loop));
             }
         }
     }
     // Print footer
-    $aPlaceHolders = makePhExp(
+    $aPlaceHolders = $addBracket(
         'DISPLAY_PREVIOUS_NEXT_LINKS',
         'NEXT_PAGE_LINK',
         'NEXT_LINK',
@@ -331,7 +339,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             $of
         );
     }
-    print (preg_replace($aPlaceHolders, $aReplacements, $setting_footer));
+    print (str_replace($aPlaceHolders, $aReplacements, $setting_footer));
 
 } elseif(isset($post_id) && is_numeric($post_id)) {
     if (isset($post_section) && ($post_section == $section_id)) {
@@ -408,7 +416,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 $post_short     =$post['content_short'];
                 if ($group_image != "") $group_image= "<img src='".$group_image."' alt='".$group_title."' />";
 
-                $aPlaceHolders = makePhExp(
+                $aPlaceHolders = $addBracket(
                     'PAGE_TITLE',
                     'GROUP_ID',
                     'GROUP_TITLE',
@@ -463,9 +471,9 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                     $aReplacements[] = $users[$uid]['email'];
                 }
                 $post_long = ($post['content_long'] != '') ? $post['content_long'] : $post['content_short'];
-                print (preg_replace($aPlaceHolders, $aReplacements, $setting_post_header));
+                print (str_replace($aPlaceHolders, $aReplacements, $setting_post_header));
                 print $post_long;
-                print (preg_replace($aPlaceHolders, $aReplacements, $setting_post_footer));
+                print (str_replace($aPlaceHolders, $aReplacements, $setting_post_footer));
             }
         } else {
                 $wb->print_error($MESSAGE['FRONTEND_SORRY_NO_ACTIVE_SECTIONS'], 'view.php', false);
@@ -475,7 +483,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             OR $post['commenting'] == 'public'
         ) {
             // Print comments header
-            $aPlaceHolders = makePhExp(
+            $aPlaceHolders = $addBracket(
                 'ADD_COMMENT_URL',
                 'TEXT_COMMENTS'
             );
@@ -483,10 +491,10 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 WB_URL.'/modules/news/comment.php?post_id='.$post_id.'&amp;section_id='.$section_id,
                 $MOD_NEWS['TEXT_COMMENTS']
             );
-            print (preg_replace($aPlaceHolders, $aReplacements, $setting_comments_header));
+            print (str_replace($aPlaceHolders, $aReplacements, $setting_comments_header));
             // Query for comments
             $iNumberOfComments = 0;
-            $aPlaceHolders = makePhExp(
+            $aPlaceHolders = $addBracket(
                 'COMMENT',
                 'TITLE',
                 'TEXT_ON',
@@ -532,7 +540,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                         $aReplacements[] = strtolower($TEXT['UNKNOWN']);
                         $aReplacements[] = $TEXT['UNKNOWN'];
                     }
-                    print (preg_replace($aPlaceHolders, $aReplacements, $setting_comments_loop));
+                    print (str_replace($aPlaceHolders, $aReplacements, $setting_comments_loop));
                 }
             }
             if (! $iNumberOfComments) {
@@ -541,10 +549,10 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 $aReplacements = array(
                     $MOD_NEWS['NO_COMMENT_FOUND']
                 );
-                print (preg_replace($aPlaceHolders, $aReplacements, $setting_comments_loop));
+                print (str_replace($aPlaceHolders, $aReplacements, $setting_comments_loop));
             }
             // Print comments footer
-            $aPlaceHolders = makePhExp(
+            $aPlaceHolders = $addBracket(
                 'ADD_COMMENT_URL',
                 'TEXT_ADD_COMMENT',
                 'TEXT_COMMENTS'
@@ -554,7 +562,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 $MOD_NEWS['TEXT_ADD_COMMENT'],
                 $MOD_NEWS['TEXT_COMMENTS']
             );
-            print (preg_replace($aPlaceHolders, $aReplacements, $setting_comments_footer));
+            print (str_replace($aPlaceHolders, $aReplacements, $setting_comments_footer));
         }
         if (ENABLED_ASP) {
             $_SESSION['comes_from_view'] = $post_id;
@@ -562,3 +570,4 @@ if (!isset($post_id) || !is_numeric($post_id)) {
         }
     }
 }
+unset($addBracket);

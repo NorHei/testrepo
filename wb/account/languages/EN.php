@@ -16,19 +16,19 @@
  -----------------------------------------------------------------------------------------
   ENGLISH LANGUAGE FILE FOR THE PREFERENCES MODULE
  -----------------------------------------------------------------------------------------
-	UPDATE HISTORY:
-	Werner von der Decken; 17.05.2008
-	 + initial release of the English language file
+    UPDATE HISTORY:
+    Werner von der Decken; 17.05.2008
+     + initial release of the English language file
  -----------------------------------------------------------------------------------------
 **/
 // array for all language dependen text outputs in the front- and backend
 // Note: stick to the naming convention: $MOD_MODULE_DIRECTORY
 $MOD_PREFERENCE = array(
-	'PLEASE_SELECT' => 'please select',
-	'DETAILS_SAVED'	=> 'details successfully saved',
-	'SAVE_SETTINGS' => 'save details',
-	'SAVE_EMAIL'    => 'save email',
-	'SAVE_PASSWORD' => 'save password',
+    'PLEASE_SELECT' => 'please select',
+    'DETAILS_SAVED'    => 'details successfully saved',
+    'SAVE_SETTINGS' => 'save details',
+    'SAVE_EMAIL'    => 'save email',
+    'SAVE_PASSWORD' => 'save password',
 );
 
 ?>

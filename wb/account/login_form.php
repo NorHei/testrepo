@@ -21,18 +21,10 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
 
 $username_fieldname = 'username';
 $password_fieldname = 'password';
-
-if(defined('SMART_LOGIN') AND SMART_LOGIN == 'enabled') {
-    // Generate username field name
-    $username_fieldname = 'username_';
-    $password_fieldname = 'password_';
-
-    $temp = array_merge(range('a','z'), range(0,9));
-    shuffle($temp);
-    for($i=0;$i<=7;$i++) {
-        $username_fieldname .= $temp[$i];
-        $password_fieldname .= $temp[$i];
-    }
+if(defined('SMART_LOGIN') && SMART_LOGIN == 'true') {
+    $sTmp = '_'.substr(md5(microtime()), -8);
+    $username_fieldname .= $sTmp;
+    $password_fieldname .= $sTmp;
 }
 
 $thisApp->redirect_url = (isset($thisApp->redirect_url) && ($thisApp->redirect_url!='')  ? $thisApp->redirect_url : $_SESSION['HTTP_REFERER'] );
@@ -42,19 +34,18 @@ $thisApp->redirect_url = (isset($thisApp->redirect_url) && ($thisApp->redirect_u
 </div>
 <h1>&nbsp;Login</h1>
 &nbsp;<?php 
-  if(isset($thisApp->message)) {
-    echo $thisApp->message; 
-  }
+
+    echo $thisApp->getMessage(); 
 ?>
 <br />
 <br />
 
-<form class="login-box" action="<?php echo WB_URL.'/account/login.php'; ?>" method="post">
+<form class="login-box account" action="<?php echo WB_URL.'/account/login.php'; ?>" method="post">
 <input type="hidden" name="username_fieldname" value="<?php echo $username_fieldname; ?>" />
 <input type="hidden" name="password_fieldname" value="<?php echo $password_fieldname; ?>" />
 <input type="hidden" name="redirect" value="<?php echo $thisApp->redirect_url;?>" />
 
-<table cellpadding="5" cellspacing="0" border="0" width="90%">
+<table >
 <tr>
     <td style="width:100px"><?php echo $TEXT['USERNAME']; ?>:</td>
     <td class="value_input">

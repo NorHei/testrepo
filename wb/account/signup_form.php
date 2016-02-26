@@ -21,15 +21,46 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
 $sCallingScript = $_SERVER['SCRIPT_NAME'];
 $_SESSION['HTTP_REFERER'] =  isset($_SESSION['HTTP_REFERER']) ? $_SESSION['HTTP_REFERER'] : $sCallingScript;
 require_once(WB_PATH.'/include/captcha/captcha.php');
+echo '<style type="text/css">';
+include(WB_PATH .'/account/frontend.css');
+echo "\n</style>\n";
+    $error = array();
+    $success = array();
 
+if(isset($_POST['action']) && $_POST['action']=='send') {
+    require(dirname(__FILE__).'/signup2.php');
+} 
+if(sizeof($success)>0){
+//$_SESSION['display_form'] = false;
 ?>
+<p class="mod_preferences_success">
+<?php
+   foreach($success AS $value){ ?>
+    <?php echo nl2br($value); ?>
+<?php } ?>
+</p>
+<?php }
+
+if($_SESSION['display_form']){
+if(sizeof($error)>0){
+?>
+<p class="mod_preferences_error">
+<?php
+   foreach($error AS $value){ ?>
+    <?php echo nl2br($value); ?>
+<?php } ?>
+</p>
+<?php } ?>
+
+
 <div style="margin: 1em auto;">
     <button type="button" value="cancel" onClick="javascript: window.location = '<?php print $_SESSION['HTTP_REFERER'] ?>';"><?php print $TEXT['CANCEL'] ?></button>
 </div>
 <h1>&nbsp;<?php echo $TEXT['SIGNUP']; ?></h1>
 
-<form name="user" action="<?php echo WB_URL.'/account/signup.php'; ?>" method="post">
-    <?php echo $admin->getFTAN(); ?>
+<form name="user" action="#" method="post" class="account">
+    <?php echo $wb->getFTAN(); ?>
+    <input type="hidden" name="action" value="send" />
     <?php if(ENABLED_ASP) { // add some honeypot-fields
     ?>
     <div style="display:none;">
@@ -90,3 +121,4 @@ if(ENABLED_CAPTCHA) {
 
 <br />
 &nbsp; 
+<?php } ?>

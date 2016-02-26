@@ -17,6 +17,7 @@
  */
 
 require('../../config.php');
+
 require_once(WB_PATH.'/framework/class.admin.php');
 $admin = new admin('admintools', 'admintools');
 
@@ -37,9 +38,12 @@ $template->set_var('HEADING_ADMINISTRATION_TOOLS', $HEADING['ADMINISTRATION_TOOL
 
 // Insert tools into tool list
 $template->set_block('main_block', 'tool_list_block', 'tool_list');
-$results = $database->query("SELECT * FROM ".TABLE_PREFIX."addons WHERE type = 'module' AND function = 'tool' order by name");
+$sql = 'SELECT * FROM `'.TABLE_PREFIX.'addons` WHERE `type` = \'module\' AND `function` = \'tool\' order by `name`';
+$results = $database->query($sql);
+
 if($results->numRows() > 0) {
     while($tool = $results->fetchRow()) {
+      if( $admin->get_permission($tool['directory'], 'module' ) ) {
         $template->set_var('TOOL_NAME', $tool['name']);
         $template->set_var('TOOL_DIR', $tool['directory']);
         // check if a module description exists for the displayed backend language
@@ -51,6 +55,7 @@ if($results->numRows() > 0) {
         }        
         $template->set_var('TOOL_DESCRIPTION', ($tool_description === False)? $tool['description'] :$tool_description);
         $template->parse('tool_list', 'tool_list_block', true);
+      }
     }
 } else {
     $template->set_var('TOOL_LIST', $TEXT['NONE_FOUND']);    

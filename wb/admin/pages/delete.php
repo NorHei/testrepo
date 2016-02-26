@@ -28,7 +28,7 @@ require_once(WB_PATH.'/framework/functions.php');
 
 if( (!($page_id = $admin->checkIDKEY('page_id', 0, $_SERVER['REQUEST_METHOD']))) )
 {
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS']);
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
     exit();
 }
 

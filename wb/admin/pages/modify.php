@@ -18,37 +18,27 @@
 /*
 */
 // Create new admin object
-require('../../config.php');
-require_once(WB_PATH.'/framework/class.admin.php');
+require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 
 $admin = new admin('Pages', 'pages_modify');
-/*
-// Get page id
-if(!isset($_GET['page_id']) || !is_numeric($_GET['page_id'])) {
-    header("Location: index.php");
-    exit(0);
-} else {
-    $page_id = (int)$_GET['page_id'];
-}
-*/
 // Get page id
     $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
     $page_id = intval(isset(${$requestMethod}['page_id']) ? ${$requestMethod}['page_id'] : 0);
-    if(    ($page_id == 0)) {
-        header("Location: index.php");
-        exit(0);
+    if( ($page_id == 0) || !is_numeric($page_id) ) {
+        $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
     }
 
 /*
 if( (!($page_id = $admin->checkIDKEY('page_id', $page_id, $_SERVER['REQUEST_METHOD']))) )
 {
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS']);
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL );
 }
 */
 
 // Get perms
 if(!$admin->get_page_permission($page_id,'admin')) {
-    $admin->print_error($MESSAGE['PAGES']['INSUFFICIENT_PERMISSIONS']);
+    $admin->print_error($MESSAGE['PAGES']['INSUFFICIENT_PERMISSIONS'], ADMIN_URL );
 }
 
 $sectionId = isset($_GET['wysiwyg']) ? htmlspecialchars($admin->get_get('wysiwyg')) : NULL;
@@ -137,10 +127,6 @@ if (SECTION_BLOCKS)
          . 'WHERE `page_id`='.(int)$page_id;
     if (($sTemplate = $database->get_one($sql)) !== null) {
         $page_template = ($sTemplate == '') ? DEFAULT_TEMPLATE : $sTemplate;
-//    $result = $database->query($sql);
-//    if ($result && $result->numRows() == 1) {
-//        $row = $result->fetchRow();
-//        $page_template = ($row['template'] == '') ? DEFAULT_TEMPLATE : $row['template'];
         // include template info file if exists
         if (is_readable(WB_PATH.'/templates/'.$page_template.'/info.php')) {
             include_once(WB_PATH.'/templates/'.$page_template.'/info.php');
@@ -152,7 +138,7 @@ if (SECTION_BLOCKS)
 $module_permissions = $_SESSION['MODULE_PERMISSIONS'];
 // workout for edit only one section for faster pageloading
 // Constant later set in wb_settings, in meantime defined in framework/initialize.php
-$sql = 'SELECT `section_id`, `module`, `block` FROM `'.TABLE_PREFIX.'sections` ';
+$sql = 'SELECT * FROM `'.TABLE_PREFIX.'sections` ';
 $sql .= (defined('EDIT_ONE_SECTION') && EDIT_ONE_SECTION && is_numeric($sectionId))
         ? 'WHERE `section_id` = '.$sectionId
         : 'WHERE `page_id` = '.intval($page_id);
@@ -160,18 +146,22 @@ $sql .= ' ORDER BY position ASC';
 $query_sections = $database->query($sql);
 if($query_sections->numRows() > 0)
 {
-    while($section = $query_sections->fetchRow())
+    while($section = $query_sections->fetchRow(MYSQLI_ASSOC))
     {
+        $now = time();
+        $bSectionInactive = !(($now<=$section['publ_end'] || $section['publ_end']==0) && ($now>=$section['publ_start'] || $section['publ_start']==0));
         $section_id = $section['section_id'];
         $module = $section['module'];
-        
         //Have permission?
         if(!is_numeric(array_search($module, $module_permissions)))
         {
             // Include the modules editing script if it exists
             if(file_exists(WB_PATH.'/modules/'.$module.'/modify.php'))
             {
-                print /* '<a name="'.$section_id.'"></a>'. */"\n";
+//                print /* '<a name="'.$section_id.'"></a>'. */"\n";
+                $sSectionBlock = '<div class="block-outer">'."\n";
+// set container if SECTION_BLOCKS disabled
+                $sSectionInfoLine  = ($bSectionInactive ? '<div class="section-inactive">': '<div class="section-active">')."\n" ;
                 // output block name if blocks are enabled
                 if (SECTION_BLOCKS) {
                     if (isset($block[$section['block']]) && trim(strip_tags(($block[$section['block']]))) != '')
@@ -185,17 +175,20 @@ if($query_sections->numRows() > 0)
                             $block_name = '#' . (int) $section['block'];
                         }
                     }
-
                     $sec_anchor = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? 'id="'.SEC_ANCHOR.$section['section_id'].'"' : '');
-                    $sSectionInfoLine = '<div class="section-info" '.$sec_anchor.' ><b>'.$TEXT['BLOCK']
+                    $sSectionInfoLine .= '<div class="section-info" '.$sec_anchor.' ><b>'.$TEXT['BLOCK']
                                       . ': </b>'.$block_name.' ('.$section['block'].') <b> Modul: </b>'
                                       . $section['module'].'<b>  ID: </b>'.$section_id.'</div>'.PHP_EOL;
-                    echo $sSectionInfoLine;
-
-
                 }
-                
+                ob_start() ;
                 require(WB_PATH.'/modules/'.$module.'/modify.php');
+                $content = ob_get_clean() ;
+                if($content != '') {
+                     $sAfterContent = '</div>'."\n" ;
+                     $sBeforeContent = $sSectionBlock.$sSectionInfoLine;
+                     $content = $sBeforeContent.$sAfterContent.$content.$sAfterContent ;
+                     echo $content;
+                }
             }
         }
     }

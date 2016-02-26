@@ -29,6 +29,7 @@ if (version_compare(PHP_VERSION, '5.3.6', '<')) {
 function SanitizeHttpReferer($sWbUrl = WB_URL) {
     $sTmpReferer = '';
     if (isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '') {
+        define('ORG_REFERER', ($_SERVER['HTTP_REFERER'] ?: ''));
         $aRefUrl = parse_url($_SERVER['HTTP_REFERER']);
         if ($aRefUrl !== false) {
             $aRefUrl['host'] = isset($aRefUrl['host']) ? $aRefUrl['host'] : '';
@@ -47,6 +48,7 @@ function SanitizeHttpReferer($sWbUrl = WB_URL) {
             unset($aRefUrl);
         }
     }
+
     $_SERVER['HTTP_REFERER'] = $sTmpReferer;
 }
 /**
@@ -59,7 +61,8 @@ function SanitizeHttpReferer($sWbUrl = WB_URL) {
 function makePhExp($sList)
 {
     $aList = func_get_args();
-    return preg_replace('/^(.*)$/', '/\[$1\]/s', $aList);
+//    return preg_replace('/^(.*)$/', '/\[$1\]/s', $aList);
+    return preg_replace('/^(.*)$/', '[$1]', $aList);
 }
 
 if (!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', 'admin'); }
@@ -117,13 +120,15 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
         throw new RuntimeException('no settings found');
     }
     @define('DO_NOT_TRACK', (isset($_SERVER['HTTP_DNT'])));
+
+    if (!defined('DEBUG')){ define('DEBUG', false); };
     $string_file_mode = STRING_FILE_MODE;
     @define('OCTAL_FILE_MODE',(int) octdec($string_file_mode));
     $string_dir_mode = STRING_DIR_MODE;
     @define('OCTAL_DIR_MODE',(int) octdec($string_dir_mode));
-    $sSecMod = (defined('SECURE_FORM_MODULE') && SECURE_FORM_MODULE != '') ? '.'.SECURE_FORM_MODULE : '';
-    $sSecMod = WB_PATH.'/framework/SecureForm'.$sSecMod.'.php';
-    require_once($sSecMod);
+//    $sSecMod = (defined('SECURE_FORM_MODULE') && SECURE_FORM_MODULE != '') ? '.'.SECURE_FORM_MODULE : '';
+//    $sSecMod = WB_PATH.'/framework/SecureForm'.$sSecMod.'.php';
+//    require_once($sSecMod);
     if (!defined("WB_INSTALL_PROCESS")) {
     // get CAPTCHA and ASP settings
         $sql = 'SELECT * FROM `'.TABLE_PREFIX.'mod_captcha_control`';

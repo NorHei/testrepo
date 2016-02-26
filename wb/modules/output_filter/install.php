@@ -3,8 +3,8 @@
  *
  * @category        modules
  * @package         output_filter
- * @author          Christian Sommer, WB-Project, Werner v.d. Decken
  * @copyright       WebsiteBaker Org. e.V.
+ * @author          Manuela v.d.Decken <manuela@isteam.de>
  * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.3
@@ -16,22 +16,17 @@
  */
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
-require_once( dirname(dirname(dirname(__FILE__))).'/framework/globalExceptionHandler.php');
-if(!defined('WB_PATH')) { throw new IllegalFileException(); }
+if(!defined('WB_PATH')) { throw new RuntimeException('Illegal access'); }
 /* -------------------------------------------------------- */
 
-$table = TABLE_PREFIX .'mod_output_filter';
-$database->query("DROP TABLE IF EXISTS `$table`");
+    $sTable = TABLE_PREFIX .'mod_output_filter';
+    $database->query("DROP TABLE IF EXISTS `$sTable`");
 
-$database->query("CREATE TABLE IF NOT EXISTS `$table` (
-    `sys_rel` INT NOT NULL DEFAULT '0',
-    `email_filter` VARCHAR(1) NOT NULL DEFAULT '0',
-    `mailto_filter` VARCHAR(1) NOT NULL DEFAULT '0',
-    `at_replacement` VARCHAR(255) NOT NULL DEFAULT '(at)',
-    `dot_replacement` VARCHAR(255) NOT NULL DEFAULT '(dot)'
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"
-);
-
-// add default values to the module table
-$database->query("INSERT INTO ".TABLE_PREFIX
-    ."mod_output_filter (sys_rel,email_filter, mailto_filter, at_replacement, dot_replacement) VALUES ('0','1', '1', '(at)', '(dot)')");
+    $sql = 'DROP TABLE IF EXISTS `'.$sTable.'`';
+    $database->query($sql);
+    $sql = 'CREATE TABLE `'.$sTable.'` ('
+         . '`name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT \'\','
+         . '`value` text COLLATE utf8_unicode_ci NOT NULL, '
+         . 'PRIMARY KEY (`name`) '
+         . ') ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+    $database->query($sql);
