@@ -38,8 +38,9 @@ div.box { width :100%; margin :-10px 0 0 0; font-size :small; text-align :right;
 .container,
 .content,
 #content_container { min-width :80em; width :70%; }
-#admintools ul { padding :0; margin :0 auto; width :100%; }
-#admintools li { list-style-type :none; display :inline; float :left; width :47%; margin :0 10px 0 0; }
+#admintools { margin : auto 1.225em; }
+#admintools ul { padding :0;  width :100%; }
+#admintools li { list-style-type :none; display :inline; float :left; width :47%; margin :0 0.825em ; }
 .description { padding :4px 4px 0 4px; text-align :left; vertical-align :top; }
 .graphic { border :4px solid #fdfdfd; height :50px; padding-left :3px; width :50px; }
 .graphic img { background-color :#ffffff; border :1px solid #d0d0d0; padding :4px; vertical-align :middle; }

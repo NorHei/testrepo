@@ -403,7 +403,7 @@ class admin extends wb {
         {
             // check if displayed page contains a installed admin tool
             $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` ';
-            $sql .= 'WHERE `type`=\'module\' AND `function`=\'tool\' AND `directory`=\''.addslashes($_GET['tool']).'\'';
+            $sql .= 'WHERE `type`=\'module\' AND `function`=\'tool\' AND `directory`=\''.$database->escapeString($_GET['tool']).'\'';
             $result = $database->query($sql);
             if($result->numRows())
             {
@@ -420,9 +420,9 @@ class admin extends wb {
             // check if displayed page in the backend contains a page module
             if (isset($_GET['page_id']))
             {
-                $page_id = (int) addslashes($_GET['page_id']);
+                $page_id = (int) $database->escapeString($_GET['page_id']);
             } else {
-                $page_id = (int) addslashes($_POST['page_id']);
+                $page_id = (int) $database->escapeString($_POST['page_id']);
             }
             // gather information for all models embedded on actual page
             $sql = 'SELECT DISTINCT `module` FROM `'.TABLE_PREFIX.'sections` WHERE `page_id`='.(int)$page_id;
@@ -473,7 +473,7 @@ class admin extends wb {
         if(isset($_GET['tool'])) {
             // check if displayed page contains a installed admin tool
             $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` ';
-            $sql .= 'WHERE `type`=\'module\' AND `function`=\'tool\' AND `directory`=\''.addslashes($_GET['tool']).'\'';
+            $sql .= 'WHERE `type`=\'module\' AND `function`=\'tool\' AND `directory`=\''.$database->escapeString($_GET['tool']).'\'';
             $result = $database->query($sql);
             if($result->numRows()) {
                 // check if admin tool directory contains a backend.js or backend.css file to include

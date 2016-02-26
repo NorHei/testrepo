@@ -72,8 +72,8 @@ foreach ($post_check as $key) {
         case 'reload_modules':
             if ($handle = opendir(WB_PATH . '/modules')) {
                 // delete modules from database
-                $sql = "DELETE FROM `$table` WHERE `type` = 'module'";
-                $database->query($sql);
+//                $sql = "DELETE FROM `$table` WHERE `type` = 'module'";
+//                $database->query($sql);
                 // loop over all modules
                 while(false !== ($file = readdir($handle))) {
                     if ($file != '' && substr($file, 0, 1) != '.' && $file != 'admin.php' && $file != 'index.php') {
@@ -82,18 +82,18 @@ foreach ($post_check as $key) {
                 }
                 closedir($handle);
                 // add success message
-                $msg[] = $MESSAGE['ADDON']['MODULES_RELOADED'];
+                $msg[] = $MESSAGE['ADDON_MODULES_RELOADED'];
             } else {
                 // provide error message and stop
-                $admin->print_error($MESSAGE['ADDON']['ERROR_RELOAD'], $js_back);
+                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
             break;
             
         case 'reload_templates':
             if ($handle = opendir(WB_PATH . '/templates')) {
                 // delete templates from database
-                $sql = "DELETE FROM `$table` WHERE `type` = 'template'";
-                $database->query($sql);
+//                $sql = "DELETE FROM `$table` WHERE `type` = 'template'";
+//                $database->query($sql);
                 // loop over all templates
                 while(false !== ($file = readdir($handle))) {
                     if($file != '' AND substr($file, 0, 1) != '.' AND $file != 'index.php') {
@@ -102,19 +102,19 @@ foreach ($post_check as $key) {
                 }
                 closedir($handle);
                 // add success message
-                $msg[] = $MESSAGE['ADDON']['TEMPLATES_RELOADED'];
+                $msg[] = $MESSAGE['ADDON_TEMPLATES_RELOADED'];
             } else {
                 // provide error message and stop
                 $admin->print_header();
-                $admin->print_error($MESSAGE['ADDON']['ERROR_RELOAD'], $js_back);
+                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
             break;
         case 'reload_languages':
             if ($handle = opendir(WB_PATH . '/languages/')) {
                 $aDebug = array();
                 // delete languages from database
-                $sql = "DELETE FROM `$table` WHERE `type` = 'language'";
-                $database->query($sql);
+//                $sql = "DELETE FROM `$table` WHERE `type` = 'language'";
+//                $database->query($sql);
                 // loop over all languages
                 while(false !== ($file = readdir($handle))) {
                     if ($file != '' && substr($file, 0, 1) != '.' && $file != 'index.php') {
@@ -125,12 +125,12 @@ foreach ($post_check as $key) {
                 }
                 closedir($handle);
                 // add success message
-                $msg[] = $MESSAGE['ADDON']['LANGUAGES_RELOADED'];
+                $msg[] = $MESSAGE['ADDON_LANGUAGES_RELOADED'];
                 
             } else {
                 // provide error message and stop
                 $admin->print_header();
-                $admin->print_error($MESSAGE['ADDON']['ERROR_RELOAD'], $js_back);
+                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
             break;
     }
