@@ -14,7 +14,7 @@
     <!-- <img src="{THEME_URL}/images/logo.png" alt="Logo" /> -->
     {TEXT_LOGIN}
 </div> 
-<table class="container" style="margin-top: 30px;">
+<table class="container" style="margin-top: 30px; width: 100%;">
   <tr>
     <td class="content">
       <form name="login" class="login" action="{ACTION_URL}" method="post" >

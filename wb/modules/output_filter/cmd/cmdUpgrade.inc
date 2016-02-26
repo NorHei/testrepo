@@ -30,9 +30,7 @@ if(!defined('WB_PATH')) { throw new RuntimeException('Illegal access'); }
         '<div style="margin:1em auto;font-size:1.1em;">',
         '<h4>Step '.$i++.': Updating Output Filter Settings</h4>'
     );
-    $sInstallStruct = $oReg->AppPath.'modules/'.basename(__DIR__).'/install-struct.sql';
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-print_r( $sInstallStruct ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
+    $sInstallStruct = $sAddonPath.'/install-struct.sql';
     if ( !is_readable($sInstallStruct)) {
         $msg[] = '<strong>\'missing or not readable file [install-struct.sql]\'</strong> '.$FAIL.'<br />';
         $iErr = true;
