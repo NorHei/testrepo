@@ -220,8 +220,8 @@ foreach( $aZipFiles as $files ) {
           <div> 
               <span style="margin-left: 21%;"> </span>
               <span style="text-align: left; padding: 0.525em 0; display: inline-block; width: 63.5%;">
-                  <input name="zipFiles" type="file" accept=".zip">
-                  <button class="btn" name="command" value="import_droplets" type="submit"><?php echo $Droplet_Message['GENERIC_LOCAL_UPLOAD']; ?></button>
+                  <input name="zipFiles" type="file" accept=".zip" size="97">
+                  <button  class="btn command" name="command" value="import_droplets" type="submit"><?php echo $Droplet_Message['GENERIC_LOCAL_UPLOAD']; ?></button>
               </span>
           </div>
         </div>

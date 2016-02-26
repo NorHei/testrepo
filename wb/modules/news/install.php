@@ -18,8 +18,7 @@ if(defined('WB_PATH'))
 {
     // create tables from sql dump file
     if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->setSqlImportActionFile(__FILE__);
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, false );
+        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
 // Make news post access files dir
             require_once(WB_PATH.'/framework/functions.php');
             if(make_dir(WB_PATH.PAGES_DIRECTORY.'/posts')) {

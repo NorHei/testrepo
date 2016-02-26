@@ -18,7 +18,6 @@ if(defined('WB_PATH'))
 {
     // create tables from sql dump file
     if (is_readable( $sAddonPath.'/install-struct.sql')) {
-        $database->setSqlImportActionFile(__FILE__);
-        $database->SqlImport( $sAddonPath.'/install-struct.sql', TABLE_PREFIX, false );
+        $database->SqlImport( $sAddonPath.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
     }
 }

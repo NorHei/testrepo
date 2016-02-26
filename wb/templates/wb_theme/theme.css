@@ -181,3 +181,8 @@ button.status { cursor :pointer; border-radius :5px; -khtml-border-radius :5px; 
 .section-inactive { padding:1px 5px; background:#eee; border-radius: 5px 5px 0 0; margin-bottom:5px; }
 
 .content {background: rgba(0, 0, 0, 0) linear-gradient(#e0e0e0, #ffffff) no-repeat scroll 0 0 / 100% 60px}
+
+button[type="button"]:hover,
+input[type="reset"]:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover { cursor: pointer;}

@@ -23,7 +23,7 @@ if( !isset( $oReg ) && !class_exists('WbAdaptor')) {
     foreach ($aConsts['user'] as $sKey=>$sVal) {
         if (in_array($sKey, $oThis->aReservedVars)) { continue; }
     // skip possible existing database constants
-        if (preg_match('/^db_|^TABLE_PREFIX$/i', $sKey)) { continue; }
+        if (preg_match('/^db_/i', $sKey)) { continue; }
     // change all path items to trailing slash scheme and assign the new naming syntax
         switch($sKey):
             case 'DEBUG':

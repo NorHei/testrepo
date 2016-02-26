@@ -15,7 +15,7 @@ $_sSearch = preg_quote(WB_URL.'/modules/'.$module.'/frontend.css', '/');
 if(preg_match('/<link[^>]*?href\s*=\s*\"'.$_sSearch.'\".*?\/>/si', $wb_page_data)) {
 $_sFrontendCss = '';
 }else {
-$_sFrontendCss = '<link href="'.WB_URL.$_sFrontendCss.'" rel="stylesheet" type="text/css" media="screen" />';
+$_sFrontendCss = '<script LoadOnFly("head"'.WB_URL.$_sFrontendCss.')</script>';
 }
 } else { $_sFrontendCss = ''; }
 $section_id = $sid;

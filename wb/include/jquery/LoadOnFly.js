@@ -165,15 +165,14 @@ var showMessage = (function (txt, sel) {
  *
  */
 /********************************************************************************************************/
-var LoadOnFly = (function (nodeName, file) {
-  'use strict';
-  if (typeof file === 'undefined') {
-    return false;
-  }
- console.info(document.doctype);
-  if (!document.doctype) {
-    return false;
-  }
+var LoadOnFly = (function ( nodeName, file ) {
+    'use strict';
+    if( (typeof file === 'undefined') ) {
+      return false;
+    }
+    if ( !document.doctype ) {
+      return false;
+    }
   /*
   var nodeDoctype = document.implementation.createDocumentType(
    'html','',''
@@ -185,59 +184,60 @@ var LoadOnFly = (function (nodeName, file) {
 */
   //    var LoadOnFly  = function (nodeName, url) {
 
-  var jsRegex = /.js$/gi;
-  var cssRegex = /.css$/gi;
-  var scripts = {
-  };
+    var jsRegex = /.js$/gi;
+    var cssRegex = /.css$/gi;
+    var scripts = {
+    };
   // console.info(' 0.' + file );fileExtension = file.replace(/^.*\./, '');
-  var url = file;
-  var urlExt = trim(file.replace(/^.*\./, ''));
-  var NodeList = null;
-  var len = 0;
-  var node = null;
-  var str = 'undefined';
-  var done = false;
+    var url = file;
+    var urlExt = trim(file.replace(/^.*\./, ''));
+    var NodeList = null;
+    var len = 0;
+    var node = null;
+    var str = 'undefined';
+    var done = false;
   //console.info( urlExt + ' = 1.) ' + url);
-  if ((typeof url !== 'undefined') && (urlExt === 'js')) {
-//    console.info(urlExt + ' = 1.) ' + url);
-    scripts[url] = false;
-    switch (nodeName) {
-      case 'body':
-        NodeList = document.body.querySelectorAll('SCRIPT');
-        break;
-      default:
-        NodeList = document.head.querySelectorAll('SCRIPT');
-        break;
+    if ((typeof url !== 'undefined') && (urlExt === 'js')) {
+  //    console.info(urlExt + ' = 1.) ' + url);
+      scripts[url] = false;
+      switch (nodeName) {
+        case 'body':
+          NodeList = document.body.querySelectorAll('SCRIPT');
+          break;
+        default:
+          NodeList = document.head.querySelectorAll('SCRIPT');
+          break;
+      }
+      if (NodeList) {
+        len = NodeList.length - 1;
     }
-    if (NodeList) {
-      len = NodeList.length - 1;
-  }
   //console.info(NodeList);
   // console.info(' JS ' + url);
 
-  try {
-    var js = document.createElement('SCRIPT');
-    js.setAttribute('type', 'text/javascript'); // optional, if not a html5 node
-    js.setAttribute('src', url); // src setzen
-    js.setAttribute('charset', 'UTF-8');
-    //          js.setAttribute("async", true); // HTML5 Asyncron attribute
-    done = false;
-    if (nodeName == 'body') {
-      node = window.document.body.querySelectorAll('SCRIPT') [len];
-      node.parentNode.appendChild(js);
-      //              script.parentNode.insertBefore(js,script);
-    } else {
-      node = window.document.head.querySelectorAll('SCRIPT') [len];
-      node.parentNode.appendChild(js);
+    try {
+     var js = document.createElement('SCRIPT');
+      js.setAttribute('type', 'text/javascript'); // optional, if not a html5 node
+      js.setAttribute('src', url); // src setzen
+      js.setAttribute('charset', 'UTF-8');
+//      js.setAttribute("async", true); // HTML5 Asyncron attribute
+      done = false;
+      if (nodeName == 'body') {
+        node = window.document.body.querySelectorAll('SCRIPT') [len];
+        node.parentNode.appendChild( js );
+console.info( js );
+        //              script.parentNode.insertBefore(js,script);
+      } else {
+        node = window.document.head.querySelectorAll('SCRIPT') [len];
+        node.parentNode.appendChild( js );
+      }
+    } catch (e) {
+      var str = '<script type=\'text/javascript\' src=\'' + url + '\' charset="UTF-8"><' + '/script>';
+      document.write(str);
     }
-} catch (e) {
-  var str = '<script type=\'text/javascript\' src=\'' + url + '\' charset="UTF-8"><' + '/script>';
-  document.write(str);
-}
-}
-// load css only within head
-console.info(file);
+console.info( node );
+  }
 
+// load css only within head
 if ((typeof url !== 'undefined') && (urlExt === 'css')) {
 //console.info(urlExt + ' = 2.) ' + url);
 scripts[url] = false;

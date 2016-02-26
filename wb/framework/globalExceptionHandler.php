@@ -16,6 +16,28 @@
 /**
  * define several default exceptions directly to prevent from extra loading requests
  */
+    class AppException extends Exception{
+        public function __toString() {
+            $file = str_replace(dirname(dirname(__FILE__)), '', $this->getFile());
+            if(DEBUG) {
+                $trace = $this->getTrace();
+                $result = 'Exception: "'.$this->getMessage().'" @ ';
+                if($trace[0]['class'] != '') {
+                  $result .= $trace[0]['class'].'->';
+                }
+                $result .= $trace[0]['function'].'(); in'.$file.'<br />'."\n";
+                if(mysql_errno()) {
+                    $result .= mysql_errno().': '.mysql_error().'<br />'."\n";
+                }
+                $result .= '<pre>'."\n";
+                $result .= print_r($trace, true)."\n";
+                $result .= '</pre>'."\n";
+            }else {
+                $result = 'Exception: "'.$this->getMessage().'" >> Exception detected in: ['.$file.']<br />'."\n";
+            }
+            return $result;
+        }
+    }
 
 /**
  * define Exception to show error after accessing a forbidden file

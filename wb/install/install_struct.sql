@@ -108,10 +108,9 @@ CREATE TABLE IF NOT EXISTS `{TABLE_PREFIX}sections` (
 --
 DROP TABLE IF EXISTS `{TABLE_PREFIX}settings`;
 CREATE TABLE IF NOT EXISTS `{TABLE_PREFIX}settings` (
-  `setting_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255){FIELD_COLLATION} NOT NULL DEFAULT '',
   `value` text{FIELD_COLLATION} NOT NULL,
-  PRIMARY KEY (`setting_id`)
+  PRIMARY KEY (`name`)
 ){TABLE_ENGINE};
 -- --------------------------------------------------------
 --

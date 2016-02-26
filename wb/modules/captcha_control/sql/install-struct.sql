@@ -30,6 +30,6 @@ CREATE TABLE IF NOT EXISTS `{TABLE_PREFIX}mod_captcha_control` (
 -- Daten für Tabelle `{TABLE_PREFIX}mod_captcha_control`
 --
 INSERT INTO `{TABLE_PREFIX}mod_captcha_control`
-SET `captcha_type`='calc_text', `ct_text`='';
+SET `captcha_type`='calc_ttf_image', `ct_text`='';
 -- necessary fields only. all others will be set to their default values
 -- fields without an default MUST be set manualy in any case

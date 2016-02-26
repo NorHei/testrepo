@@ -232,10 +232,10 @@ if($res_settings = $database->query($sql)) {
         if(is_array($value)){ $value = $value['0']; }
         if ( !in_array($setting_name, $allow_tags_in_fields)) { $value = strip_tags($value); }
         if ( (!in_array($value, $disallow_in_fields) && (isset($_POST[$setting_name])) || $passed == true)) {
-            $value = trim($admin->add_slashes($value));
+            $value = trim($database->escapeString($value));
             $sql = 'UPDATE `'.TABLE_PREFIX.'settings` SET '
-                 . '`value`=\''.$database->escapeString($value).'\' '
-                 . 'WHERE  `name`=\''.$setting_name.'\'';
+                 . '`value`=\''.$value.'\' '
+                 . 'WHERE  `name`=\''.$database->escapeString($setting_name).'\'';
             if (!$database->query($sql)) {
                 $admin->print_error($database->get_error, $js_back );
                 break;

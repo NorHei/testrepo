@@ -107,25 +107,31 @@ if($results->numRows() > 0)
 // MD5 supplied password
 $md5_password = md5($password);
 
-// Inser the user into the database
-
-$sql  = 'INSERT INTO `'.TABLE_PREFIX.'users` SET '
-      . '`group_id` = '.$group_id.', '
-      . '`groups_id` = \''.$groups_id.'\', '
-      . '`active` = '.$active.', '
-      . '`username` = \''.$username.'\', '
-      . '`password` = \''.$md5_password.'\', '
-      . '`display_name` = \''.$display_name.'\', '
-      . '`home_folder` = \''.$home_folder.'\', '
-      . '`email` = \''.$email.'\', '
-      . '`timezone` = \''.$default_timezone.'\', '
-      . '`language` = \''.$default_language.'\''
-      .'';
+// Insert the user into the database
+$sql = // add the Admin user
+     'INSERT INTO `'.TABLE_PREFIX.'users` SET '
+    .    '`group_id`='.$group_id.', '
+    .    '`groups_id`=\''.$groups_id.'\', '
+    .    '`active`=\''.$active.'\', '
+    .    '`username`=\''.$username.'\', '
+    .    '`password`=\''.$md5_password.'\', '
+    .    '`remember_key`=\'\', '
+    .    '`last_reset`=0, '
+    .    '`display_name`=\''.$display_name.'\', '
+    .    '`email`=\''.$email.'\', '
+    .    '`timezone`=\''.$default_timezone.'\', '
+    .    '`date_format`=\'M d Y\', '
+    .    '`time_format`=\'g:i A\', '
+    .    '`language`=\''.$default_language.'\', '
+    .    '`home_folder`=\''.$home_folder.'\', '
+    .    '`login_when`=\''.time().'\', '
+    .    '`login_ip`=\'\' '
+    .    '';
 $database->query($sql);
 if($database->is_error()) {
     $admin->print_error($database->get_error());
 } else {
-    $admin->print_success($MESSAGE['USERS']['ADDED']);
+    $admin->print_success($MESSAGE['USERS_ADDED']);
 }
 
 // Print admin footer

@@ -16,7 +16,7 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_droplets`;
 CREATE TABLE IF NOT EXISTS `{TABLE_PREFIX}mod_droplets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(32){FIELD_COLLATION} NOT NULL,
+  `name` varchar(32){FIELD_COLLATION} NOT NULL DEFAULT '',
   `code` longtext{FIELD_COLLATION} NOT NULL,
   `description` text{FIELD_COLLATION} NOT NULL,
   `modified_when` int(11) NOT NULL DEFAULT '0',

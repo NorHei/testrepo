@@ -716,6 +716,7 @@ function create_access_file($filename,$page_id,$level)
     global $admin, $MESSAGE;
     // First make sure parent folder exists
     $parent_folders = explode('/',str_replace(WB_PATH.PAGES_DIRECTORY, '', dirname($filename)));
+
     $parents = '';
     foreach($parent_folders AS $parent_folder)
     {
@@ -1076,7 +1077,7 @@ function load_module($directory, $install = false)
             if($install == true) {
                 if(file_exists($directory.'/install.php')) {
                     require($directory.'/install.php');
-            $retVal[] = $msg;
+                        $retVal[] = isset($msg)?:'Info '.$module_name;
                 }
             }
         }

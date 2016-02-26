@@ -28,19 +28,21 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
     $rowset = $database->query($sql);
 // Validate values
     if($rowset->numRows() == 0) {
-        $error[] = $MESSAGE['PREFERENCES']['CURRENT_PASSWORD_INCORRECT'];
+        $error[] = $MESSAGE['PREFERENCES_CURRENT_PASSWORD_INCORRECT'];
     }else {
         if(!$wb->validate_email($email)) {
-            $error[] = $MESSAGE['USERS']['INVALID_EMAIL'];
+            $error[] = $MESSAGE['USERS_INVALID_EMAIL'];
         }else {
             $email = $wb->add_slashes($email);
 // Update the database
-            $sql = "UPDATE `".TABLE_PREFIX."users` SET `email` = '".$email."' WHERE `user_id` = ".$wb->get_user_id();
-            $database->query($sql);
+            $sql  = 'UPDATE `'.TABLE_PREFIX.'users` '
+                  . 'SET `email` = \''.$database->escapeString($email).'\' '
+                  . 'WHERE `user_id` = \''.$wb->get_user_id().'\'';
+             $database->query($sql);
             if($database->is_error()) {
                 $error[] = $database->get_error();
             } else {
-                $success[] = $MESSAGE['PREFERENCES']['EMAIL_UPDATED'];
+                $success[] = $MESSAGE['PREFERENCES_EMAIL_UPDATED'];
                 $_SESSION['EMAIL'] = $email;
             }
         }

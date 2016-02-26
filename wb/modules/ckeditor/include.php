@@ -165,7 +165,7 @@ if( !$bWbConfigSetting ) { $ckeditor->config['browserContextMenuOnCtrl'] = true;
  */
 $ckeditor->returnOutput = false;
 
-if( !$bWbConfigSetting ) { $ckeditor->config['entities'] = false; }
+if( !$bWbConfigSetting ) { $ckeditor->config['entities'] = true; }
 
 /**
  *    SCAYT

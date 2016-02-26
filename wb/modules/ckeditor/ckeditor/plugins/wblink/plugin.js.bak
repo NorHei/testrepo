@@ -1,9 +1,9 @@
 ﻿/**
  * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
-'use strict';
  */
 
+'use strict';
 
 ( function() {
     CKEDITOR.plugins.add( 'wblink', {
@@ -115,7 +115,7 @@
 
             // If the "menu" plugin is loaded, register the menu items.
             if ( editor.addMenuItems ) {
-                editor.addMenuItems( {
+                editor.addMenuItems({
                     anchor: {
                         label: editor.lang.wblink.anchor.menu,
                         command: 'anchor',

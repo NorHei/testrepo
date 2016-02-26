@@ -67,8 +67,8 @@ if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.bas
                 }
             }
         }
-
-        if( $oArchive->error_code != 0 )
+// 
+        if (($error = $oArchive->errorCode()) != 0 )
         {
             msgQueue::add( sizeof( $aUnzipDroplets ).' '. $Droplet_Import['ARCHIV_IMPORTED']);
         } else {

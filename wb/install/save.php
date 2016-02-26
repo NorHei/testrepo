@@ -238,11 +238,17 @@ if (!isset($_POST['website_title']) OR $_POST['website_title'] == '') {
 // End website title code
 
 // Begin admin user details code
+$sClientIp = '';
 // Get admin username
 if (!isset($_POST['admin_username']) OR $_POST['admin_username'] == '') {
     set_error('Please enter a username for the Administrator account','admin_username');
 } else {
     $admin_username = $_POST['admin_username'];
+    $sClientIp = (isset($_SERVER['REMOTE_ADDR']))
+                         ? $_SERVER['REMOTE_ADDR'] : '000.000.000.000';
+    $iClientIp = ip2long($sClientIp);
+    $sClientIp = long2ip(($iClientIp & ~65535));
+
 }
 // Get admin email and validate it
 if (!isset($_POST['admin_email']) OR $_POST['admin_email'] == '') {
@@ -275,21 +281,20 @@ $database_charset = 'utf8';
 // build name and content of the config file
 $config_filename = dirname(dirname(__FILE__)).'/config.php';
 $config_content 
-    = '<?php'.PHP_EOL
-    .  PHP_EOL
-    . 'define(\'DB_TYPE\', \'mysqli\');'.PHP_EOL
-    . 'define(\'DB_HOST\', \''.$database_host.'\');'.PHP_EOL
-    . (isset($database_port) ? 'define(\'DB_PORT\', \''.$database_port.'\');'.PHP_EOL : '')
-    . 'define(\'DB_NAME\', \''.$database_name.'\');'.PHP_EOL
-    . 'define(\'DB_USERNAME\', \''.$database_username.'\');'.PHP_EOL
-    . 'define(\'DB_PASSWORD\', \''.$database_password.'\');'.PHP_EOL
-    . 'define(\'DB_CHARSET\', \''.$database_charset.'\');'.PHP_EOL
-    . 'define(\'TABLE_PREFIX\', \''.$table_prefix.'\');'.PHP_EOL
-    . PHP_EOL
-    . 'define(\'WB_URL\', \''.$wb_url.'\');'.PHP_EOL
+    = '<?php'."\n"
+    .  "\n"
+    . 'define(\'DB_TYPE\', \'mysqli\');'."\n"
+    . 'define(\'DB_HOST\', \''.$database_host.'\');'."\n"
+    . (isset($database_port) ? 'define(\'DB_PORT\', \''.$database_port.'\');'."\n" : '')
+    . 'define(\'DB_NAME\', \''.$database_name.'\');'."\n"
+    . 'define(\'DB_USERNAME\', \''.$database_username.'\');'."\n"
+    . 'define(\'DB_PASSWORD\', \''.$database_password.'\');'."\n"
+    . 'define(\'DB_CHARSET\', \''.$database_charset.'\');'."\n"
+    . 'define(\'TABLE_PREFIX\', \''.$table_prefix.'\');'."\n"
+    . "\n"
+    . 'define(\'WB_URL\', \''.$wb_url.'\');'."\n"
     . 'define(\'ADMIN_DIRECTORY\', \'admin\');'
-    . '// no leading/trailing slash or backslash!! A simple directory name only!!'.PHP_EOL
-    ;
+    . '// no leading/trailing slash or backslash!! A simple directory name only!!'."\n";
 // Check if the file exists and is writable first.
 $sMsg = '';
 if (is_writable($config_filename)) {
@@ -306,9 +311,8 @@ if ($sMsg) { set_error($sMsg); } // if something gone wrong, break with message
 include_once($config_filename);
 // now we can complete the config file
 $config_content 
-    = PHP_EOL.'require_once(dirname(__FILE__).\'/framework/initialize.php\');'.PHP_EOL
-    . '// end of file -------------'.PHP_EOL
-    . PHP_EOL;
+    = "\n".'require_once(dirname(__FILE__).\'/framework/initialize.php\');'."\n"
+    . '// end of file -------------'."\n";
 // no errorhandling needed. 15 lines before we already wrote to this file successful!
 file_put_contents($config_filename, $config_content, FILE_APPEND);
 
@@ -339,7 +343,6 @@ Begin Create Database Tables
 *****************************/
 $sInstallDir = dirname(__FILE__);
 if (is_readable($sInstallDir.'/install_struct.sql')) {
-        $database->setSqlImportActionFile('install');
     if (! $database->SqlImport($sInstallDir.'/install_struct.sql', TABLE_PREFIX, false)) {
         set_error('unable to import \'install/install_struct.sql\'');
     }
@@ -347,8 +350,7 @@ if (is_readable($sInstallDir.'/install_struct.sql')) {
     set_error('unable to read file \'install/install_struct.sql\'');
 }
 if (is_readable($sInstallDir.'/install_data.sql')) {
-        $database->setSqlImportActionFile('upgrade');
-    if (! $database->SqlImport($sInstallDir.'/install_data.sql', TABLE_PREFIX)) {
+    if (! $database->SqlImport($sInstallDir.'/install_data.sql', TABLE_PREFIX, false )) {
         set_error('unable to import \'install/install_data.sql\'');
     }
 } else {
@@ -370,18 +372,26 @@ $sql = // add settings from install input
 if (! ($database->query($sql))) {
     set_error('unable to write \'install presets\' into table \'settings\'');
 }
+
 $sql = // add the Admin user
-     'INSERT INTO `'.TABLE_PREFIX.'users` '
-    .'SET `user_id`=1, '
+     'INSERT INTO `'.TABLE_PREFIX.'users` SET '
     .    '`group_id`=1, '
     .    '`groups_id`=\'1\', '
     .    '`active`=\'1\', '
     .    '`username`=\''.$admin_username.'\', '
-    .    '`language`=\''.$default_language.'\', '
     .    '`password`=\''.md5($admin_password).'\', '
+    .    '`remember_key`=\'\', '
+    .    '`last_reset`=0, '
+    .    '`display_name`=\'Administrator\', '
     .    '`email`=\''.$admin_email.'\', '
     .    '`timezone`=\''.$default_timezone.'\', '
-    .    '`display_name`=\'Administrator\'';
+    .    '`date_format`=\'M d Y\', '
+    .    '`time_format`=\'g:i A\', '
+    .    '`language`=\''.$default_language.'\', '
+    .    '`home_folder`=\'\', '
+    .    '`login_when`=\''.time().'\', '
+    .    '`login_ip`=\''.$sClientIp.'\' '
+    .    '';
 if (! ($database->query($sql))) {
     set_error('unable to write Administrator account into table \'users\'');
 }
@@ -464,7 +474,7 @@ $thisApp = new Login(
                 "WARNING_URL" => $ThemeUrl."/warning.html",
                 "USERNAME_FIELDNAME" => 'admin_username',
                 "PASSWORD_FIELDNAME" => 'admin_password',
-                "REMEMBER_ME_OPTION" => SMART_LOGIN,
+                "REMEMBER_ME_OPTION" => false,
                 "MIN_USERNAME_LEN" => "2",
                 "MIN_PASSWORD_LEN" => "3",
                 "MAX_USERNAME_LEN" => "30",

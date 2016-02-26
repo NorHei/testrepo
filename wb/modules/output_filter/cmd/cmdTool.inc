@@ -162,4 +162,6 @@ $debugMessage = '';
             $oTpl->parse('main', 'main_block', true);
             $oTpl->pparse('output', 'page');
     }
-
+//$aVars = $oTpl->get_vars();
+//print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
+//print_r( $aVars ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 

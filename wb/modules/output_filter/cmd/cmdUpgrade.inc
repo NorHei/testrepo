@@ -30,12 +30,12 @@ if(!defined('WB_PATH')) { throw new RuntimeException('Illegal access'); }
         '<div style="margin:1em auto;font-size:1.1em;">',
         '<h4>Step '.$i++.': Updating Output Filter Settings</h4>'
     );
-    $sInstallStruct = $sAddonPath.'/install-struct.sql';
+    $sInstallStruct = $oReg->AppPath.'install-struct.sql';
     if ( !is_readable($sInstallStruct)) {
         $msg[] = '<strong>\'missing or not readable file [install-struct.sql]\'</strong> '.$FAIL.'<br />';
         $iErr = true;
     } else {
-        $getDefaultSettings = (function() use ( $sAddonName ){
+        $getDefaultSettings = (function() use ( $database, $sAddonName ){
             $aDefaults = array(
                 'at_replacement'  => '@',
                 'dot_replacement' => '.',
@@ -53,7 +53,6 @@ if(!defined('WB_PATH')) { throw new RuntimeException('Illegal access'); }
         $aAllowedFilters = array_keys ( $aDefaults );
 
         // try to create table if not exists
-        $database->setSqlImportActionFile( __FILE__ );
         $database->SqlImport($sInstallStruct, TABLE_PREFIX, true );
         // check if table already upgraded
         if ($database->field_exists($sTable, 'sys_rel')) {

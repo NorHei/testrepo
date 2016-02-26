@@ -1,4 +1,3 @@
-<?php
 //:Puts a Login / Logout box on your page.
 //:Use: [[LoginBox?redirect=url]]
 //:Absolute or relative url possible
@@ -116,4 +115,4 @@ $return_value .= '</fieldset>'."\n";
 $return_value .= '</form>'."\n";
 }
 $return_value .= '</div>'."\n";
-return $return_value;
+return $return_value;

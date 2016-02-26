@@ -37,6 +37,5 @@ if(($sOldType = $database->getTableEngine($sTable))) {
         $msg[] = '<strong>\'missing or not readable file [install-struct.sql]\'</strong> '.$FAIL.'<br />';
         $iErr = true;
     } else {
-        $database->setSqlImportActionFile(__FILE__);
         $database->SqlImport($sInstallStruct, TABLE_PREFIX, true );
     }

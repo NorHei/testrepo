@@ -208,7 +208,7 @@
         <input type="reset" name="reset" value="{TEXT_RESET}" class="reset" />
     </td>
     <td class="setting_value_permissions" style="text-align: right;">
-        <button title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
+        <button type="button" title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
     </td>
 </tr>
 <tr>
@@ -297,7 +297,7 @@
         <input type="reset" name="reset" value="{TEXT_RESET}" class="reset" />
     </td>
     <td class="setting_value_permissions" style="text-align: right;">
-        <button title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
+        <button type="button" title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
     </td>
 </tr>
 <tr>
@@ -388,7 +388,7 @@
         <input type="reset" name="reset" value="{TEXT_RESET}" class="reset" />
     </td>
     <td class="setting_value_permissions" style="text-align: right;">
-        <button title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
+        <button type="button" title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
     </td>
 </tr>
 <tr>
@@ -668,7 +668,7 @@
         <input type="reset" name="reset" value="{TEXT_RESET}" class="reset" />
     </td>
     <td class="setting_value_permissions" style="text-align: right;">
-        <button title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
+        <button type="button" title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
     </td>
 </tr>
 </table>
@@ -677,7 +677,7 @@
 
 <hr size="1" />
 
-<button title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
+<button type="button" title="{MODE_SWITCH_WARNING}" onclick="window.location = '{ADVANCED_LINK}'; return false;" class="{DISPLAY_ADVANCED_BUTTON}">{ADVANCED_BUTTON}</button>
 <br />
 <font class="{DISPLAY_ADVANCED_BUTTON}">{MODE_SWITCH_WARNING}</font>
 <script src="{THEME_URL}/js/setting.js" type="text/javascript"></script>

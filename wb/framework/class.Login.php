@@ -67,6 +67,8 @@ class Login extends admin {
         if ($this->redirect_url!='') {
             $aRedirecthUrl = $this->mb_parse_url( $this->redirect_url );
             $this->redirect_url = isset($aRedirecthUrl['host']) &&($sServerUrl==$aRedirecthUrl['host']) ? $this->redirect_url:$sServerScheme.'://'.$sServerUrl;
+/*
+*/
             $this->url = $this->redirect_url;
         }
         $this->url = isset($aRedirecthUrl['host']) &&($sServerUrl==$aUrl['host']) ? $this->url:ADMIN_URL.'/start/index.php';

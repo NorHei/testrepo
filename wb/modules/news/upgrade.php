@@ -73,8 +73,8 @@ if(!function_exists('mod_news_Upgrade'))
         }
     // preset new fields `created_by` and `created_when` from existing values
         if($doImportDate) {
-            $sql  = 'UPDATE `'.TABLE_PREFIX.'mod_news_posts` ';
-            $sql .= 'SET `created_by`=`posted_by`, `created_when`=`posted_when`';
+            $sql  = 'UPDATE `'.TABLE_PREFIX.'mod_news_posts` '
+                  . 'SET `created_by`=`posted_by`, `created_when`=`posted_when`';
             $database->query($sql);
         }
 
@@ -119,7 +119,6 @@ if(!function_exists('mod_news_Upgrade'))
         $sql .= 'WHERE `published_when`=0 OR `published_when`>`posted_when`';
         $database->query($sql);
 // ************************************************
-
     // rebuild all access-files
         $count = 0;
         $backSteps = preg_replace('@^'.preg_quote(WB_PATH).'@', '', $sPostsPath);

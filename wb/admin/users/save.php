@@ -80,10 +80,10 @@ if($email != "")
 {
     if($admin->validate_email($email) == false)
     {
-        $admin->print_error($MESSAGE['USERS']['INVALID_EMAIL'], $js_back);
+        $admin->print_error($MESSAGE['USERS_INVALID_EMAIL'], $js_back);
     }
 } else { // e-mail must be present
-    $admin->print_error($MESSAGE['SIGNUP']['NO_EMAIL'], $js_back);
+    $admin->print_error($MESSAGE['SIGNUP_NO_EMAIL'], $js_back);
 }
 
 // Check if the email already exists
@@ -94,7 +94,7 @@ $sql  = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` '
 $results = $database->query($sql);
 if($results->numRows() > 0)
 {
-    if(isset($MESSAGE['USERS']['EMAIL_TAKEN']))
+    if(isset($MESSAGE['USERS_EMAIL_TAKEN']))
     {
         $admin->print_error($MESSAGE['USERS_EMAIL_TAKEN'], $js_back);
     } else {

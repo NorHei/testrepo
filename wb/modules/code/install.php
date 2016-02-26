@@ -19,7 +19,6 @@ if(defined('WB_PATH'))
 {
     // create tables from sql dump file
     if (is_readable(__DIR__.'/install-struct.sql')) {
-        $database->setSqlImportActionFile(__FILE__);
-        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, false );
+        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
     }
 }
