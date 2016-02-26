@@ -15,7 +15,6 @@
  * @lastmodified    $Date: 2011-08-11 16:59:01 +0200 (Do, 11. Aug 2011) $
  *
  */
-/* */
 
 // Create new admin object and print admin header
 require( dirname(dirname((__DIR__))).'/config.php' );
@@ -24,7 +23,6 @@ if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.p
 // suppress to print the header, so no new FTAN will be set
 $admin = new admin('Pages', 'pages_settings',false);
 
-$pagetree_url = ADMIN_URL.'/pages/index.php';
 // Get page id
 if(!isset($_POST['page_id']) || !is_numeric($_POST['page_id']))
 {
@@ -34,6 +32,8 @@ if(!isset($_POST['page_id']) || !is_numeric($_POST['page_id']))
     $page_id = (int)$_POST['page_id'];
 }
 $target_url = ADMIN_URL.'/pages/settings.php?page_id='.$page_id;
+$pagetree_url = ADMIN_URL.'/pages/index.php';
+$bBackLink = isset($_POST['pagetree']);
 
 /*
 if( (!($page_id = $admin->checkIDKEY('page_id', 0, $_SERVER['REQUEST_METHOD']))) )
@@ -300,12 +300,12 @@ fix_page_trail($page_id,$root_parent);
 
 /* END page "access file" code */
 
-//$pagetree_url = ADMIN_URL.'/pages/index.php';
-//$target_url = ADMIN_URL.'/pages/settings.php?page_id='.$page_id;
 // Check if there is a db error, otherwise say successful
 if($database->is_error())
 {
     $admin->print_error($database->get_error(), $target_url );
+} elseif ( $bBackLink ) {
+    $admin->print_success($MESSAGE['PAGES_SAVED_SETTINGS'], $pagetree_url );
 } else {
     $admin->print_success($MESSAGE['PAGES_SAVED_SETTINGS'], $target_url );
 }

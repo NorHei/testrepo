@@ -4,14 +4,14 @@
  * @category        module
  * @package         Form
  * @author          WebsiteBaker Project
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link            http://www.websitebaker2.org/
+ * @copyright       2009-2013, WebsiteBaker Org. e.V.
+ * @link            http://www.websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.x
  * @requirements    PHP 5.2.2 and higher
- * @version         $Id: save_field_new.php 1553 2011-12-31 15:03:03Z Luisehahne $
- * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/form/save_field_new.php $
- * @lastmodified    $Date: 2011-12-31 16:03:03 +0100 (Sa, 31. Dez 2011) $
+ * @version         $Id: save_field_new.php 2070 2014-01-03 01:21:42Z darkviper $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/branches/2.8.x/wb/modules/form/save_field_new.php $
+ * @lastmodified    $Date: 2014-01-03 02:21:42 +0100 (Fr, 03. Jan 2014) $
  * @description
  * http://devzone.zend.com/703/php-built-in-input-filtering/
  */
@@ -26,27 +26,27 @@ $update_when_modified = true;
 require(WB_PATH.'/modules/admin.php');
 /* */
 
-$sec_anchor = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? '#'.SEC_ANCHOR.$section['section_id'] : '' );
+$sSectionIdPrefix = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? SEC_ANCHOR : 'Sec' );
 
 // check FTAN
 if (!$admin->checkFTAN())
 {
     $admin->print_header();
-    $admin->print_error('::'.$MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+    $admin->print_error('::'.$MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 
 // Get id
 $field_id = intval($admin->checkIDKEY('field_id', false ));
 if (!$field_id) {
     $admin->print_header();
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'].'::', ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'].'::', ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 // After check print the header to get a new FTAN
 $admin->print_header();
 
 // Validate all fields
 if($admin->get_post('title') == '' OR $admin->get_post('type') == '') {
-    $admin->print_error($MESSAGE['GENERIC']['FILL_IN_ALL'], WB_URL.'/modules/form/modify_field.php?page_id='.$page_id.'&section_id='.$section_id.'&field_id='.$admin->getIDKEY($field_id));
+    $admin->print_error($MESSAGE['GENERIC_FILL_IN_ALL'], WB_URL.'/modules/form/modify_field.php?page_id='.$page_id.'&section_id='.$section_id.'&field_id='.$admin->getIDKEY($field_id));
 } else {
     $title = str_replace(array("[[", "]]"), '', htmlspecialchars($admin->get_post_escaped('title'), ENT_QUOTES));
     $type = $admin->add_slashes($admin->get_post('type'));
@@ -54,7 +54,7 @@ if($admin->get_post('title') == '' OR $admin->get_post('type') == '') {
 }
 
 // If field type has multiple options, get all values and implode them
-     $value = $extra = '';
+    $value = $extra = '';
     $list_count = $admin->get_post('list_count');
     if(is_numeric($list_count)) {
         $values = array();
@@ -81,7 +81,7 @@ if($admin->get_post('title') == '' OR $admin->get_post('type') == '') {
             $extra = $admin->add_slashes($extra);
             break;
         case 'select':
-            $extra = $admin->get_post_escaped('size').','.$admin->get_post_escaped('multiselect');
+            $extra = intval($admin->get_post_escaped('size')).','.$admin->get_post_escaped('multiselect');
             break;
         case 'checkbox':
             $extra = str_replace(array("[[", "]]"), '', $admin->get_post_escaped('seperator'));

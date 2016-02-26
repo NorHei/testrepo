@@ -56,99 +56,91 @@ $FAIL          = ' <span class="error">FAILED</span> ';
 $DEFAULT_THEME = 'wb_theme';
 $stepID = 0;
 $dirRemove = array(
-            '[MODULES]/SecureFormSwitcher/',
-            '[MODULES]/fckeditor/'
+            '[MODULES]SecureFormSwitcher/',
+            '[MODULES]fckeditor/'
 /*
-            '[TEMPLATE]/allcss/',
-            '[TEMPLATE]/blank/',
-            '[TEMPLATE]/round/',
-            '[TEMPLATE]/simple/',
+            '[TEMPLATE]allcss/',
+            '[TEMPLATE]blank/',
+            '[TEMPLATE]round/',
+            '[TEMPLATE]simple/',
 */
          );
 
 $filesRemove = array(
-            '[ADMIN]/preferences/details.php',
-            '[ADMIN]/preferences/email.php',
-            '[ADMIN]/preferences/password.php',
-            '[ADMIN]/settings/setting.js',
+            '[ROOT]SP5_UPGRADE_DE',
+            '[ROOT]SP5_UPGRADE_EN',
+            '[ADMIN]preferences/details.php',
+            '[ADMIN]preferences/email.php',
+            '[ADMIN]preferences/password.php',
+            '[ADMIN]settings/setting.js',
+            '[ADMIN]settings/array.php',
 
-            '[FRAMEWORK]/class.login.php',
-            '[FRAMEWORK]/SecureForm.mtab.php',
-            '[FRAMEWORK]/SecureForm.php',
+            '[FRAMEWORK]class.login.php',
+            '[FRAMEWORK]SecureForm.mtab.php',
+            '[FRAMEWORK]SecureForm.php',
+/*  */
 
-            '[ADMIN]/images/index.php',
-            '[ADMIN]/interface/index.php',
-            '[ADMIN]/themes/templates/index.php',
-            '[ACCOUNT]/index.php',
-            '[FRAMEWORK]/index.php',
-            '[INCLUDE]/index.php',
-            '[LANGUAGES]/index.php',
-            '[MEDIA]/index.php',
-            '[MODULES]/index.php',
-            '[MODULES]/captcha_control/index.php',
-            '[MODULES]/code/index.php',
-            '[MODULES]/form/index.php',
-            '[MODULES]/jsadmin/index.php',
-            '[MODULES]/menu_link/index.php',
-            '[MODULES]/news/index.php',
-            '[MODULES]/show_menu2/index.php',
-            '[MODULES]/wrapper/index.php',
-            '[MODULES]/wysiwyg/index.php',
-            '[PAGES]/index.php',
+            '[MODULES]droplets/add_droplet.php',
+            '[MODULES]droplets/backup_droplets.php',
+            '[MODULES]droplets/delete_droplet.php',
+            '[MODULES]droplets/modify_droplet.php',
+            '[MODULES]droplets/save_droplet.php',
+            '[MODULES]droplets/languages/DA.php',
 
-            '[TEMPLATE]/argos_theme/templates/access.htt',
-            '[TEMPLATE]/argos_theme/templates/addons.htt',
-            '[TEMPLATE]/argos_theme/templates/admintools.htt',
-            '[TEMPLATE]/argos_theme/templates/error.htt',
-            '[TEMPLATE]/argos_theme/templates/groups.htt',
-            '[TEMPLATE]/argos_theme/templates/groups_form.htt',
-            '[TEMPLATE]/argos_theme/templates/languages.htt',
-            '[TEMPLATE]/argos_theme/templates/languages_details.htt',
-            '[TEMPLATE]/argos_theme/templates/media.htt',
-            '[TEMPLATE]/argos_theme/templates/media_browse.htt',
-            '[TEMPLATE]/argos_theme/templates/media_rename.htt',
-            '[TEMPLATE]/argos_theme/templates/modules.htt',
-            '[TEMPLATE]/argos_theme/templates/modules_details.htt',
-            '[TEMPLATE]/argos_theme/templates/pages.htt',
-            '[TEMPLATE]/argos_theme/templates/pages_modify.htt',
-            '[TEMPLATE]/argos_theme/templates/pages_sections.htt',
-            '[TEMPLATE]/argos_theme/templates/pages_settings.htt',
-            '[TEMPLATE]/argos_theme/templates/preferences.htt',
-            '[TEMPLATE]/argos_theme/templates/setparameter.htt',
-            '[TEMPLATE]/argos_theme/templates/settings.htt',
-            '[TEMPLATE]/argos_theme/templates/start.htt',
-            '[TEMPLATE]/argos_theme/templates/success.htt',
-            '[TEMPLATE]/argos_theme/templates/templates.htt',
-            '[TEMPLATE]/argos_theme/templates/templates_details.htt',
-            '[TEMPLATE]/argos_theme/templates/users.htt',
-            '[TEMPLATE]/argos_theme/templates/users_form.htt',
 
-            '[TEMPLATE]/wb_theme/templates/access.htt',
-            '[TEMPLATE]/wb_theme/templates/addons.htt',
-            '[TEMPLATE]/wb_theme/templates/admintools.htt',
-            '[TEMPLATE]/wb_theme/templates/error.htt',
-            '[TEMPLATE]/wb_theme/templates/groups.htt',
-            '[TEMPLATE]/wb_theme/templates/groups_form.htt',
-            '[TEMPLATE]/wb_theme/templates/languages.htt',
-            '[TEMPLATE]/wb_theme/templates/languages_details.htt',
-            '[TEMPLATE]/wb_theme/templates/media.htt',
-            '[TEMPLATE]/wb_theme/templates/media_browse.htt',
-            '[TEMPLATE]/wb_theme/templates/media_rename.htt',
-            '[TEMPLATE]/wb_theme/templates/modules.htt',
-            '[TEMPLATE]/wb_theme/templates/modules_details.htt',
-            '[TEMPLATE]/wb_theme/templates/pages.htt',
-            '[TEMPLATE]/wb_theme/templates/pages_modify.htt',
-            '[TEMPLATE]/wb_theme/templates/pages_sections.htt',
-            '[TEMPLATE]/wb_theme/templates/pages_settings.htt',
-            '[TEMPLATE]/wb_theme/templates/preferences.htt',
-            '[TEMPLATE]/wb_theme/templates/setparameter.htt',
-            '[TEMPLATE]/wb_theme/templates/settings.htt',
-            '[TEMPLATE]/wb_theme/templates/start.htt',
-            '[TEMPLATE]/wb_theme/templates/success.htt',
-            '[TEMPLATE]/wb_theme/templates/templates.htt',
-            '[TEMPLATE]/wb_theme/templates/templates_details.htt',
-            '[TEMPLATE]/wb_theme/templates/users.htt',
-            '[TEMPLATE]/wb_theme/templates/users_form.htt',
+            '[TEMPLATE]argos_theme/templates/access.htt',
+            '[TEMPLATE]argos_theme/templates/addons.htt',
+            '[TEMPLATE]argos_theme/templates/admintools.htt',
+            '[TEMPLATE]argos_theme/templates/error.htt',
+            '[TEMPLATE]argos_theme/templates/groups.htt',
+            '[TEMPLATE]argos_theme/templates/groups_form.htt',
+            '[TEMPLATE]argos_theme/templates/languages.htt',
+            '[TEMPLATE]argos_theme/templates/languages_details.htt',
+            '[TEMPLATE]argos_theme/templates/media.htt',
+            '[TEMPLATE]argos_theme/templates/media_browse.htt',
+            '[TEMPLATE]argos_theme/templates/media_rename.htt',
+            '[TEMPLATE]argos_theme/templates/modules.htt',
+            '[TEMPLATE]argos_theme/templates/modules_details.htt',
+            '[TEMPLATE]argos_theme/templates/pages.htt',
+            '[TEMPLATE]argos_theme/templates/pages_modify.htt',
+            '[TEMPLATE]argos_theme/templates/pages_sections.htt',
+            '[TEMPLATE]argos_theme/templates/pages_settings.htt',
+            '[TEMPLATE]argos_theme/templates/preferences.htt',
+            '[TEMPLATE]argos_theme/templates/setparameter.htt',
+            '[TEMPLATE]argos_theme/templates/settings.htt',
+            '[TEMPLATE]argos_theme/templates/start.htt',
+            '[TEMPLATE]argos_theme/templates/success.htt',
+            '[TEMPLATE]argos_theme/templates/templates.htt',
+            '[TEMPLATE]argos_theme/templates/templates_details.htt',
+            '[TEMPLATE]argos_theme/templates/users.htt',
+            '[TEMPLATE]argos_theme/templates/users_form.htt',
+
+            '[TEMPLATE]wb_theme/templates/access.htt',
+            '[TEMPLATE]wb_theme/templates/addons.htt',
+            '[TEMPLATE]wb_theme/templates/admintools.htt',
+            '[TEMPLATE]wb_theme/templates/error.htt',
+            '[TEMPLATE]wb_theme/templates/groups.htt',
+            '[TEMPLATE]wb_theme/templates/groups_form.htt',
+            '[TEMPLATE]wb_theme/templates/languages.htt',
+            '[TEMPLATE]wb_theme/templates/languages_details.htt',
+            '[TEMPLATE]wb_theme/templates/media.htt',
+            '[TEMPLATE]wb_theme/templates/media_browse.htt',
+            '[TEMPLATE]wb_theme/templates/media_rename.htt',
+            '[TEMPLATE]wb_theme/templates/modules.htt',
+            '[TEMPLATE]wb_theme/templates/modules_details.htt',
+            '[TEMPLATE]wb_theme/templates/pages.htt',
+            '[TEMPLATE]wb_theme/templates/pages_modify.htt',
+            '[TEMPLATE]wb_theme/templates/pages_sections.htt',
+            '[TEMPLATE]wb_theme/templates/pages_settings.htt',
+            '[TEMPLATE]wb_theme/templates/preferences.htt',
+            '[TEMPLATE]wb_theme/templates/setparameter.htt',
+            '[TEMPLATE]wb_theme/templates/settings.htt',
+            '[TEMPLATE]wb_theme/templates/start.htt',
+            '[TEMPLATE]wb_theme/templates/success.htt',
+            '[TEMPLATE]wb_theme/templates/templates.htt',
+            '[TEMPLATE]wb_theme/templates/templates_details.htt',
+            '[TEMPLATE]wb_theme/templates/users.htt',
+            '[TEMPLATE]wb_theme/templates/users_form.htt',
          );
 
 // analyze/check database tables
@@ -358,14 +350,14 @@ if (!(isset($_POST['backup_confirmed']) && $_POST['backup_confirmed'] == 'confir
 function db_add_key_value($key, $value) {
     global $database; global $OK; global $FAIL;
     $table = TABLE_PREFIX.'settings';
-    $query = $database->query("SELECT value FROM $table WHERE name = '$key' LIMIT 1");
+    $query = $database->query("SELECT value FROM $table WHERE name = '$key' ");
     if($query->numRows() > 0) {
         echo "$key: already exists. $OK.<br />";
         return true;
     } else {
         $database->query("INSERT INTO $table (name,value) VALUES ('$key', '$value')");
         echo ($database->is_error() ? $database->get_error().'<br />' : '');
-        $query = $database->query("SELECT value FROM $table WHERE name = '$key' LIMIT 1");
+        $query = $database->query("SELECT value FROM $table WHERE name = '$key' ");
         if($query->numRows() > 0) {
             echo "$key: $OK.<br />";
             return true;
@@ -377,7 +369,7 @@ function db_add_key_value($key, $value) {
 }
 
 // function to add a new field into a table
-function db_add_field($field, $table, $desc) {
+function db_add_field($table, $field, $desc) {
     global $database; global $OK; global $FAIL;
     $table = TABLE_PREFIX.$table;
     $query = $database->query("DESCRIBE $table '$field'");
@@ -464,7 +456,7 @@ echo '<h2>Step '.(++$stepID).' : Adding/Updating database tables</h2>';
  */
 echo "<br />Adding sec_anchor to settings table<br />";
 $cfg = array(
-    'sec_anchor' => 'wb_'
+    'sec_anchor' => (defined('SEC_ANCHOR')?SEC_ANCHOR:'wb_')
 );
 foreach($cfg as $key=>$value) {
     db_add_key_value($key, $value);
@@ -475,7 +467,7 @@ foreach($cfg as $key=>$value) {
  */
 echo "<br />Adding redirect timer to settings table<br />";
 $cfg = array(
-    'redirect_timer' => '1500'
+    'redirect_timer' => (defined('REDIRECT_TIMER')?REDIRECT_TIMER:'1500')
 );
 foreach($cfg as $key=>$value) {
     db_add_key_value($key, $value);
@@ -486,17 +478,17 @@ foreach($cfg as $key=>$value) {
  */
 echo "<br />Updating rename_files_on_upload to settings table<br />";
 $cfg = array(
-    'rename_files_on_upload' => 'ph.*?,cgi,pl,pm,exe,com,bat,pif,cmd,src,asp,aspx,js'
+    'rename_files_on_upload' => (defined(RENAME_FILES_ON_UPLOAD)?RENAME_FILES_ON_UPLOAD:'ph.*?,cgi,pl,pm,exe,com,bat,pif,cmd,src,asp,aspx,js')
 );
-db_update_key_value('settings', 'rename_files_on_upload', $cfg['rename_files_on_upload']);
+db_add_key_value( 'rename_files_on_upload', $cfg['rename_files_on_upload']);
 
 /**********************************************************
  *  - Adding mediasettings to settings table
  */
 echo "<br />Adding mediasettings and debug to settings table<br />";
 $cfg = array(
-    'debug' => 'false',
-    'mediasettings' => '',
+    'debug' => (defined('DEBUG')?DEBUG:'false'),
+    'mediasettings' => (defined('MEDIASETTINGS') ?MEDIASETTINGS:''),
 );
 
 foreach($cfg as $key=>$value) {
@@ -514,10 +506,12 @@ echo "<br />Set wysiwyg_editor to ckeditor<br />";
  */
 echo "<br />Adding fingerprint_with_ip_octets to settings table<br />";
 $cfg = array(
-    'sec_token_fingerprint' => 'true',
-    'sec_token_netmask4' => '24',
-    'sec_token_netmask6' => '64',
-    'sec_token_life_time' => '7200'
+    'sec_token_fingerprint' => (defined('SEC_TOKEN_FINGERPRINT') ?SEC_TOKEN_FINGERPRINT:'true'),
+    'sec_token_netmask4'    => (defined('SEC_TOKEN_NETMASK4') ?SEC_TOKEN_NETMASK4:'24'),
+    'sec_token_netmask6'    => (defined('SEC_TOKEN_NETMASK6') ?SEC_TOKEN_NETMASK6:'64'),
+    'sec_token_life_time'   => (defined('SEC_TOKEN_LIFE_TIME') ?SEC_TOKEN_LIFE_TIME:'180'),
+    'wbmailer_smtp_port'    => (defined('WBMAILER_SMTP_PORT') ?WBMAILER_SMTP_PORT:'25'),
+    'wbmailer_smtp_secure'  => (defined('WBMAILER_SMTP_SECURE') ?WBMAILER_SMTP_SECURE:'TLS')
 );
 foreach($cfg as $key=>$value) {
     db_add_key_value($key, $value);
@@ -527,7 +521,7 @@ foreach($cfg as $key=>$value) {
  *  - Add field "redirect_type" to table "mod_menu_link"
  */
 echo "<br />Adding field redirect_type to mod_menu_link table<br />";
-db_add_field('redirect_type', 'mod_menu_link', "INT NOT NULL DEFAULT '302' AFTER `target_page_id`");
+db_add_field('mod_menu_link', 'redirect_type', "INT NOT NULL DEFAULT '301' AFTER `target_page_id`");
 
 /**********************************************************
  *  - Update search no results database filed to create
@@ -542,6 +536,18 @@ if (version_compare(WB_VERSION, '2.8', '<'))
     $sql .= 'WHERE `name`=\'no_results\'';
     echo ($database->query($sql)) ? ' $OK<br />' : ' $FAIL<br />';
 }
+/**********************************************************
+ * upgrade media folder index protect files
+ */
+    $dir = (WB_PATH.MEDIA_DIRECTORY);
+    echo '<h4>Upgrade '.MEDIA_DIRECTORY.'/ index.php protect files</h4><br />';
+    $array = rebuildFolderProtectFile($dir);
+    if( sizeof( $array ) ){
+        print '<br /><strong>Upgrade '.sizeof( $array ).'  protect files in '.MEDIA_DIRECTORY.'/</strong>'." $OK<br />";
+    } else {
+        print '<br /><strong>Upgrade '.MEDIA_DIRECTORY.'/ protect files</strong>'." $FAIL!<br />";
+        print implode ('<br />',$array);
+    }
 /* *****************************************************************************
  * - check for deprecated / never needed files
  */
@@ -549,6 +555,7 @@ if (version_compare(WB_VERSION, '2.8', '<'))
         echo '<h2>Step '.(++$stepID).': Remove deprecated and old files</h2>';
     }
     $searches = array(
+        '[ROOT]',
         '[ACCOUNT]',
         '[ADMIN]',
         '[INCLUDE]',
@@ -560,15 +567,16 @@ if (version_compare(WB_VERSION, '2.8', '<'))
         '[TEMPLATE]'
     );
     $replacements = array(
-        '/account',
-        '/'.substr(ADMIN_PATH, strlen(WB_PATH)+1),
-        '/include',
-        '/framework',
-        MEDIA_DIRECTORY,
-        '/modules',
-        PAGES_DIRECTORY,
-        '/temp',
-        '/templates'
+        '/',
+        '/account/',
+        '/'.substr(ADMIN_PATH, strlen(WB_PATH)+1).'/',
+        '/include/',
+        '/framework/',
+        MEDIA_DIRECTORY.'/',
+        '/modules/',
+        PAGES_DIRECTORY.'/',
+        '/temp/',
+        '/templates/'
     );
 
         $aMsg = array();
@@ -622,11 +630,11 @@ if (version_compare(WB_VERSION, '2.8', '<'))
             '[TEMPLATE]'
         );
         $replacements = array(
-            substr(ADMIN_PATH, strlen(WB_PATH)+1),
-            MEDIA_DIRECTORY,
-            '/modules',
-            PAGES_DIRECTORY,
-            '/templates',
+            '/'.substr(ADMIN_PATH, strlen(WB_PATH)+1).'/',
+            MEDIA_DIRECTORY.'/',
+            '/modules/',
+            PAGES_DIRECTORY.'/',
+            '/templates/',
         );
         $msg = '';
         foreach( $dirRemove as $dir ) {
@@ -637,6 +645,8 @@ if (version_compare(WB_VERSION, '2.8', '<'))
                 if(!rm_full_dir($dir)) {
                 // save in err-list, if failed
                     $msg .= $dir.'<br />';
+                } else {
+                        print '<strong>Remove  '.$dir.'</strong>'." $OK<br />";
                 }
             }
         }

@@ -15,9 +15,9 @@
  *
  */
 
-// Must include code to stop this file being access directly
 /* -------------------------------------------------------- */
-if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
+// Must include code to stop this file being accessed directly
+if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 
 $header = '<table class=\"loop-header\">'."\n";
@@ -45,7 +45,7 @@ $post_header = addslashes('<table  class="post-header">
 <td rowspan="3" style="display: [DISPLAY_IMAGE]">[GROUP_IMAGE]</td>
 </tr>
 <tr>
-<td class="public-info"><b>[TEXT_POSTED_BY] [DISPLAY_NAME] ([USERNAME]) [TEXT_ON] [PUBLISHED_DATE]</b></td>
+<td class="public-info"><b>[TEXT_POSTED_BY] [DISPLAY_NAME] [TEXT_ON] [PUBLISHED_DATE]</b></td>
 </tr>
 <tr style="display: [DISPLAY_GROUP]">
 <td class="group-page"><a href="[BACK]">[PAGE_TITLE]</a> &gt;&gt; <a href="[BACK]?g=[GROUP_ID]">[GROUP_TITLE]</a></td>
@@ -70,5 +70,21 @@ $comments_page = '<h1>[TEXT_COMMENT]</h1>
 <br />';
 $commenting = 'none';
 $use_captcha = true;
-
-$database->query("INSERT INTO ".TABLE_PREFIX."mod_news_settings (section_id,page_id,header,post_loop,footer,post_header,post_footer,comments_header,comments_loop,comments_footer,comments_page,commenting,use_captcha) VALUES ('$section_id','$page_id','$header','$post_loop','$footer','$post_header','$post_footer','$comments_header','$comments_loop','$comments_footer','$comments_page','$commenting','$use_captcha')");
+$sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_news_settings` SET '
+     . '`section_id`='.$section_id.', '
+     . '`page_id`='.$page_id.', '
+     . '`header`=\''.$header.'\', '
+     . '`post_loop`=\''.$post_loop.'\', '
+     . '`footer`=\''.$footer.'\', '
+     . '`posts_per_page`=5, '
+     . '`post_header`=\''.$post_header.'\', '
+     . '`post_footer`=\''.$post_footer.'\', '
+     . '`comments_header`=\''.$comments_header.'\', '
+     . '`comments_loop`=\''.$comments_loop.'\', '
+     . '`comments_footer`=\''.$comments_footer.'\', '
+     . '`comments_page`=\''.$comments_page.'\', '
+     . '`commenting`=\''.$commenting.'\', '
+     . '`resize`=0, '
+     . '`use_captcha`='.$use_captcha.' '
+     . ''.'';
+$database->query( $sql );

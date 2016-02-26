@@ -15,12 +15,9 @@
  *
  */
 
-// prevent this file from being accessed directly
 /* -------------------------------------------------------- */
-if(!defined('WB_PATH')) {
-    require_once (dirname(dirname(dirname(__FILE__))).'/framework/globalExceptionHandler.php');
-    throw new IllegalFileException();
-}
+// Must include code to stop this file being accessed directly
+if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 $module_directory   = 'captcha_control';
 $module_name        = 'Captcha and Spam-Protection (ASP) Control';

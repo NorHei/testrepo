@@ -88,7 +88,7 @@ select option.disabled { color :#aaaaaa; }
 .jsadmin_drag img { padding :3px 0; margin-top :1px; vertical-align :top; cursor :pointer; }
 .modify_link { padding-top :4px; display :inline; vertical-align :middle; }
 .header_list_page_id { width :30px; padding-right :15px; text-align :right; }
-.header_list_actions { width :150px; text-align :left; }
+.header_list_actions { width :175px; text-align :left; }
 .list_actions { width :20px; text-align :left; }
 .sections_list { padding-left :10px; font-weight :bold; }
 .header_list_block { width :180px; text-align :left; }

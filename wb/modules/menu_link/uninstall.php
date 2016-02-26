@@ -15,11 +15,11 @@
  *
  */
 
-/* -------------------------------------------------------- */
-// Must include code to stop this file being accessed directly
-if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
-/* -------------------------------------------------------- */
-
-$table = TABLE_PREFIX ."mod_menu_link";
-$database->query("DROP TABLE `$table`");
-
+if(defined('WB_PATH'))
+{
+    // delete tables from sql dump file
+    if (is_readable(__DIR__.'/install-struct.sql')) {
+        $database->setSqlImportActionFile(__FILE__);
+        $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, false );
+    }
+}

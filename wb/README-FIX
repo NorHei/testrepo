@@ -2,7 +2,7 @@
 ===
 === !!! ATTENTION:
 ===
-=== !!! This patch is for WB-2.8.3-SP1-SP4 only!!!
+=== !!! This patch is for WB-2.8.3-SP1-SP5 only!!!
 ===
 === !!! NEVER EVER use it in combination with other versions!!!
 ===
@@ -11,7 +11,7 @@ Step 1
 =
 === finished
 
-=== CHANGELOG WB283 SP5 r1643 including WB283 SP1 to SP4
+=== CHANGELOG WB283 SP6 r1645 including WB283 SP1 to SP5
 
 Add missing parameter in system permission (group management)
 Not possible to delete groups who are in use.

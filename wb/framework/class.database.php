@@ -41,6 +41,13 @@ class database {
     private $error      = '';
     private $error_type = '';
     private $message    = array();
+    private $sActionFile  = '';
+/** possible actions for doImport() */
+    protected $aActions     = array(
+        'uninstall',
+        'install',
+        'upgrade'
+    );
 
 
     // Set DB_URL
@@ -64,8 +71,6 @@ class database {
         if (!($this->db_handle = mysqli_connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, $port))) {
             $this->connected = false;
             $this->error = mysqli_connect_error();
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-print_r( $this->error ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
         } else {
             if ($this->sCharset) {
                 @mysqli_query($this->db_handle, 'SET NAMES '.$this->sCharset);
@@ -319,11 +324,17 @@ print_r( $this->error ); print '</pre>'; flush (); //  ob_flush();;sleep(10); di
         }
         return $retval;
     }
+
+    public function setSqlImportActionFile ( $sCallingScript ){
+       $this->sActionFile = $sCallingScript;
+    }
+
 /**
  * Import a standard *.sql dump file
  * @param string $sSqlDump link to the sql-dumpfile
  * @param string $sTablePrefix
  * @param bool $bPreserve set to true will ignore all DROP TABLE statements
+ * @param string $callingScript calling script will set the action
  * @param string $sTblEngine
  * @param string $sTblCollation
  * @return boolean true if import successful
@@ -331,24 +342,56 @@ print_r( $this->error ); print '</pre>'; flush (); //  ob_flush();;sleep(10); di
     public function SqlImport($sSqlDump,
                               $sTablePrefix = '',
                               $bPreserve = true,
-                              $sTblEngine = 'ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci',
-                              $sTblCollation = ' collate utf8_unicode_ci')
+                              $sTblEngine = 'MyISAM',
+                              $sTblCollation = 'utf8_unicode_ci'
+                              )
     {
+        $sql = '';
         $retval = true;
         $this->error = '';
-        $aSearch  = array('{TABLE_PREFIX}','{TABLE_ENGINE}', '{TABLE_COLLATION}');
-        $aReplace = array($sTablePrefix, $sTblEngine, $sTblCollation);
-        $sql = '';
-        $aSql = file($sSqlDump);
+
+        $sAction = $this->sActionFile;
+        $sAction = strtolower( // extract command from given argument
+            preg_replace(
+                '/^.*?('.implode('|', $this->aActions).')(\.[^\.]+)?$/is',
+                '$1',
+                $sAction
+            )
+        );
+        // return 'install' if no command found        $sAction = ($sAction == '' ? 'install' : $sAction);
+        $aTmp = preg_split('/_/', $sTblCollation, null, PREG_SPLIT_NO_EMPTY);
+        $sCharset = $aTmp[0];
+        $aSearch[] = '/\{TABLE_PREFIX\}/';                                        /* step 0 */
+        $aSearch[] = '/\{FIELD_CHARSET\}/';                                       /* step 1 */
+        $aSearch[] = '/\{FIELD_COLLATION\}/';                                     /* step 2 */
+        $aSearch[] = '/\{TABLE_ENGINE\}/';                                        /* step 3 */
+        $aSearch[] = '/\{TABLE_ENGINE=([a-zA-Z_0-9]*)\}/';                        /* step 4 */
+        $aSearch[] = '/\{CHARSET\}/';                                             /* step 5 */
+        $aSearch[] = '/\{COLLATION\}/';                                           /* step 6 */
+
+        $aReplace[] = $sTablePrefix;                                              /* step 0 */
+        $aReplace[] = ' CHARACTER SET {CHARSET}';                                 /* step 1 */
+        $aReplace[] = ' COLLATE {COLLATION}';                                     /* step 2 */
+        $aReplace[] = ' {TABLE_ENGINE='.$sTblEngine.'}';                          /* step 3 */
+        $aReplace[] = ' ENGINE=$1 DEFAULT CHARSET={CHARSET} COLLATE={COLLATION}'; /* step 4 */
+        $aReplace[] = $sCharset;                                                  /* step 5 */
+        $aReplace[] = $sTblCollation;                                             /* step 6 */
+
+        $aSql = file( $sSqlDump, FILE_SKIP_EMPTY_LINES );
+        $aSql[0] = preg_replace('/^[\xAA-\xFF]{3}/', '', $aSql[0]);
+        $aSql = preg_replace($aSearch, $aReplace, $aSql);
         while ( sizeof($aSql) > 0 ) {
             $sSqlLine = trim(array_shift($aSql));
             if (!preg_match('/^[-\/]+.*/', $sSqlLine)) {
                 $sql = $sql.' '.$sSqlLine;
                 if ((substr($sql,-1,1) == ';')) {
-                    $sql = trim(str_replace( $aSearch, $aReplace, $sql));
                     if (!($bPreserve && preg_match('/^\s*DROP TABLE IF EXISTS/siU', $sql))) {
-                        if(! $this->query($sql)) {
+                         if(! $this->query($sql)) {
                             $retval = false;
+                            unset($aSql);
+                            break;
+                        }
+                       if ( ($sAction == 'uninstall') && ( preg_match('/^\s*DROP\s*/si', $sql) ) ) {
                             unset($aSql);
                             break;
                         }
@@ -464,7 +507,7 @@ class DatabaseException extends Exception {}
         foreach( $key as $index=>$val)
         {
             $index = strtolower($index);
-            $sql = 'SELECT COUNT(`setting_id`) FROM `'.TABLE_PREFIX.$table.'` WHERE `name` = \''.$index.'\' ';
+            $sql = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.$table.'` WHERE `name` = \''.$index.'\' ';
             if($database->get_one($sql))
             {
                 $sql = 'UPDATE ';

@@ -23,16 +23,6 @@ if(isset($_GET['advanced']) && $_GET['advanced'] == 'yes') {
 } else {
     $admin = new admin('Settings', 'settings_basic');
 }
-/**
- * 
-$cfg = array(
-    'sec_token_fingerprint' => 'true',
-    'sec_token_netmask4' => '24',
-    'sec_token_netmask6' => '64',
-    'sec_token_life_time' => '1800'
-);
-    db_update_key_value(TABLE_PREFIX.'settings', $cfg );
- */
 
 
 // Include the WB functions file
@@ -59,6 +49,8 @@ $template->set_block('main_block', 'charset_list_block',          'charset_list'
 $template->set_block('main_block', 'error_reporting_list_block',  'error_reporting_list');
 $template->set_block('main_block', 'editor_list_block',           'editor_list');
 $template->set_block('main_block', 'page_level_limit_list_block', 'page_level_limit_list');
+$template->set_block('main_block', 'smtp_port_list_block',        'smtp_port_list');
+$template->set_block('main_block', 'smtp_secure_list_block',      'smtp_secure_list');
 
 $template->set_block('main_block', 'show_page_level_limit_block', 'show_page_level_limit');
 $template->set_block('main_block', 'show_checkbox_1_block',       'show_checkbox_1');
@@ -73,15 +65,18 @@ $template->set_block('main_block', 'show_redirect_timer_block',   'show_redirect
 
 // Query current settings in the db, then loop through them and print them
 $query = "SELECT * FROM `".TABLE_PREFIX."settings`";
-$results = $database->query($query);
-$aSetting = array();
-$settings = array();
-while($aSetting = $results->fetchRow(MYSQLI_ASSOC))
-{
-    $setting_name = $aSetting['name'];
-    $setting_value = ( $setting_name != 'wbmailer_smtp_password' ) ? htmlspecialchars($aSetting['value']) : $aSetting['value'];
-    $settings[$setting_name] = $setting_value;
-    $template->set_var(strtoupper($setting_name),$setting_value);
+if($results = $database->query($query)) {
+    $aSetting = array();
+    $settings = array();
+    while($aSetting = $results->fetchRow(MYSQLI_ASSOC))
+    {
+        $setting_name = $aSetting['name'];
+        $setting_value = ( $setting_name != 'wbmailer_smtp_password' ) ? htmlspecialchars($aSetting['value']) : $aSetting['value'];
+        $settings[$setting_name] = $setting_value;
+        $template->set_var(strtoupper($setting_name),$setting_value);
+    }
+} else {
+  
 }
 
 $SecureTokenLifeTime = $admin->getTokenLifeTime();
@@ -448,6 +443,27 @@ if($is_advanced)
         $template->set_var('SMTP_VISIBILITY', '');
         $template->set_var('SMTP_VISIBILITY_AUTH', '');
     }
+
+//$template->set_var('SMTP_AUTH_SELECTED',( (WBMAILER_SMTP_AUTH === true) ?' checked="checked"':'') );
+
+    $aSmtpPorts = array( '25', '465', '587', '2525');
+    foreach($aSmtpPorts as $sPort)
+    {
+        $template->set_var('VALUE', $sPort);
+        $template->set_var('PNAME', $sPort);
+        $template->set_var('SELECTED', ((WBMAILER_SMTP_PORT == $sPort) ? ' selected="selected"' : '') );
+        $template->parse('smtp_port_list', 'smtp_port_list_block', true);
+    }
+
+    $aSmtpSecure = array( 'TLS', 'SSL' );
+    foreach($aSmtpSecure as $sSecure)
+    {
+        $template->set_var('VALUE', $sSecure);
+        $template->set_var('SNAME', $sSecure);
+        $template->set_var('SELECTED', ((WBMAILER_SMTP_SECURE == $sSecure) ? ' selected="selected"' : '') );
+        $template->parse('smtp_secure_list', 'smtp_secure_list_block', true);
+    }
+
     // Work-out if intro feature is enabled
     if(INTRO_PAGE)
     {

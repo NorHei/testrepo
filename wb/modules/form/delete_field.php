@@ -9,10 +9,10 @@
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.3
  * @requirements    PHP 5.3.6 and higher
- * @version         $Id: delete_field.php 1553 2011-12-31 15:03:03Z Luisehahne $
- * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/form/delete_field.php $
- * @lastmodified    $Date: 2011-12-31 16:03:03 +0100 (Sa, 31. Dez 2011) $
- * @description     
+ * @version         $Id:  $
+ * @filesource      $HeadURL:  $
+ * @lastmodified    $Date:  $
+ * @description
  */
 
 require( dirname(dirname((__DIR__))).'/config.php' );
@@ -27,7 +27,7 @@ if (!$field_id) {
  $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
 }
 
-$sec_anchor = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? '#'.SEC_ANCHOR.$section['section_id'] : '' );
+$sSectionIdPrefix = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? SEC_ANCHOR : 'Sec' );
 
 // Delete row
 $database->query("DELETE FROM ".TABLE_PREFIX."mod_form_fields WHERE field_id = '$field_id'");
@@ -39,9 +39,9 @@ require(WB_PATH.'/framework/class.order.php');
 $order = new order(TABLE_PREFIX.'mod_form_fields', 'position', 'field_id', 'section_id');
 
 if(!$order->clean($section_id)) {
-    $admin->print_error($database->get_error(), ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+    $admin->print_error($database->get_error(), ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 } else {
-    $admin->print_success($TEXT['SUCCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+    $admin->print_success($TEXT['SUCCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 
 // Print admin footer

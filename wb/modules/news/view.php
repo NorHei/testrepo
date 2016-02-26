@@ -15,9 +15,9 @@
  *
  */
 
-// Must include code to stop this file being access directly
 /* -------------------------------------------------------- */
-if (! defined('WB_PATH')) { die('Cannot access this file directly'); }
+// Must include code to stop this file being accessed directly
+if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 global $post_id, $post_section, $TEXT, $MESSAGE, $MOD_NEWS;
 // load module language file
@@ -34,14 +34,17 @@ $addBracket = function ()
 //    return preg_replace('/^(.*)$/', '/\[$1\]/s', $aList);
     return preg_replace('/^(.*)$/', '[$1]', $aList);
 };
-
-// Check if there is a start point defined
+$modRel = str_replace(WB_PATH, '', __DIR__).'/';
+$ModuleRel = '/modules/'.basename(__DIR__).'/';
+$ModuleUrl = WB_URL.'/modules/'.basename(__DIR__).'/';
+$ModulePath = WB_PATH.'/modules/'.basename(__DIR__).'/';
+$sRecallAddress = WB_URL.PAGES_DIRECTORY.$GLOBALS['wb']->page['link'].PAGE_EXTENSION;
 $position = (isset($_GET['p']) ? intval($_GET['p']) : 0);
 // Get user's username, display name, email, and id - needed for insertion into post info
 $users = array();
 $sql = 'SELECT `user_id`,`username`,`display_name`,`email` FROM `'.TABLE_PREFIX.'users`';
 if (($resUsers = $database->query($sql))) {
-    while ($recUser = $resUsers->fetchRow()) {
+    while ($recUser = $resUsers->fetchRow( MYSQLI_ASSOC )) {
         $users[$recUser['user_id']] = $recUser;
     }
 }
@@ -58,7 +61,7 @@ $sql = 'SELECT `group_id`, `title`, `active` FROM `'.TABLE_PREFIX.'mod_news_grou
      . 'WHERE `section_id`='.(int)$section_id.' '
      . 'ORDER BY `position` ASC';
 if (($query_users = $database->query($sql))) {
-    while (($group = $query_users->fetchRow())) {
+    while (($group = $query_users->fetchRow( MYSQLI_ASSOC ))) {
         // Insert user info into users array
         $groups[$group['group_id']] = $group;
         $sImageUrl = MEDIA_DIRECTORY.'/.news/image'.$group['group_id'].'.jpg';
@@ -88,6 +91,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
     }
     // Get total number of posts relatet to now
     $t = time();
+/*
     $sql = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.'mod_news_posts` '
          . 'WHERE `section_id`='.(int)$section_id.' AND `active`=1 '
          .        'AND `title`!=\'\' '
@@ -95,9 +99,11 @@ if (!isset($post_id) || !is_numeric($post_id)) {
          .        'AND (`published_until`=0 OR `published_until`>='.$t.') '
          .        $query_extra;
     $total_num = intval($database->get_one($sql));
+*/
     // Work-out if we need to add limit code to sql
     if ($setting_posts_per_page != 0) {
         $limit_sql = ' LIMIT '.$position.', '.$setting_posts_per_page;
+        $limit_sql = '';
     } else {
         $limit_sql = '';
     }
@@ -110,8 +116,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
          .        'AND (`published_until`=0 OR `published_until`>='.$t.') '
          .        $query_extra
          . 'ORDER BY `position` DESC'.$limit_sql;
-    $query_posts = $database->query($sql);         
-    $num_posts = $query_posts->numRows();
+    $query_posts = $database->query($sql);
+    $total_num = $query_posts->numRows();
     // Create previous and next links
     if ($setting_posts_per_page != 0) {
         if ($position > 0) {
@@ -140,8 +146,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             $next_link = $nl_prepend.$TEXT['NEXT'].$nl_append;
             $next_page_link = $nl_prepend.$TEXT['NEXT_PAGE'].$nl_append;
         }
-        if ($position+$setting_posts_per_page > $total_num) {
-            $num_of = $position+$num_posts;
+        if ($position+$setting_posts_per_page > $total_num) {  // 
+            $num_of = $position+$total_num;
         } else {
             $num_of = $position+$setting_posts_per_page;
         }
@@ -151,12 +157,13 @@ if (!isset($post_id) || !is_numeric($post_id)) {
     } else {
         $display_previous_next_links = 'none';
     }
-    if ($num_posts === 0) {
+    if ( $total_num=== 0) { // $num_posts
         $setting_header = '';
         $setting_post_loop = '';
         $setting_footer = '';
         $setting_posts_per_page = '';
     }
+
 // Print header
     $aPlaceHolders = $addBracket(
         'DISPLAY_PREVIOUS_NEXT_LINKS',
@@ -183,7 +190,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
         );
     }
     print (str_replace($aPlaceHolders, $aReplacements, $setting_header));
-    if ($num_posts > 0)
+    if ($total_num > 0) // $num_posts
     {
         if ($query_extra != '') {
             echo ('<div class="selected-group-title">'
@@ -215,8 +222,10 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             'DISPLAY_NAME',
             'EMAIL'
         );
-        while (($post = $query_posts->fetchRow()))
+        $i=0;
+        while (($post = $query_posts->fetchRow( MYSQLI_ASSOC )))
         {
+            ++$i;
             if (
                 isset($groups[$post['group_id']]['active']) AND
                 $groups[$post['group_id']]['active'] != false
@@ -264,7 +273,11 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 // Replace [wblink--PAGE_ID--] with real link
                 $short = ($post['content_short']);
                 // Replace vars with values
-                $post_long_len = strlen($post['content_long']);
+//                $post_long_len = mb_strlen($post['content_long']);
+//                $bIsEmptyLongContent = (bool)( $post_long_len == 0);
+                $bIsEmptyLongContent = !(bool)mb_strlen(
+                    trim(preg_replace('/^\s*?<(p|div)>(.*)?<\/\s*?\1>$/si', '\2', $post['content_long']))
+                );
                 // set replacements for exchange
                 $aReplacements = array(
                     PAGE_TITLE,
@@ -282,8 +295,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                     $publ_date,
                     $publ_time
                 );
-                if (isset($users[$uid]['username']) AND $users[$uid]['username'] != '') {
-                    if ($post_long_len < 9) {
+                if (isset($users[$uid]['username']) && $users[$uid]['username'] != '') {
+                    if ($bIsEmptyLongContent) {
                         $aReplacements[] = '#" onclick="javascript:void(0);return false;" style="cursor:no-drop;';
                         $aReplacements[] = 'hidden';
                         $aReplacements[] = '';
@@ -301,7 +314,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                         $aReplacements[] = $users[$uid]['email'];
                     }
                 } else {
-                    if ($post_long_len < 9) {
+                    if ($bIsEmptyLongContent) {
                         $aReplacements[] = '#" onclick="javascript:void(0);return false;" style="cursor:no-drop;';
                         $aReplacements[] = 'hidden';
                     } else {
@@ -312,7 +325,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 }
                 print (str_replace($aPlaceHolders, $aReplacements, $setting_post_loop));
             }
-        }
+            if ( $setting_posts_per_page == $i ) { break; }
+        } // end while posts
     }
     // Print footer
     $aPlaceHolders = $addBracket(
@@ -350,7 +364,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
              . 'FROM `'.TABLE_PREFIX.'mod_news_settings` '
              . 'WHERE `section_id`='.(int)$section_id;
         if (($resSettings = $database->query($sql)) ) {
-            if (($recSettings = $resSettings->fetchRow())) {
+            if (($recSettings = $resSettings->fetchRow( MYSQLI_ASSOC ))) {
                 foreach ($recSettings as $key=>$val) {
                     ${'setting_'.$key} = $val;
                 }
@@ -361,7 +375,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
              . 'WHERE `page_id`='.PAGE_ID;
         $query_page = $database->query($sql);
         if ($query_page->numRows() > 0) {
-            $page = $query_page->fetchRow();
+            $page = $query_page->fetchRow( MYSQLI_ASSOC );
             $page_link = page_link($page['link']);
             if (isset($_GET['p']) AND $position > 0) {
                 $page_link .= '?p='.$_GET['p'];
@@ -375,7 +389,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 $page_link .= 'g='.$_GET['g'];
             }
         } else {
-            exit($MESSAGE['PAGES']['NOT_FOUND']);
+            exit($MESSAGE['PAGES_NOT_FOUND']);
         }
         // Get post info
         $t = time();
@@ -384,7 +398,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
              .        'AND (`published_when`=0 OR `published_when`<='.$t.') '
              .        'AND (`published_until`=0 OR `published_until`>='.$t.')';
         $query_post = $database->query($sql);
-        if ($post = $query_post->fetchRow()) {
+        if ($post = $query_post->fetchRow( MYSQLI_ASSOC )) {
             if (isset($groups[$post['group_id']]['active']) 
                 AND $groups[$post['group_id']]['active'] != false
             ) { // Make sure parent group is active
@@ -476,7 +490,24 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 print (str_replace($aPlaceHolders, $aReplacements, $setting_post_footer));
             }
         } else {
-                $wb->print_error($MESSAGE['FRONTEND_SORRY_NO_ACTIVE_SECTIONS'], 'view.php', false);
+                $aPlaceHolders = $addBracket(
+                    'BACK',
+                    'TEXT_BACK',
+                    'TEXT_LAST_CHANGED',
+                    'TEXT_AT',
+                    'MODI_DATE',
+                    'MODI_TIME'
+                );
+                $aReplacements = array(
+                    $page_link,
+                    $MOD_NEWS['TEXT_BACK'],
+                    $MESSAGE['FRONTEND_SORRY_NO_ACTIVE_SECTIONS'],
+                    '',
+                    ''
+                );
+                print (str_replace($aPlaceHolders, $aReplacements, $setting_post_footer));
+
+//                $wb->print_error($MESSAGE['FRONTEND_SORRY_NO_ACTIVE_SECTIONS'], $sRecallAddress, false);
         }
         // Show comments section if we have to
         if (($post['commenting'] == 'private' AND isset($wb) AND $wb->is_authenticated() == true)
@@ -511,8 +542,9 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                  . 'FROM `'.TABLE_PREFIX.'mod_news_comments` '
                  . 'WHERE `post_id`='.$post_id.' '
                  . 'ORDER BY `commented_when` ASC';
+
             if (($query_comments = $database->query($sql))) {
-                while (($comment = $query_comments->fetchRow())) {
+                while (($comment = $query_comments->fetchRow( MYSQLI_ASSOC ))) {
                     $iNumberOfComments++;
                     // Display Comments without slashes, but with new-line characters
                     $comment['comment'] = nl2br($wb->strip_slashes($comment['comment']));

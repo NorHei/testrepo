@@ -32,10 +32,10 @@
 //   $print_info_banner = true;
 // Include WB admin wrapper script
    require(WB_PATH.'/modules/admin.php');
-//  if(!$admin->checkFTAN()) {
-//    $admin->print_header();
-//    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id );
-//  }
+  if(!$admin->checkFTAN()) {
+    $admin->print_header();
+    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id );
+  }
 // After check print the header
 $admin->print_header();
 
@@ -54,7 +54,7 @@ $admin->print_header();
       $_realpath = str_replace('\\','/', $_realpath);
       $_fileValid = (strpos($_realpath, (str_replace('\\','/', WB_PATH))) !== false);
    }
-// check if all needed args are valid
+// check if all needed args are valid 
    if(!$page_id || !$section_id || !$_realpath || !$_fileValid) {
       die('Invalid arguments passed - script stopped.');
    }
@@ -68,24 +68,20 @@ $admin->print_header();
 // check if action is: save or edit
    if($_action == 'save') {
    // SAVE THE UPDATED CONTENTS TO THE CSS FILE
-      $sErrMsg = $MESSAGE['GENERIC_SECURITY_ACCESS'];
-      if($admin->checkFTAN()) {
-          $css_content = '';
-          if (isset($_POST['css_data']) && strlen($_POST['css_data']) > 0) {
-             $css_content = stripslashes($_POST['css_data']);
-          }
-          $modFileName = WB_PATH .'/modules/' .$mod_dir .'/' .$_edit_file;
-          if(($fileHandle = fopen($modFileName, 'wb'))) {
-             if(fwrite($fileHandle, $css_content)) {
-                fclose($fileHandle);
-                $admin->print_success($TEXT['SUCCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
-                exit;
-             }
-             fclose($fileHandle);
-          }
-          $sErrMsg = $TEXT['ERROR'];
+      $css_content = '';
+      if (isset($_POST['css_data']) && strlen($_POST['css_data']) > 0) {
+         $css_content = stripslashes($_POST['css_data']);
       }
-      $admin->print_error($sErrMsg, ADMIN_URL.'/pages/modify.php?page_id='.$page_id );
+      $modFileName = WB_PATH .'/modules/' .$mod_dir .'/' .$_edit_file;
+      if(($fileHandle = fopen($modFileName, 'wb'))) {
+         if(fwrite($fileHandle, $css_content)) {
+            fclose($fileHandle);
+            $admin->print_success($TEXT['SUCCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
+            exit;
+         }
+         fclose($fileHandle);
+      }
+      $admin->print_error($TEXT['ERROR'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id);
       exit;
    } else {
    // MODIFY CONTENTS OF THE CSS FILE VIA TEXT AREA
@@ -133,7 +129,7 @@ $admin->print_header();
            </tr>
            </table>
       </form>
-<?php
+<?php 
    }
 }
 // Print admin footer

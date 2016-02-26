@@ -52,9 +52,9 @@ echo '<?xml version="1.0" encoding="'.$charset.'"?>';
 ?> 
 <rss version="2.0">
     <channel>
-        <title><?php echo PAGE_TITLE; ?></title>
+        <title><![CDATA[<?php echo PAGE_TITLE; ?>]]></title>
         <link>http://<?php echo $_SERVER['SERVER_NAME']; ?></link>
-        <description> <?php echo PAGE_DESCRIPTION; ?></description>
+        <description><![CDATA[<?php echo PAGE_DESCRIPTION; ?>]]></description>
 <?php
 // Optional header info 
 ?>

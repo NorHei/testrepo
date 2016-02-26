@@ -16,13 +16,11 @@
  *
  */
 
-require("../config.php");
+require(dirname(__DIR__).'/config.php');
 
 if(isset($_COOKIE['REMEMBER_KEY'])) {
     setcookie('REMEMBER_KEY', '', time()-3600, '/');
 }
-
-$redirect = ((isset($_SESSION['HTTP_REFERER']) && $_SESSION['HTTP_REFERER'] != '') ?  $_SESSION['HTTP_REFERER'] : WB_URL.'/index.php');
 
 $_SESSION['USER_ID'] = null;
 $_SESSION['GROUP_ID'] = null;

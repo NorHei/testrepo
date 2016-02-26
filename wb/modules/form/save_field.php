@@ -3,19 +3,19 @@
  *
  * @category        module
  * @package         Form
- * @author          WebsiteBaker Project
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link            http://www.websitebaker2.org/
+ * @author          Ryan Djurovich, WebsiteBaker Project
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
- * @platform        WebsiteBaker 2.8.x
- * @requirements    PHP 5.2.2 and higher
- * @version         $Id: save_field.php 1553 2011-12-31 15:03:03Z Luisehahne $
- * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/form/save_field.php $
- * @lastmodified    $Date: 2011-12-31 16:03:03 +0100 (Sa, 31. Dez 2011) $
- * @description     
+ * @platform        WebsiteBaker 2.8.3
+ * @requirements    PHP 5.3.6 and higher
+ * @version         $Id: save_field.php 1919 2013-06-07 04:21:49Z Luisehahne $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/branches/2.8.x/wb/modules/form/save_field.php $
+ * @lastmodified    $Date: 2013-06-07 06:21:49 +0200 (Fr, 07. Jun 2013) $
+ * @description
  */
 
-require('../../config.php');
+require( dirname(dirname((__DIR__))).'/config.php' );
 
 // suppress to print the header, so no new FTAN will be set
 $admin_header = false;
@@ -25,19 +25,19 @@ $update_when_modified = true;
 require(WB_PATH.'/modules/admin.php');
 /* */
 
-$sec_anchor = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? '#'.SEC_ANCHOR.$section['section_id'] : '' );
+$sSectionIdPrefix = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? SEC_ANCHOR : 'Sec' );
 
 // check FTAN
 if (!$admin->checkFTAN())
 {
     $admin->print_header();
-    $admin->print_error('::'.$MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+    $admin->print_error('::'.$MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 
 // Get id
 $field_id = intval($admin->checkIDKEY('field_id', false ));
 if (!$field_id) {
- $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'].'::', ADMIN_URL.'/pages/modify.php?page_id='.$page_id.$sec_anchor);
+ $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'].'::', ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 // After check print the header to get a new FTAN
 $admin->print_header();
@@ -103,7 +103,7 @@ if($admin->get_post('type') == 'textfield') {
     $extra = $admin->add_slashes($extra);
     $database->query("UPDATE ".TABLE_PREFIX."mod_form_fields SET value = '', extra = '$extra' WHERE field_id = '$field_id'");
 } elseif($admin->get_post('type') == 'select') {
-    $extra = $admin->get_post_escaped('size').','.$admin->get_post_escaped('multiselect');
+    $extra = intval($admin->get_post_escaped('size')).','.$admin->get_post_escaped('multiselect');
     $database->query("UPDATE ".TABLE_PREFIX."mod_form_fields SET value = '$value', extra = '$extra' WHERE field_id = '$field_id'");
 } elseif($admin->get_post('type') == 'checkbox') {
     $extra = str_replace(array("[[", "]]"), '', $admin->get_post_escaped('seperator'));

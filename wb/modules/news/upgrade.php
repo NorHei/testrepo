@@ -1,24 +1,23 @@
 <?php
 /**
  *
- * @category        WebsiteBaker
- * @package         modules
- * @subpackage      news
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link            http://www.websitebaker2.org/
+ * @category        modules
+ * @package         news
+ * @author          WebsiteBaker Project
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://www.websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
- * @platform        WebsiteBaker 2.8.x
- * @requirements    PHP 5.2.2 and higher
+ * @platform        WebsiteBaker 2.8.3
+ * @requirements    PHP 5.3.6 and higher
  * @version         $Id: upgrade.php 1593 2012-02-01 22:29:36Z Luisehahne $
- * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/upgrade.php $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/upgrade.php $
  * @lastmodified    $Date: 2012-02-01 23:29:36 +0100 (Mi, 01. Feb 2012) $
  *
  */
 
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
-require_once( dirname(dirname(dirname(__FILE__))).'/framework/globalExceptionHandler.php');
-if(!defined('WB_PATH')) { throw new IllegalFileException(); }
+if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 /* **** START UPGRADE ******************************************************* */
 if(!function_exists('mod_news_Upgrade'))

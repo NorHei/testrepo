@@ -67,35 +67,38 @@ require_once(WB_PATH . '/languages/' . LANGUAGE .'.php');
 
 // create Admin object with admin header
 $admin = new admin('Addons', '', true, false);
+$aAction = array( 'uninstall', 'install', 'upgrade' );
 
 /**
  * Manually execute the specified module file (install.php, upgrade.php or uninstall.php)
  */
+$sModName = ($_POST['file']);
 // check if specified module folder exists
-$mod_path = WB_PATH . '/modules/' . basename(WB_PATH . '/' . $_POST['file']);
+$sModAbsPath = WB_PATH . '/modules/' . basename(WB_PATH . '/' . $_POST['file']);
 
+$sAction = ( $_POST['action'] );
+$sAction = ( in_array($sAction, $aAction) ? $sAction : 'upgrade' );
 // let the old variablename if module use it
-$module_dir = $mod_path;
-if (!file_exists($mod_path . '/' . $_POST['action'] . '.php'))
+$module_dir = $sModAbsPath;
+if (!file_exists($sModAbsPath . '/' . $sAction . '.php'))
 {
-    $admin->print_error($TEXT['NOT_FOUND'].': <tt>"'.htmlentities(basename($mod_path)).'/'.$_POST['action'].'.php"</tt> ', $js_back);
+    $admin->print_error($TEXT['NOT_FOUND'].': <tt>"'.htmlentities(basename($sModAbsPath)).'/'.$sAction.'.php"</tt> ', $js_back);
 }
-
 // include modules install.php script
-require($mod_path . '/' . $_POST['action'] . '.php');
+require($sModAbsPath . '/' . $sAction . '.php');
 
 // load module info into database and output status message
-load_module($mod_path, false);
-$msg = $TEXT['EXECUTE'] . ': <tt>"' . htmlentities(basename($mod_path)) . '/' . $_POST['action'] . '.php"</tt>';
+load_module($sModAbsPath, false);
+$msg = $TEXT['EXECUTE'] . ': <tt>"' . htmlentities(basename($sModAbsPath)) . '/' . $sAction . '.php"</tt>';
 
-switch ($_POST['action'])
+switch ($sAction)
 {
     case 'install':
         $admin->print_success($msg, $js_back);
         break;
 
     case 'upgrade':
-        upgrade_module(basename($mod_path), false);
+        upgrade_module(basename($sModAbsPath), false);
         $admin->print_success($msg, $js_back);
         break;
     

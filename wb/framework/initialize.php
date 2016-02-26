@@ -15,6 +15,10 @@
  * @lastmodified    $Date: 2012-03-14 00:01:47 +0100 (Mi, 14. Mrz 2012) $
  *
  */
+// aktivate exceptionhandler ---
+    if(!function_exists('globalExceptionHandler')) {
+        include(__DIR__.'/globalExceptionHandler.php');
+    }
 
 // Stop execution if PHP version is too old
 if (version_compare(PHP_VERSION, '5.3.6', '<')) { 
@@ -65,6 +69,9 @@ function makePhExp($sList)
     return preg_replace('/^(.*)$/', '[$1]', $aList);
 }
 
+if (ini_get('display_errors')) {
+    ini_set('display_errors', 'off');
+}
 if (!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', 'admin'); }
 if (!preg_match('/xx[a-z0-9_][a-z0-9_\-\.]+/i', 'xx'.ADMIN_DIRECTORY)) {
     throw new RuntimeException('Invalid admin-directory: ' . ADMIN_DIRECTORY);
@@ -101,7 +108,7 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     $sql = 'SELECT `name`, `value` FROM `'.TABLE_PREFIX.'settings`';
     if (($get_settings = $database->query($sql))) {
         $x = 0;
-        while ($setting = $get_settings->fetchRow(MYSQL_ASSOC)) {
+        while ($setting = $get_settings->fetchRow(MYSQLI_ASSOC)) {
             $setting_name  = strtoupper($setting['name']);
             $setting_value = $setting['value'];
             if ($setting_value == 'false') {
@@ -180,7 +187,9 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     // Load Language file
     if (!defined('LANGUAGE_LOADED')) {
         if (!file_exists(WB_PATH.'/languages/'.LANGUAGE.'.php')) {
-            throw new RuntimeException('Error loading language file '.LANGUAGE.', please check configuration');
+//            throw new RuntimeException('Error loading language file '.LANGUAGE.', please check configuration');
+            require_once(WB_PATH.'/languages/EN.php');
+            $_SESSION['LANGUAGE']='EN';
         } else {
             require_once(WB_PATH.'/languages/'.LANGUAGE.'.php');
         }
@@ -211,3 +220,11 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     define('EDITOR_WIDTH', 0);
 }
 
+function newAdmin($section_name= '##skip##', $section_permission = 'start', $auto_header = true, $auto_auth = true)
+{
+    if (isset($GLOBALS['admin']) && $GLOBALS['admin'] instanceof admin) {
+        unset($GLOBALS['admin']);
+        usleep(10000);
+    }
+    return new admin($section_name, $section_permission, $auto_header, $auto_auth);
+}

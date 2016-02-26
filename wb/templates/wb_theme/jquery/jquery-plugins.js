@@ -24,11 +24,11 @@ domReady(function()
 {
         var matches = document.querySelectorAll(".jcalendar");
         if( document.querySelectorAll(".jcalendar") ) {
-            LoadOnFly('', WB_URL+"/include/jscalendar/calendar-system.css");
+            LoadOnFly('head', WB_URL+"/include/jscalendar/calendar-system.css");
           }
 
         if( document.querySelectorAll(".jsadmin") ) {
-            LoadOnFly('', WB_URL+"/modules/jsadmin/backend.css");
+            LoadOnFly('head', WB_URL+"/modules/jsadmin/backend.css");
           }
 /**
  * 

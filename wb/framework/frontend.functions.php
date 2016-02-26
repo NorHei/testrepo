@@ -308,17 +308,24 @@ if (!function_exists('page_content')) {
                     $sec_anchor = '<a class="section_anchor" id="'.SEC_ANCHOR.$section_id.'" ></a>';
                 }
                 // check if module exists - feature: write in errorlog
-                if(file_exists(WB_PATH.'/modules/'.$module.'/view.php')) {
+                if(is_readable(WB_PATH.'/modules/'.$module.'/view.php')) {
                     // make a anchor for every section.
                 // fetch content -- this is where to place possible output-filters (before highlighting)
                     ob_start(); // fetch original content
                     require(WB_PATH.'/modules/'.$module.'/view.php');
                     $content = ob_get_clean();
+                    if(function_exists('OutputFilterApi')) {
+                      $content = OutputFilterApi('OpF?arg=section&module='.$module.'&page_id='.$page_id.'&section_id='.$section_id, $content);
+                   }
                 } else {
                     continue;
                 }
                 // highlights searchresults
-                if(isset($_GET['searchresult']) && is_numeric($_GET['searchresult']) && !isset($_GET['nohighlight']) && isset($_GET['sstring']) && !empty($_GET['sstring'])) {
+                if(isset($_GET['searchresult']) && is_numeric($_GET['searchresult']) 
+                          && !isset($_GET['nohighlight']) 
+                          && isset($_GET['sstring']) 
+                          && !empty($_GET['sstring'])
+                          ) {
                     $arr_string = explode(" ", $_GET['sstring']);
                     if($_GET['searchresult']==2) { // exact match
                         $arr_string[0] = str_replace("_", " ", $arr_string[0]);
@@ -329,8 +336,16 @@ if (!function_exists('page_content')) {
                 }
             }
         }
-        else {
+        else {   // Searchresults! But also some special pages,
+         // e.g. guestbook (add entry), news (add comment) uses this
+            ob_start(); // fetch original content
             require(PAGE_CONTENT);
+            $content = ob_get_clean();
+            // Apply Filters
+            if(function_exists('OutputFilterApi')) {
+                $content = OutputFilterApi('OpF?arg=special', $content);
+            }
+            echo $content;
         }
     }
 }

@@ -15,9 +15,9 @@
  *
 */
 
-// prevent this file from being accessed directly
 /* -------------------------------------------------------- */
-if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
+// Must include code to stop this file being accessed directly
+if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 
 // check if module language file exists for the language set by the user (e.g. DE, EN)

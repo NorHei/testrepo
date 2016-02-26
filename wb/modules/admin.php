@@ -29,9 +29,9 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
     $admin = new admin('Pages', 'pages_modify',(bool)$admin_header);
 // get request method
     $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
-    $aRequestVars  = (isset(${$requestMethod})) ? ${$requestMethod} : null;
+    $aRequestVars  = (isset(${$requestMethod}) ? ${$requestMethod} : null);
 // Get page id (on error page_id == 0))
-    $page_id = intval(isset(${$requestMethod}['page_id']) 
+    $page_id = intval(isset(${$requestMethod}['page_id'])
                       ? ${$requestMethod}['page_id'] 
                       : (isset($page_id) ? $page_id : 0)
                );

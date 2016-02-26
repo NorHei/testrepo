@@ -33,8 +33,8 @@ if ( !function_exists( 'create_access_file' ) ) { require(WB_PATH.'/framework/fu
 // Create new admin object
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 $admin = new admin('Pages', 'pages_modify', false);
-
 $action = 'show';
+//$echo = $myPath;  //
 // Get page id
 $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
 $page_id = intval((isset(${$requestMethod}['page_id'])) ? ${$requestMethod}['page_id'] : 0);

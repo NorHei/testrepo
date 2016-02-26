@@ -1,14 +1,14 @@
+<?php
 //:Puts a Login / Logout box on your page.
 //:Use: [[LoginBox?redirect=url]]
 //:Absolute or relative url possible
 //:Remember to enable frontend login in your website settings!!
-global $wb,$page_id,$TEXT, $MENU, $HEADING;
+global $database,$wb,$page_id,$TEXT, $MENU, $HEADING;
 $return_value = '<div class="login-box">'."\n";
 $return_admin = ' ';
 // Return a system permission
-function get_permission($name, $type = 'system')
+$get_permission = function ($name, $type = 'system') use ( $wb )
 {
-global $wb;
 // Append to permission type
 $type .= '_permissions';
 // Check if we have a section to check for
@@ -36,8 +36,9 @@ return true;
 }
 }
 }
-}
-function get_page_permission($page, $action='admin') {
+};
+$get_page_permission = function ($page, $action='admin') use ( $database, $wb )
+{
 if ($action!='viewing'){ $action='admin';}
 $action_groups=$action.'_groups';
 $action_users=$action.'_users';
@@ -45,9 +46,8 @@ if (is_array($page)) {
 $groups=$page[$action_groups];
 $users=$page[$action_users];
 } else {
-global $database,$wb;
 $sql = 'SELECT '.$action_groups.','.$action_users.' FROM '.TABLE_PREFIX.'pages '
-    . 'WHERE page_id = \''.$page.'\'';
+. 'WHERE page_id = \''.$page.'\'';
 $results = $database->query( $sql );
 $result = $results->fetchRow( MYSQLI_ASSOC );
 $groups = explode(',', str_replace('_', '', $result[$action_groups]));
@@ -63,7 +63,7 @@ if((!$in_group) AND !is_numeric(array_search($wb->get_user_id(), $users))) {
 return false;
 }
 return true;
-}
+};
 // Get redirect
 $redirect_url = ((isset($_SESSION['HTTP_REFERER']) && $_SESSION['HTTP_REFERER'] != '') ? $_SESSION['HTTP_REFERER'] : WB_URL );
 $redirect_url = (isset($redirect) && ($redirect!='') ? $redirect : $redirect_url);
@@ -93,6 +93,7 @@ $return_value .= '</form>'."\n";
 (is_numeric($wb->get_session('USER_ID'))) )
 {
 $return_value .= '<form action="'.LOGOUT_URL.'" method="post" class="login-table">'."\n";
+$return_value .= '<input type="hidden" name="redirect" value="'.$redirect_url.'" />'."\n";
 $return_value .= '<fieldset>'."\n";
 $return_value .= '<h1>'.$TEXT["LOGGED_IN"].'</h1>'."\n";
 $return_value .= '<label>'.$TEXT['WELCOME_BACK'].', '.$wb->get_display_name().'</label>'."\n";
@@ -106,7 +107,7 @@ $return_admin .= '<li class="admin"><a target="_blank" href="'.ADMIN_URL.'/index
 $return_value .= $return_admin;
 }
 //change ot the group that should get special links
-if( get_permission('pages_modify') && get_page_permission( PAGE_ID ) )
+if( $get_permission('pages_modify') && $get_page_permission( PAGE_ID ) )
 {
 $return_value .= '<li class="modify"><a target="_blank" href="'.ADMIN_URL.'/pages/modify.php?page_id='.PAGE_ID.'" title="'.$HEADING['MODIFY_PAGE'].'" class="blank_target">'.$HEADING['MODIFY_PAGE'].'</a></li>'."\n";
 }

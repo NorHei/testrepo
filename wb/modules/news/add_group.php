@@ -15,8 +15,7 @@
  *
  */
 
-require('../../config.php');
-
+require( dirname(dirname((__DIR__))).'/config.php' );
 // suppress to print the header, so no new FTAN will be set
 $admin_header = false;
 // Tells script to update when this page was last updated
@@ -49,7 +48,6 @@ $position = $order->get_new($section_id);
     . '`position` = '.$position.', '
     . '`active` = 1, '
     . '`title` = \'\' ';
-    $database->query($sql);
 
 $database->query($sql);
 

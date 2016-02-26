@@ -10,7 +10,7 @@
  * @platform        WebsiteBaker 2.8.x
  * @requirements    PHP 5.2.2 and higher
  * @version         $Id: delete_submission.php 1573 2012-01-16 02:01:52Z Luisehahne $
- * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/form/delete_submission.php $
+ * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/branches/2.8.x/wb/modules/form/delete_submission.php $
  * @lastmodified    $Date: 2012-01-16 03:01:52 +0100 (Mo, 16. Jan 2012) $
  * @description     
  */

@@ -16,7 +16,11 @@
  *
  */
 
-require_once("../config.php");
+require(dirname(__DIR__).'/config.php');
+
+if( !class_exists('frontend')) { require(WB_PATH.'/framework/class.frontend.php');  }
+// Create new frontend object
+if (!isset($wb) || !($wb instanceof frontend)) { $wb = new frontend(); }
 
 // Make sure the login is enabled
 if(!FRONTEND_LOGIN) {
@@ -24,7 +28,11 @@ if(!FRONTEND_LOGIN) {
         header('Location: '.WB_URL.PAGES_DIRECTORY.'/index.php');
         exit(0);
     } else {
-        header('Location: '.WB_URL.'/index.php');
+          if ( $wb->get_user_id() && $wb->ami_group_member( '1' ) ) {
+          header('Location: '.WB_URL.'/index.php');
+          } else {
+          $wb->print_missing_frontend_login();
+}
         exit(0);
     }
 }
@@ -49,7 +57,7 @@ require_once(WB_PATH.'/framework/class.Login.php');
 require_once(WB_PATH.'/framework/class.frontend.php');
 
 // Create new frontend object
-$wb = new frontend();
+//$wb = new frontend();
 
 // Create new login app
 $requestMethod = '_'.strtoupper($_SERVER['REQUEST_METHOD']);
@@ -76,7 +84,7 @@ $thisApp = new Login(
                         "MAX_USERNAME_LEN" => "30",
                         "MAX_PASSWORD_LEN" => "30",
                         "LOGIN_URL" => $loginUrl,
-                        "DEFAULT_URL" => WB_URL.PAGES_DIRECTORY."/index.php",
+                        "DEFAULT_URL" => WB_URL.PAGES_DIRECTORY."/",
                         "TEMPLATE_DIR" => $ThemePath,
                         "TEMPLATE_FILE" => "login.htt",
                         "FRONTEND" => true,

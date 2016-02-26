@@ -16,7 +16,7 @@
  *
  */
 
-$debug = true;
+$debug = false;
 
 if (true === $debug) {
     ini_set('display_errors', 1);
@@ -276,7 +276,7 @@ $database_charset = 'utf8';
 $config_filename = dirname(dirname(__FILE__)).'/config.php';
 $config_content 
     = '<?php'.PHP_EOL
-    . PHP_EOL
+    .  PHP_EOL
     . 'define(\'DB_TYPE\', \'mysqli\');'.PHP_EOL
     . 'define(\'DB_HOST\', \''.$database_host.'\');'.PHP_EOL
     . (isset($database_port) ? 'define(\'DB_PORT\', \''.$database_port.'\');'.PHP_EOL : '')
@@ -339,6 +339,7 @@ Begin Create Database Tables
 *****************************/
 $sInstallDir = dirname(__FILE__);
 if (is_readable($sInstallDir.'/install_struct.sql')) {
+        $database->setSqlImportActionFile('install');
     if (! $database->SqlImport($sInstallDir.'/install_struct.sql', TABLE_PREFIX, false)) {
         set_error('unable to import \'install/install_struct.sql\'');
     }
@@ -346,6 +347,7 @@ if (is_readable($sInstallDir.'/install_struct.sql')) {
     set_error('unable to read file \'install/install_struct.sql\'');
 }
 if (is_readable($sInstallDir.'/install_data.sql')) {
+        $database->setSqlImportActionFile('upgrade');
     if (! $database->SqlImport($sInstallDir.'/install_data.sql', TABLE_PREFIX)) {
         set_error('unable to import \'install/install_data.sql\'');
     }
@@ -362,8 +364,8 @@ $sql = // add settings from install input
     .'(\'app_name\', \'wb-'.$session_rand.'\'),'
     .'(\'default_timezone\', \''.$default_timezone.'\'),'
     .'(\'operating_system\', \''.$operating_system.'\'),'
-    .'(\'string_file_mode\', \''.$file_mode.'\'),'
     .'(\'string_dir_mode\', \''.$dir_mode.'\'),'
+    .'(\'string_file_mode\', \''.$file_mode.'\'),'
     .'(\'server_email\', \''.$admin_email.'\')';
 if (! ($database->query($sql))) {
     set_error('unable to write \'install presets\' into table \'settings\'');
@@ -390,9 +392,9 @@ END OF TABLES IMPORT
 // initialize the system
 include(WB_PATH.'/framework/initialize.php');
 
-$sSecMod = (defined('SECURE_FORM_MODULE') && SECURE_FORM_MODULE != '') ? '.'.SECURE_FORM_MODULE : '';
-$sSecMod = WB_PATH.'/framework/SecureForm'.$sSecMod.'.php';
-require_once($sSecMod);
+//$sSecMod = (defined('SECURE_FORM_MODULE') && SECURE_FORM_MODULE != '') ? '.'.SECURE_FORM_MODULE : '';
+//$sSecMod = WB_PATH.'/framework/SecureForm'.$sSecMod.'.php';
+//require_once($sSecMod);
 
 require_once(WB_PATH.'/framework/class.admin.php');
 /***********************
@@ -410,7 +412,7 @@ class admin_dummy extends admin
 // Include WB functions file
 require_once(WB_PATH.'/framework/functions.php');
 // Re-connect to the database, this time using in-build database class
-require_once(WB_PATH.'/framework/class.login.php');
+require_once(WB_PATH.'/framework/class.Login.php');
 // reconnect database if needed
 //if (!(isset($database) & ($database instanceof database))) {
 //    $database = new database();

@@ -58,11 +58,6 @@ if($oSettings = $database->query($sql)) {
       $aOutputs['_POST'][$aSetting['name']] = $aSetting['value'];
     }
 }
-/**
- * 
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.sizeof($TOKENS).' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-print_r( $array ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
- */
 // After check print the header
 
 // Work-out file mode
@@ -175,21 +170,23 @@ if( !$bAdvanced )
 }
 
 $allow_tags_in_fields = array('website_header', 'website_footer');
-$allow_empty_values = array('website_header','website_footer','sec_anchor','pages_directory','page_spacer');
+$allow_empty_values = array('website_header','website_footer','sec_anchor','pages_directory','page_spacer','wbmailer_smtp_secure');
 $disallow_in_fields = array('pages_directory', 'media_directory','wb_version');
 
 // Query current settings in the db, then loop through them and update the db with the new value
 $settings = array();
 $old_settings = array();
 // Query current settings in the db, then loop through them to get old values
-$sql = 'SELECT `name`, `value` FROM `'.TABLE_PREFIX.'settings` '
-     . 'ORDER BY `name`';
+$sql  = 'SELECT `name`, `value` FROM `'.TABLE_PREFIX.'settings` '
+      . 'ORDER BY `name`';
 if($res_settings = $database->query($sql)) {
     $passed = false;
     while($setting = $res_settings->fetchRow(MYSQLI_ASSOC)) :
         $old_settings[$setting['name']] = $setting['value'];
         $setting_name = $setting['name'];
+        if($setting_name=='wb_version') { continue; }
         $value = $admin->get_post($setting_name);
+        $value = is_null($value) ? '' : $value;
         $value = isset($_POST[$setting_name]) ? $value : $old_settings[$setting_name] ;
         switch ($setting_name) :
             case 'default_timezone':
@@ -225,22 +222,20 @@ if($res_settings = $database->query($sql)) {
                 $value = $admin->sanitizeLifeTime(intval( $value ) * 60 );
                 $passed = true;
                 break;
+            case 'wb_version':
+                continue;
+                break;
             default :
                 $passed = in_array($setting_name, $allow_empty_values);
                 break;
         endswitch;
-
-        if(is_array($value)){
-            $value = $value['0'];
-        }
-        if ( !in_array($setting_name, $allow_tags_in_fields)) {
-            $value = strip_tags($value);
-        }
-        if ( !in_array($value, $disallow_in_fields) && (isset($_POST[$setting_name]) || $passed == true)) {
+        if(is_array($value)){ $value = $value['0']; }
+        if ( !in_array($setting_name, $allow_tags_in_fields)) { $value = strip_tags($value); }
+        if ( (!in_array($value, $disallow_in_fields) && (isset($_POST[$setting_name])) || $passed == true)) {
             $value = trim($admin->add_slashes($value));
-            $sql = 'UPDATE `'.TABLE_PREFIX.'settings` '
-                 . 'SET `value`=\''.$value.'\' '
-                 . 'WHERE `name`!=\'wb_version\' AND `name`=\''.$setting_name.'\'';
+            $sql = 'UPDATE `'.TABLE_PREFIX.'settings` SET '
+                 . '`value`=\''.$database->escapeString($value).'\' '
+                 . 'WHERE  `name`=\''.$setting_name.'\'';
             if (!$database->query($sql)) {
                 $admin->print_error($database->get_error, $js_back );
                 break;
