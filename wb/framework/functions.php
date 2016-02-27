@@ -1195,13 +1195,13 @@ function upgrade_module($directory, $upgrade = false)
             if( $database->get_one($sql) )
             {
                 // Update in DB
-                $sql  = 'UPDATE `'.TABLE_PREFIX.'addons` SET ';
-                $sql .= '`version`=\''.$module_version.'\', ';
-                $sql .= '`description`=\''.addslashes($module_description).'\', ';
-                $sql .= '`platform`=\''.$module_platform.'\', ';
-                $sql .= '`author`=\''.addslashes($module_author).'\', ';
-                $sql .= '`license`=\''.addslashes($module_license).'\' ';
-                $sql .= 'WHERE `directory`=\''.$module_directory.'\' ';
+                $sql  = 'UPDATE `'.TABLE_PREFIX.'addons` SET '
+                      . '`version`=\''.$database->escapeString($module_version).'\', '
+                      . '`description`=\''.$database->escapeString($module_description).'\', '
+                      . '`platform`=\''.$database->escapeString($module_platform).'\', '
+                      . '`author`=\''.$database->escapeString($module_author).'\', '
+                      . '`license`=\''.$database->escapeString($module_license).'\' '
+                      . 'WHERE `directory`=\''.$database->escapeString($module_directory).'\' ';
                 $database->query($sql);
                 if($database->is_error()) {
                     $admin->print_error($database->get_error());

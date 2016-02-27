@@ -70,69 +70,41 @@ $table = TABLE_PREFIX . 'addons';
 foreach ($post_check as $key) {
     switch ($key) {
         case 'reload_modules':
-            if ($handle = opendir(WB_PATH . '/modules')) {
-                // delete modules from database
-//                $sql = "DELETE FROM `$table` WHERE `type` = 'module'";
-//                $database->query($sql);
-                // loop over all modules
-                while(false !== ($file = readdir($handle))) {
-                    if ($file != '' && substr($file, 0, 1) != '.' && $file != 'admin.php' && $file != 'index.php') {
-                        load_module(WB_PATH . '/modules/' . $file);
-                    }
+            $aAddonList = glob(WB_PATH.'/modules/*', GLOB_ONLYDIR );
+            foreach( $aAddonList as $sAddonFile ) {
+                if (is_readable( $sAddonFile )) {
+                    load_module( $sAddonFile );
                 }
-                closedir($handle);
-                // add success message
-                $msg[] = $MESSAGE['ADDON_MODULES_RELOADED'];
-            } else {
-                // provide error message and stop
-                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
+            // add success message
+            $msg[] = $MESSAGE['ADDON_MODULES_RELOADED'];
+            unset($aAddonList);
             break;
-            
+
         case 'reload_templates':
-            if ($handle = opendir(WB_PATH . '/templates')) {
-                // delete templates from database
-//                $sql = "DELETE FROM `$table` WHERE `type` = 'template'";
-//                $database->query($sql);
-                // loop over all templates
-                while(false !== ($file = readdir($handle))) {
-                    if($file != '' AND substr($file, 0, 1) != '.' AND $file != 'index.php') {
-                        load_template(WB_PATH . '/templates/' . $file);
-                    }
+            $aAddonList = glob(WB_PATH.'/templates/*', GLOB_ONLYDIR );
+            foreach( $aAddonList as $sAddonFile ) {
+                if (is_readable( $sAddonFile )) {
+                    load_module( $sAddonFile );
                 }
-                closedir($handle);
-                // add success message
-                $msg[] = $MESSAGE['ADDON_TEMPLATES_RELOADED'];
-            } else {
-                // provide error message and stop
-                $admin->print_header();
-                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
+            // add success message
+            $msg[] = $MESSAGE['ADDON_TEMPLATES_RELOADED'];
+            unset($aAddonList);
             break;
+
         case 'reload_languages':
-            if ($handle = opendir(WB_PATH . '/languages/')) {
-                $aDebug = array();
-                // delete languages from database
-//                $sql = "DELETE FROM `$table` WHERE `type` = 'language'";
-//                $database->query($sql);
-                // loop over all languages
-                while(false !== ($file = readdir($handle))) {
-                    if ($file != '' && substr($file, 0, 1) != '.' && $file != 'index.php') {
-                        $aDebug[] = $file;
-                        if(!load_language(WB_PATH . '/languages/' . $file)) {
-                        }
-                    }
+            $aAddonList = glob(WB_PATH.'/languages/*', GLOB_ONLYDIR );
+            foreach( $aAddonList as $sAddonFile ) {
+                if (is_readable( $sAddonFile )) {
+                    load_module( $sAddonFile );
                 }
-                closedir($handle);
-                // add success message
-                $msg[] = $MESSAGE['ADDON_LANGUAGES_RELOADED'];
-                
-            } else {
-                // provide error message and stop
-                $admin->print_header();
-                $admin->print_error($MESSAGE['ADDON_ERROR_RELOAD'], $js_back);
             }
+            // add success message
+            $msg[] = $MESSAGE['ADDON_LANGUAGES_RELOADED'];
+            unset($aAddonList);
             break;
+
     }
 }
 

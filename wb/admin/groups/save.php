@@ -61,10 +61,10 @@ require(ADMIN_PATH.'/groups/get_permissions.php');
 // Update the database
 $sql  = 'UPDATE `'.TABLE_PREFIX.'groups` SET '
       .'`name` = \''.$group_name.'\', '
-      .'`system_permissions` = \''.$system_permissions.'\', '
-      .'`module_permissions` = \''.$module_permissions.'\', '
-      .'`template_permissions` = \''.$template_permissions.'\' '
-      .'WHERE `group_id` = '.$group_id;
+      .'`system_permissions` = \''.$database->escapeString($system_permissions).'\', '
+      .'`module_permissions` = \''.$database->escapeString($module_permissions).'\', '
+      .'`template_permissions` = \''.$database->escapeString($template_permissions).'\' '
+      .'WHERE `group_id` = '.$database->escapeString($group_id);
 
 $database->query($sql);
 if($database->is_error()) {

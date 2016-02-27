@@ -1,17 +1,24 @@
 <!-- BEGIN main_block -->
-<form name="user" action="{ACTION_URL}" method="post" class="{DISPLAY_ADD}" style="width: 100%; margin: auto 13%;" >
+<form name="user" action="{ACTION_URL}" method="post" class="{DISPLAY_ADD} access" style="margin: auto 13%;" >
 <input type="hidden" name="user_id" value="{USER_ID}" />
 <input type="hidden" name="username_fieldname" value="{USERNAME_FIELDNAME}" />
 {FTAN}
 
 <h2 style="{DISPLAY_EXTRA}">{HEADING_MODIFY_USER}</h2>
 
-<table style="width: 100%; border-collapse: collapse; border-spacing: 0; " >
+<table style=" border-collapse: collapse; border-spacing: 0; " >
 <tr>
     <td style="width: 150px; ">{TEXT_USERNAME}:</td>
+
     <td class="value_input">
-        <input type="text" name="{USERNAME_FIELDNAME}" maxlength="30" value="{USERNAME}"{READONLY} style="width: 52%;" />
+<!-- BEGIN user_add_block -->
+        <input type="text" name="{USERNAME_FIELDNAME}" maxlength="30" value="{USERNAME}" style="width: 52%;" />
+<!-- END user_add_block -->
+<!-- BEGIN user_display_block -->
+        <div id="username" style="width: 52%;" >{USERNAME}</div>
+<!-- END user_display_block -->
     </td>
+
 </tr>
 <tr class="ui-helper-clearfix">
     <td class="setting_name">

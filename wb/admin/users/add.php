@@ -52,26 +52,26 @@ $default_timezone = DEFAULT_TIMEZONE;
 
 // Check values
 if($groups_id == '') {
-    $admin->print_error($MESSAGE['USERS']['NO_GROUP'], $js_back);
+    $admin->print_error($MESSAGE['USERS_NO_GROUP'], $js_back);
 }
 if(!preg_match('/^[a-z]{1}[a-z0-9_-]{2,}$/i', $username)) {
     $admin->print_error( $MESSAGE['USERS_NAME_INVALID_CHARS'].' / '.
                       $MESSAGE['USERS_USERNAME_TOO_SHORT'], $js_back);
 }
 if(strlen($password) < 2) {
-    $admin->print_error($MESSAGE['USERS']['PASSWORD_TOO_SHORT'], $js_back);
+    $admin->print_error($MESSAGE['USERS_PASSWORD_TOO_SHORT'], $js_back);
 }
 if($password != $password2) {
-    $admin->print_error($MESSAGE['USERS']['PASSWORD_MISMATCH'], $js_back);
+    $admin->print_error($MESSAGE['USERS_PASSWORD_MISMATCH'], $js_back);
 }
 if($email != '')
 {
     if($admin->validate_email($email) == false)
     {
-        $admin->print_error($MESSAGE['USERS']['INVALID_EMAIL'], $js_back);
+        $admin->print_error($MESSAGE['USERS_INVALID_EMAIL'], $js_back);
     }
 } else { // e-mail must be present
-    $admin->print_error($MESSAGE['SIGNUP']['NO_EMAIL'], $js_back);
+    $admin->print_error($MESSAGE['SIGNUP_NO_EMAIL'], $js_back);
 }
 
 // choose group_id from groups_id - workaround for still remaining calls to group_id (to be cleaned-up)
@@ -86,7 +86,7 @@ $sql  = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` '
 
 $results = $database->query($sql);
 if($results->numRows() > 0) {
-    $admin->print_error($MESSAGE['USERS']['USERNAME_TAKEN'], $js_back);
+    $admin->print_error($MESSAGE['USERS_USERNAME_TAKEN'], $js_back);
 }
 
 // Check if the email already exists
@@ -96,11 +96,11 @@ $sql  = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` '
 $results = $database->query($sql);
 if($results->numRows() > 0)
 {
-    if(isset($MESSAGE['USERS']['EMAIL_TAKEN']))
+    if(isset($MESSAGE['USERS_EMAIL_TAKEN']))
     {
-        $admin->print_error($MESSAGE['USERS']['EMAIL_TAKEN'], $js_back);
+        $admin->print_error($MESSAGE['USERS_EMAIL_TAKEN'], $js_back);
     } else {
-        $admin->print_error($MESSAGE['USERS']['INVALID_EMAIL'], $js_back);
+        $admin->print_error($MESSAGE['USERS_INVALID_EMAIL'], $js_back);
     }
 }
 
@@ -110,20 +110,20 @@ $md5_password = md5($password);
 // Insert the user into the database
 $sql = // add the Admin user
      'INSERT INTO `'.TABLE_PREFIX.'users` SET '
-    .    '`group_id`='.$group_id.', '
-    .    '`groups_id`=\''.$groups_id.'\', '
-    .    '`active`=\''.$active.'\', '
-    .    '`username`=\''.$username.'\', '
-    .    '`password`=\''.$md5_password.'\', '
+    .    '`group_id`='.$database->escapeString($group_id).', '
+    .    '`groups_id`=\''.$database->escapeString($groups_id).'\', '
+    .    '`active`=\''.$database->escapeString($active).'\', '
+    .    '`username`=\''.$database->escapeString($username).'\', '
+    .    '`password`=\''.$database->escapeString($md5_password).'\', '
     .    '`remember_key`=\'\', '
     .    '`last_reset`=0, '
-    .    '`display_name`=\''.$display_name.'\', '
-    .    '`email`=\''.$email.'\', '
-    .    '`timezone`=\''.$default_timezone.'\', '
+    .    '`display_name`=\''.$database->escapeString($display_name).'\', '
+    .    '`email`=\''.$database->escapeString($email).'\', '
+    .    '`timezone`=\''.$database->escapeString($default_timezone).'\', '
     .    '`date_format`=\'M d Y\', '
     .    '`time_format`=\'g:i A\', '
-    .    '`language`=\''.$default_language.'\', '
-    .    '`home_folder`=\''.$home_folder.'\', '
+    .    '`language`=\''.$database->escapeString($default_language).'\', '
+    .    '`home_folder`=\''.$database->escapeString($home_folder).'\', '
     .    '`login_when`=\''.time().'\', '
     .    '`login_ip`=\'\' '
     .    '';

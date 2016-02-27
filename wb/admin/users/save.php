@@ -49,9 +49,6 @@ if(!isset($aInputs['user_id']) OR !is_numeric($aInputs['user_id']) OR $aInputs['
 $groups_id = ( isset($aInputs['groups']) ? implode(",", $aInputs['groups']) : '');
 $active = intval( is_array($aInputs['active'])  ?($aInputs['active'][0]):$aInputs['active']);
 
-$username_fieldname = $admin->get_post_escaped('username_fieldname');
-$username = strtolower($admin->get_post_escaped($username_fieldname));
-
 $password = $admin->get_post('password');
 $password2 = $admin->get_post('password2');
 $display_name = $admin->get_post_escaped('display_name');
@@ -60,10 +57,6 @@ $home_folder = $admin->get_post_escaped('home_folder');
 // Check values
 if($groups_id == "") {
     $admin->print_error($MESSAGE['USERS_NO_GROUP'], $js_back);
-}
-
-if(!preg_match('/^[a-z]{1}[a-z0-9_-]{2,}$/i', $username)) {
-    $admin->print_error( $MESSAGE['USERS_NAME_INVALID_CHARS'], $js_back);
 }
 
 if($password != "") {
@@ -102,24 +95,16 @@ if($results->numRows() > 0)
     }
 }
 
-// Prevent from renaming user to "admin"
-if($username != 'admin') {
-    $username_code = ", username = '$username'";
-} else {
-    $username_code = '';
-}
-
 // Update the database
 
 $sql  = 'UPDATE `'.TABLE_PREFIX.'users` SET '
-      . '`groups_id` = \''.$groups_id.'\', '
-      . '`active` = '.$active.', '
-      . ( ($username != 'admin') ? '`username` = \''.$username.'\', ':' ' )
-      . '`display_name` = \''.$display_name.'\', '
-      . '`home_folder` = \''.$home_folder.'\', '
-      . '`email` = \''.$email.'\''
-      . ( ($password == "") ? ' ': ', `password` = \''.$md5_password.'\' ' )
-      . 'WHERE `user_id` = '.$user_id;
+      . '`groups_id` = \''.$database->escapeString($groups_id).'\', '
+      . '`active` = '.$database->escapeString($active).', '
+      . '`display_name` = \''.$database->escapeString($display_name).'\', '
+      . '`home_folder` = \''.$database->escapeString($home_folder).'\', '
+      . '`email` = \''.$database->escapeString($email).'\''
+      . ( ($password == "") ? ' ': ', `password` = \''.$database->escapeString($md5_password).'\' ' )
+      . 'WHERE `user_id` = '.$database->escapeString($user_id);
 
 $database->query($sql);
 if($database->is_error()) {

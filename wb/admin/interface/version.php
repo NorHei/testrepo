@@ -49,5 +49,5 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 
 // check if defined to avoid errors during installation (redirect to admin panel fails if PHP error/warnings are enabled)
 if(!defined('VERSION')) define('VERSION', '2.8.3');
-if(!defined('REVISION')) define('REVISION', '1645-rc3.0');
+if(!defined('REVISION')) define('REVISION', '1645-rc3.1');
 if(!defined('SP')) define('SP', 'SP6');

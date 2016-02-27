@@ -437,6 +437,7 @@ $dirs['templates'] = WB_PATH.'/templates/';
 $dirs['languages'] = WB_PATH.'/languages/';
 
 foreach ($dirs as $type => $dir) {
+
     if ($handle = opendir($dir)) {
         while (false !== ($file = readdir($handle))) {
             if ($file != '' AND substr($file, 0, 1) != '.' AND $file != 'admin.php' AND $file != 'index.php') {
