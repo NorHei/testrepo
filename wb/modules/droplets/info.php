@@ -16,17 +16,17 @@
  * @lastmodified    $Date: 2011-08-18 04:18:59 +0200 (Do, 18. Aug 2011) $
  *
  */
-
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
 if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 
 $module_directory = 'droplets';
-$module_name = 'Droplets v2.0.0';
-$module_function = 'tool';
-$module_version = '2.0.0';
-$module_platform = '2.8.3';
-$module_author = 'Ruud and pcwacht, Luisehahne';
-$module_license = 'GNU General Public License';
+$module_name      = 'Droplets v2.0.2';
+$module_type      = 'addon';
+$module_function  = 'tool';
+$module_version   = '2.0.2';
+$module_platform  = '2.8.3';
+$module_author    = 'Ruud and pcwacht, Luisehahne';
+$module_license   = 'GNU General Public License';
 $module_description = 'This tool allows you to manage your local Droplets.';

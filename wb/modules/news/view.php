@@ -93,12 +93,12 @@ if (($query_users = $database->query($sql))) {
     }
     // Get total number of posts relatet to now
 // Check if we should show the main page or a post itself
-    $t = time();
+    $now = $t = time();
     $sql = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.'mod_news_posts` '
          . 'WHERE `section_id`='.(int)$section_id.' AND `active`=1 '
          .        'AND `title`!=\'\' '
-         .        'AND (`published_when`=0 OR `published_when`<='.$t.') '
-         .        'AND (`published_until`=0 OR `published_until`>='.$t.') '
+         .        'AND (`published_when`=0 OR `published_when`<='.$now.') '
+         .        'AND (`published_until`=0 OR `published_until`>='.$now.') '
          .        $query_extra;
     $total_num = intval($database->get_one($sql));
     if ( $total_num && $setting_posts_per_page ) {
@@ -129,8 +129,8 @@ $setting_posts_per_page = 12/5 = 2 5 = 10
          . 'WHERE `section_id`='.$section_id.' '
          .        'AND `active`=1 '
          .        'AND `title`!=\'\' '
-         .        'AND (`published_when`=0 OR `published_when`<='.$t.') '
-         .        'AND (`published_until`=0 OR `published_until`>='.$t.') '
+         .        'AND (`published_when`=0 OR `published_when`<='.$now.') '
+         .        'AND (`published_until`=0 OR `published_until`>='.$now.') '
          .        $query_extra
          . 'ORDER BY `position` DESC'.$limit_sql;
     $query_posts = $database->query($sql);
@@ -179,7 +179,7 @@ $setting_posts_per_page = 12/5 = 2 5 = 10
             $display_previous_next_links = 'none';
         }
     }
-    if ( $total_num=== 0) { // $num_posts
+    if ($total_num=== 0) { // $num_posts
         $setting_header = '';
         $setting_post_loop = '';
         $setting_footer = '';
@@ -221,6 +221,8 @@ $setting_posts_per_page = 12/5 = 2 5 = 10
                  .'</div>'.PHP_EOL
             );
         }
+/*
+*/
         $aPlaceHolders = $addBracket(
             'PAGE_TITLE',
             'GROUP_ID',
@@ -264,13 +266,13 @@ $setting_posts_per_page = 12/5 = 2 5 = 10
                     $post_date = date(DATE_FORMAT, $post['posted_when']+TIMEZONE);
                     $post_time = date(TIME_FORMAT, $post['posted_when']+TIMEZONE);
                 }
-                $publ_date      = date(DATE_FORMAT,$post['published_when']);
-                $publ_time      = date(TIME_FORMAT,$post['published_when']);
+                $publ_date      = date(DATE_FORMAT,$post['published_when']+TIMEZONE);
+                $publ_time      = date(TIME_FORMAT,$post['published_when']+TIMEZONE);
                 // Work-out the post link
                 $post_link      = page_link($post['link']);
                 $post_link_path = str_replace(WB_URL, WB_PATH,$post_link);
-                $create_date    = date(DATE_FORMAT, $post['created_when']);
-                $create_time    = date(TIME_FORMAT, $post['created_when']);
+                $create_date    = date(DATE_FORMAT, $post['created_when']+TIMEZONE);
+                $create_time    = date(TIME_FORMAT, $post['created_when']+TIMEZONE);
                 if (isset($_GET['p']) AND $position > 0) {
                     $post_link .= '?p='.$position;
                 }
@@ -319,7 +321,8 @@ $setting_posts_per_page = 12/5 = 2 5 = 10
                     $publ_date,
                     $publ_time
                 );
-                if (isset($users[$uid]['username']) && $users[$uid]['username'] != '') {
+                if (isset($users[$uid]['username']) && $users[$uid]['username'] != '')
+                {
                     if ($bIsEmptyLongContent) {
                         $aReplacements[] = '#" onclick="javascript:void(0);return false;" style="cursor:no-drop;';
                         $aReplacements[] = 'hidden';

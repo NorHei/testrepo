@@ -24,10 +24,10 @@ JsAdmin.init_drag_drop = function() {
     var page_type = '';
     var is_tree = false;
 
-    if(document.URL.indexOf(JsAdmin.ADMIN_URL + "/pages/index.php") > -1) {
+    if(document.URL.indexOf(JsAdmin.ADMIN_DIRECTORY + "/pages/index.php") > -1) {
         page_type = 'pages';
         is_tree = true;
-
+console.info(page_type);
         // This page uses duplicate IDs and incorrectly nested lists:
         // <ul id="p1">
         //        <li id="p1"><table /></li>
@@ -74,10 +74,12 @@ JsAdmin.init_drag_drop = function() {
             }
         }
 
-    } else if(document.URL.indexOf("/admin/pages/sections.php") > 0) {
+    } else if(document.URL.indexOf(JsAdmin.ADMIN_DIRECTORY + "/pages/sections.php") > 0) {
         page_type = 'sections';
-    } else if(document.URL.indexOf("/admin/pages/modify.php") > 0) {
+console.info(page_type);
+    } else if(document.URL.indexOf(JsAdmin.ADMIN_DIRECTORY + "/pages/modify.php") > 0) {
         page_type = 'modules';
+console.info(page_type);
 /**
  * 
         is_tree = true;
@@ -118,12 +120,13 @@ JsAdmin.init_drag_drop = function() {
     } else {
         page_type = 'modules';
         // We don't do any other pages
-        return;
         // page_type = 'modules';
+//        return false;
     }
-
-    var links = document.getElementsByTagName('a');
+    var linkType = ((page_type==='modules')?'button':'a');
+    var links = document.getElementsByTagName(linkType);
     var reImg = /(.*)move_(down|up)\.php(.*)/;
+console.info(links);
     for(var i = 0; i < links.length; i++) {
         var link = links[i];
         var href = link.href || '';
@@ -167,11 +170,13 @@ JsAdmin.DD.addMoveButton = function(tr, cell, op) {
     if(op == 'down') {
         cell++;
     }
-    var item = JsAdmin.movable_rows[tr.id];
+    if (tr) {
+    var item = JsAdmin.movable_rows[tr.id]; }
     if(!JsAdmin.util.isNodeType(tr, 'tr')) {
         var rows = tr.getElementsByTagName('tr');
         tr = rows[0];
     }
+console.info(item);
 
     var html = '<a href="' + item.url + 'move_' + op + '.php' + item.params
                 + '"><img src="' + JsAdminTheme.THEME_URL + '/images/' + op

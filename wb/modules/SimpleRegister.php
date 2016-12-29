@@ -7,11 +7,10 @@ if( !isset( $oReg ) && !class_exists('WbAdaptor')) {
     $oThis = new stdClass;
     // first reinitialize arrays
     $oThis->aObjects = array('Db' => null, 'Trans' => null, 'App' => null);
-    $oApp    = $oThis->aObjects['App']    = ( @$GLOBALS['wb'] ?: null );
-    $oApp    = $oThis->aObjects['App']    = ( @$GLOBALS['admin'] ?: $oApp );
-    $oDb     = $oThis->aObjects['Db']     = ( @$GLOBALS['database'] ?: null );
-    $oTrans  = $oThis->aObjects['Trans']  = ( @$GLOBALS['Trans'] ?: null );
-
+    $oApp    = $oThis->aObjects['App']     = ( @$GLOBALS['wb'] ?: null );
+    $oApp    = $oThis->aObjects['App']     = ( @$GLOBALS['admin'] ?: $oApp );
+    $oDb     = $oThis->aObjects['Db']      = ( @$GLOBALS['database'] ?: null );
+    $oTrans  = $oThis->aObjects['Trans']   = (class_exists('Translate') ?Translate::getInstance (): null );
     $oThis->aReservedVars = array('Db', 'Trans', 'App');
     $oThis->aProperties = array(
         'System' => array(),
@@ -197,5 +196,4 @@ if( !isset( $oReg ) && !class_exists('WbAdaptor')) {
         $aReg = array_merge( $oThis->aProperties['System'], $oThis->aProperties['Request'],  $oThis->aObjects );
 //        foreach ($aReg as $key => $value) { $oReg->$key = $value; }
         $oReg = new ArrayObject( $aReg, ArrayObject::ARRAY_AS_PROPS );
-
 }

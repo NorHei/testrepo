@@ -34,15 +34,15 @@
 if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
 /* -------------------------------------------------------- */
 
-if( !$admin->checkFTAN() ){
-    $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], $ToolUrl );
+if( !$oApp->checkFTAN() ){
+    $oApp->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'], $ToolUrl );
     exit();
 }
 if ( @$aRequestVars['zipFiles'] == '' ) {
     msgQueue::add( $Droplet_Message['GENERIC_MISSING_ARCHIVE_FILE'] );
 } else { 
 
-    $sArchFile = WB_PATH.$aRequestVars['zipFiles'];
+    $sArchFile = $oReg->AppPath.$aRequestVars['zipFiles'];
     $unlink = @unlink($sArchFile);
 
     if( $unlink==false ) {

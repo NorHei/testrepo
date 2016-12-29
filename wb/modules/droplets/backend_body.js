@@ -13,8 +13,10 @@ domReady(function() {
        else
           e.style.display = 'block';
     }
-
+// CHANGELOG 20160323 
     function addEvent(elem, event, fn) {
+        if(!elem) { return false; }
+console.info (elem);
         if (elem.addEventListener) {
             elem.addEventListener(event, fn, false);
         } else {
@@ -24,11 +26,7 @@ domReady(function() {
             });
         }
     }
-/**
- * 
- */
- 
- 
+
     function mouseX (e) {
       if (e.pageX) {
         return e.pageX;
@@ -60,7 +58,6 @@ domReady(function() {
       offsetX = 0;
       offsetY = 0;
       var mousemoveTemp = null;
-    
       if (t) {
         var move = function (x,y) {
           t.style.left = (parseInt(t.style.left)+x) + "px";
@@ -68,9 +65,7 @@ domReady(function() {
         }
         var mouseMoveHandler = function (e) {
           e = e || window.event;
-    
           if(!drag){return true};
-    
           var x = mouseX(e);
           var y = mouseY(e);
           if (x != offsetX || y != offsetY) {
@@ -82,11 +77,9 @@ domReady(function() {
         }
         var start_drag = function (e) {
           e = e || window.event;
-    
           offsetX=mouseX(e);
           offsetY=mouseY(e);
           drag=true; // basically we're using this to detect dragging
-    
           // save any previous mousemove event handler:
           if (document.body.onmousemove) {
             mousemoveTemp = document.body.onmousemove;
@@ -96,7 +89,6 @@ domReady(function() {
         }
         var stop_drag = function () {
           drag=false;      
-    
           // restore previous mousemove event handler if necessary:
           if (mousemoveTemp) {
             document.body.onmousemove = mousemoveTemp;
@@ -109,13 +101,13 @@ domReady(function() {
       }
     }
 
-
     function move(ev) {
       ev.dataTransfer.setData('text', ev.target.id);
     }
 
     window.addEventListener("load",function () {
       initCheckboxes();
+//      addEvent(document.getElementById('selectOrder'), 'change', changeOrder);
       var dragItems = document.querySelectorAll("[draggable=true]")
 console.info( dragItems );
       for (var i = 0; i < dragItems.length; i++) {
@@ -123,9 +115,7 @@ console.info( dragItems );
         draggable.addEventListener("dragstart",move);
       };
     });
-
 //    addEvent( window, 'load', initCheckboxes );
-
     function initCheckboxes() {
         addEvent(document.getElementById('select_all'), 'click', setCheckboxes);
     }
@@ -151,8 +141,8 @@ console.info(cb);
             e.checked = el.checked;
         }
     }
-
-
-
+    function changeOrder(){
+console.info(this);
+    }
 
 });

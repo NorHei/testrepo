@@ -38,14 +38,14 @@ if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.bas
 /**
  * 
 */
-     if(!$admin->checkFTAN() ) {
+     if(!$oApp->checkFTAN() ) {
         msgQueue::add($MESSAGE['GENERIC_SECURITY_ACCESS']);
     } elseif(!isset($aRequestVars['restore_id']) || !is_array($aRequestVars['restore_id'])) {
-        msgQueue::add($Droplet_Message['MISSING_UNMARKED_ARCHIVE_FILES'] );
+        msgQueue::add('::'.$Droplet_Message['MISSING_UNMARKED_ARCHIVE_FILES'] );
     } else {
         $aDroplet = array();
-        if( !class_exists('PclZip',false) ) { require( WB_PATH.'/include/pclzip/pclzip.lib.php'); }
-        if(!function_exists('insertDropletFile')) { require('droplets.functions.php'); }
+        if( !class_exists('PclZip',false) ) { require( $oReg->AppPath.'/include/pclzip/pclzip.lib.php'); }
+        if(!function_exists('insertDropletFile')) { require($sAddonPath.'/droplets.functions.php'); }
       // unzip to buffer and store in DB / fetch ach entry as single process, to surpress buffer overflow 
         foreach($aRequestVars['restore_id'] as $index => $iArchiveIndex ) {
             $oArchive = new PclZip( $aRequestVars['ArchiveFile'] );
@@ -59,10 +59,9 @@ if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.bas
 //        if (!preg_match('/^(to|cc|bcc|Reply-To)$/', $kind)) {
                 $aDroplet['name'] = $sDroplet[0]['filename'];
                 $aDroplet['content'] = explode("\n",$sDroplet[0]['content']);
-
 //                if ( !preg_match('/'.$file_types.'/si', $aDroplet['name'], $aMatch) ) { 
 //                  continue; }
-                if( $sTmp = insertDroplet($aDroplet, false)) {
+                if( $sTmp = insertDroplet($aDroplet, $oDb, $oApp, false)) {
                     $aUnzipDroplets[] = $sTmp; 
                 }
             }

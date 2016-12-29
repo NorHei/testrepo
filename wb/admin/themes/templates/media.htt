@@ -33,34 +33,34 @@
             </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file1" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file1" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file2" id="file2" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file2" id="file2" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file3" id="file3" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file3" id="file3" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file4" id="file4" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file4" id="file4" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file5" id="file5" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file5" id="file5" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file6" id="file6" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file6" id="file6" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file7" id="file7" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file7" id="file7" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file8" id="file8" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file8" id="file8" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file9" id="file9" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file9" id="file9" style="visibility: visible;" /> </td>
           </tr>
           <tr>
-            <td width="50%" align="left"><input type="file" size="33" name="file10" id="file10" style="visibility: visible;" /> </td>
+            <td style="width: 50%; float: left;"><input type="file" size="33" name="file10" id="file10" style="visibility: visible;" /> </td>
           </tr>
         </table>
 

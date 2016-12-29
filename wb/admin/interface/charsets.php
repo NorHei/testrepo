@@ -20,8 +20,8 @@
  */
 
 if(!defined('WB_URL')) {
-	header('Location: ../index.php');
-	exit(0);
+    header('Location: ../index.php');
+    exit(0);
 }
 
 // Create array
@@ -43,4 +43,3 @@ $CHARSETS['big5'] = 'Chinese Traditional (big5)';
 $CHARSETS['iso-2022-jp'] = 'Japanese (iso-2022-jp)';
 $CHARSETS['iso-2022-kr'] = 'Korean (iso-2022-kr)';
 
-?>

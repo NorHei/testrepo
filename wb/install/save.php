@@ -145,9 +145,6 @@ if (!isset($_POST['default_timezone']) OR !is_numeric($_POST['default_timezone']
 // End path and timezone details code
 
 // Get the default language
-
-
-
 $sLangDir = str_replace('\\', '/', dirname(dirname(__FILE__)).'/languages/');
 $allowed_languages = preg_replace('/^.*\/([A-Z]{2})\.php$/iU', '\1', glob($sLangDir.'??.php'));
 if (!isset($_POST['default_language']) OR !in_array($_POST['default_language'], $allowed_languages)) {
@@ -280,9 +277,10 @@ $database_charset = 'utf8';
 
 // build name and content of the config file
 $config_filename = dirname(dirname(__FILE__)).'/config.php';
-$config_content 
+$config_content
     = '<?php'."\n"
     .  "\n"
+    . 'define(\'DEBUG\', false);'."\n"
     . 'define(\'DB_TYPE\', \'mysqli\');'."\n"
     . 'define(\'DB_HOST\', \''.$database_host.'\');'."\n"
     . (isset($database_port) ? 'define(\'DB_PORT\', \''.$database_port.'\');'."\n" : '')
@@ -310,7 +308,7 @@ if ($sMsg) { set_error($sMsg); } // if something gone wrong, break with message
 // include config file to set constants
 include_once($config_filename);
 // now we can complete the config file
-$config_content 
+$config_content
     = "\n".'require_once(dirname(__FILE__).\'/framework/initialize.php\');'."\n"
     . '// end of file -------------'."\n";
 // no errorhandling needed. 15 lines before we already wrote to this file successful!
@@ -321,6 +319,10 @@ define('WB_PATH', dirname(dirname(__FILE__)));
 define('ADMIN_PATH', WB_PATH.'/'.ADMIN_DIRECTORY);
 define('ADMIN_URL', WB_URL.'/'.ADMIN_DIRECTORY);
 require(ADMIN_PATH.'/interface/version.php');
+// *** initialize Exception handling
+if(!function_exists('globalExceptionHandler')) {
+    include(WB_PATH.'/framework/globalExceptionHandler.php');
+}
 
 // Try connecting to database
 if (!file_exists(WB_PATH.'/framework/class.database.php')) {
@@ -334,27 +336,27 @@ try {
           . $e->getMessage();
     set_error($sMsg);
 }
-if (!defined('WB_INSTALL_PROCESS')) { 
-    define ('WB_INSTALL_PROCESS', true); 
+if (!defined('WB_INSTALL_PROCESS')) {
+    define ('WB_INSTALL_PROCESS', true);
 }
 
 /*****************************
 Begin Create Database Tables
 *****************************/
 $sInstallDir = dirname(__FILE__);
-if (is_readable($sInstallDir.'/install_struct.sql')) {
-    if (! $database->SqlImport($sInstallDir.'/install_struct.sql', TABLE_PREFIX, false)) {
-        set_error('unable to import \'install/install_struct.sql\'');
+if (is_readable($sInstallDir.'/install-struct.sql')) {
+    if (! $database->SqlImport($sInstallDir.'/install-struct.sql', TABLE_PREFIX, false)) {
+        set_error('unable to import \'install/install-struct.sql\'');
     }
 } else {
-    set_error('unable to read file \'install/install_struct.sql\'');
+    set_error('unable to read file \'install/install-struct.sql\'');
 }
-if (is_readable($sInstallDir.'/install_data.sql')) {
-    if (! $database->SqlImport($sInstallDir.'/install_data.sql', TABLE_PREFIX, false )) {
-        set_error('unable to import \'install/install_data.sql\'');
+if (is_readable($sInstallDir.'/install-data.sql')) {
+    if (! $database->SqlImport($sInstallDir.'/install-data.sql', TABLE_PREFIX, false )) {
+        set_error('unable to import \'install/install-data.sql\'');
     }
 } else {
-    set_error('unable to read file \'install/install_data.sql\'');
+    set_error('unable to read file \'install/install-data.sql\'');
 }
 $sql = // add settings from install input
 'INSERT INTO `'.TABLE_PREFIX.'settings` (`name`, `value`) VALUES '
@@ -370,7 +372,8 @@ $sql = // add settings from install input
     .'(\'string_file_mode\', \''.$file_mode.'\'),'
     .'(\'server_email\', \''.$admin_email.'\')';
 if (! ($database->query($sql))) {
-    set_error('unable to write \'install presets\' into table \'settings\'');
+    $msg = $database->get_error();
+    set_error('unable to write \'install presets\' into table \'settings\'<br />'.$msg);
 }
 
 $sql = // add the Admin user
@@ -421,14 +424,11 @@ class admin_dummy extends admin
 
 // Include WB functions file
 require_once(WB_PATH.'/framework/functions.php');
-// Re-connect to the database, this time using in-build database class
-require_once(WB_PATH.'/framework/class.Login.php');
-// reconnect database if needed
-//if (!(isset($database) & ($database instanceof database))) {
-//    $database = new database();
-//}
+
+require_once(WB_PATH.'/framework/Login.php');
 // Include the PclZip class file (thanks to
 require_once(WB_PATH.'/include/pclzip/pclzip.lib.php');
+
 $admin = new admin_dummy('Start','',false,false);
 
 // Load addons into DB
@@ -437,7 +437,6 @@ $dirs['templates'] = WB_PATH.'/templates/';
 $dirs['languages'] = WB_PATH.'/languages/';
 
 foreach ($dirs as $type => $dir) {
-
     if ($handle = opendir($dir)) {
         while (false !== ($file = readdir($handle))) {
             if ($file != '' AND substr($file, 0, 1) != '.' AND $file != 'admin.php' AND $file != 'index.php') {

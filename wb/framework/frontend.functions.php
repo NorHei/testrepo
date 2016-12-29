@@ -33,30 +33,44 @@ if(!defined('WB_PATH')) {
     $include_head_link_css = '';
     $include_body_links    = '';
     $include_head_links    = '';
+    $aAlllowedModules = array();
+    $aModules = glob (WB_PATH.'/modules/*', GLOB_ONLYDIR|GLOB_NOSORT);
+    foreach ($aModules as $sPath){
+        if (is_readable($sPath.'/include.php')){$aAlllowedModules[] = basename($sPath);}
+    }
+    $sAllowedModules   = implode(', ',
+                         array_map(function(&$item) use ($database){
+                                       return '\''.$database->escapeString($item) .'\'';
+                                   },$aAlllowedModules));
 
-// workout to included frontend.css, fronten.js and frontend_body.js in snippets
-    $sql = 'SELECT `type`,`function`,`directory` FROM `'.TABLE_PREFIX.'addons` '
-         . 'WHERE `type`=\'module\' AND `function` IN (\'snippet\',\'wysiwyg\')';
-    $sql  = 'SELECT `directory` FROM `'.TABLE_PREFIX.'addons` '
-          . 'WHERE `type`=\'module\' AND `function`=\'snippet\' ';
-    if(($resSnippets = $database->query($sql))) {
-        while($recSnippet = $resSnippets->fetchRow( MYSQLI_ASSOC)) {
-            $module_dir = $recSnippet['directory'];
-            if (file_exists(WB_PATH.'/modules/'.$module_dir.'/include.php')) {
+// workout to included frontend.css, fronten.js and frontend_body.js in snippets and tools
+    $sql  = 'SELECT `directory`,`function` FROM `'.TABLE_PREFIX.'addons` '
+          . 'WHERE `type`=\'module\' '
+          .   'AND `function` IN (\'snippet\', \'tool\') '
+          .   'AND `directory`IN('.$sAllowedModules.')'
+          . '';
+    if(($oSnippets = $database->query($sql)))
+    {
+        while($aSnippet = $oSnippets->fetchRow( MYSQLI_ASSOC))
+        {
+            $module_dir = $aSnippet['directory'];
+            if (is_readable(WB_PATH.'/modules/'.$module_dir.'/include.php'))
+            {
+                // script should always execute by a function
                 include(WB_PATH.'/modules/'.$module_dir.'/include.php');
             // check if frontend.css file needs to be included into the <head></head> of index.php
-                if( file_exists(WB_PATH .'/modules/'.$module_dir.'/frontend.css')) {
+                if( is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend.css')) {
                     $include_head_link_css .= '<link href="'.WB_URL.'/modules/'.$module_dir.'/frontend.css"';
                     $include_head_link_css .= ' rel="stylesheet" type="text/css" media="screen" />'."\n";
                     $include_head_file = 'frontend.css';
                 }
             // check if frontend.js file needs to be included into the <body></body> of index.php
-                if(file_exists(WB_PATH .'/modules/'.$module_dir.'/frontend.js')) {
+                if(is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend.js')) {
                     $include_head_links .= '<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend.js" type="text/javascript"></script>'."\n";
                     $include_head_file = 'frontend.js';
                 }
             // check if frontend_body.js file needs to be included into the <body></body> of index.php
-                if(file_exists(WB_PATH .'/modules/'.$module_dir.'/frontend_body.js')) {
+                if(is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend_body.js')) {
                     $include_body_links .= '<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend_body.js" type="text/javascript"></script>'."\n";
                     $include_body_file = 'frontend_body.js';
                 }
@@ -249,12 +263,13 @@ if (!function_exists('page_content')) {
         global $database;
         global $wb;
         $admin = $wb;
+
         if ($wb->page_access_denied==true) {
-            echo $MESSAGE['FRONTEND']['SORRY_NO_VIEWING_PERMISSIONS'];
+            echo $MESSAGE['FRONTEND_SORRY_NO_VIEWING_PERMISSIONS'];
             return;
         }
         if ($wb->page_no_active_sections==true) {
-            echo $MESSAGE['FRONTEND']['SORRY_NO_ACTIVE_SECTIONS'];
+            echo $MESSAGE['FRONTEND_SORRY_NO_ACTIVE_SECTIONS'];
             return;
         }
         if(isset($globals) AND is_array($globals)) {
@@ -263,15 +278,14 @@ if (!function_exists('page_content')) {
             }
         }
         // Make sure block is numeric
-        if( ($block = intval($block)) == 0 ) { $block = 1; }
+        if (($block = intval($block)) == 0 ) { $block = 1;}
         // Include page content
-        if(!defined('PAGE_CONTENT') OR $block!=1)
+        if (!defined('PAGE_CONTENT') OR $block!=1)
         {
             $page_id = intval($wb->page_id);
-           if(($wb instanceof frontend) && !$wb->page_is_visible($wb->page)) { // SOLVED dw2015
+            if (($wb instanceof frontend) && !$wb->page_is_visible($wb->page)) { // SOLVED dw2015
              return ;
-           }
-
+            }
         // First get all sections for this page
             $sql  = 'SELECT `section_id`, `module`, `publ_start`, `publ_end` ';
             $sql .= 'FROM `'.TABLE_PREFIX.'sections` ';
@@ -301,29 +315,30 @@ if (!function_exists('page_content')) {
                 if( !(($now<=$section['publ_end'] || $section['publ_end']==0) && ($now>=$section['publ_start'] || $section['publ_start']==0)) ) {
                     continue;
                 }
-                $section_id = $section['section_id'];
-                $module = $section['module'];
-                $sec_anchor = '';
-                if(defined('SEC_ANCHOR') && SEC_ANCHOR!='') {
-                    $sec_anchor = '<a class="section_anchor" id="'.SEC_ANCHOR.$section_id.'" ></a>';
-                }
+                $section_id = $section['section_id'] ;
+                $module = $section['module'] ;
                 // check if module exists - feature: write in errorlog
                 if(is_readable(WB_PATH.'/modules/'.$module.'/view.php')) {
-                    // make a anchor for every section.
-                // fetch content -- this is where to place possible output-filters (before highlighting)
-                    ob_start(); // fetch original content
-                    require(WB_PATH.'/modules/'.$module.'/view.php');
-                    $content = ob_get_clean();
-                    if(function_exists('OutputFilterApi')) {
-                      $content = OutputFilterApi('OpF?arg=section&module='.$module.'&page_id='.$page_id.'&section_id='.$section_id, $content);
-                   }
+                 // fetch content -- this is where to place possible output-filters (before highlighting)
+                 ob_start() ; // fetch original content<div id="Sec103" class="section  m_modulename user-defined-class" >
+                 $sSectionIdPrefix = (defined('SEC_ANCHOR') && SEC_ANCHOR != '') ? SEC_ANCHOR : 'Sec' ;
+                 require (WB_PATH.'/modules/'.$module.'/view.php') ;
+                 $content = ob_get_clean() ;
+                 if($content != '') {
+                   //                        ob_start(); // fetch original content<div id="Sec103" class="section  m_modulename user-defined-class" >
+                   $sBeforeContent = ($sSectionIdPrefix == 'none') ? '' : "\n".'<div id="'.$sSectionIdPrefix.$section_id.'" class="section m_'.$module.'" >'."\n" ;
+                   //                        echo $content;
+                   $sAfterContent = ($sSectionIdPrefix == 'none') ? '' : "\n".'</div><!-- '.$module.$section_id.' -->'."\n" ;
+                   //                        $content = ob_get_clean();
+                   $content = $sBeforeContent.$content.$sAfterContent ;
+                 }
                 } else {
                     continue;
                 }
                 // highlights searchresults
-                if(isset($_GET['searchresult']) && is_numeric($_GET['searchresult']) 
-                          && !isset($_GET['nohighlight']) 
-                          && isset($_GET['sstring']) 
+                if (isset($_GET['searchresult']) && is_numeric($_GET['searchresult'])
+                          && !isset($_GET['nohighlight'])
+                          && isset($_GET['sstring'])
                           && !empty($_GET['sstring'])
                           ) {
                     $arr_string = explode(" ", $_GET['sstring']);
@@ -332,11 +347,10 @@ if (!function_exists('page_content')) {
                     }
                     echo search_highlight($content, $arr_string);
                 } else {
-                    echo PHP_EOL.$sec_anchor.PHP_EOL.$content;
+                    echo $content;
                 }
             }
-        }
-        else {   // Searchresults! But also some special pages,
+        } else {   // Searchresults! But also some special pages,
          // e.g. guestbook (add entry), news (add comment) uses this
             ob_start(); // fetch original content
             require(PAGE_CONTENT);
@@ -529,7 +543,6 @@ if(!function_exists('register_frontend_modfiles_body'))
                 }
                 $include_body_links = '';
             }
-
             // gather information for all models embedded on actual page
             $page_id = $wb->page_id;
             $sql = 'SELECT `module` FROM `'.TABLE_PREFIX.'sections` ';
@@ -543,10 +556,8 @@ if(!function_exists('register_frontend_modfiles_body'))
                     {
                     // create link with frontend_body.js source for the current module
                         $tmp_link = str_replace("{MODULE_DIRECTORY}", $row['module'], $base_link);
-
                         // define constant indicating that the register_frontent_files_body was invoked
                             if(!defined('MOD_FRONTEND_BODY_JAVASCRIPT_REGISTERED')) { define('MOD_FRONTEND_BODY_JAVASCRIPT_REGISTERED', true);}
-
                         // ensure that frontend_body.js is only added once per module type
                         if(strpos($body_links, $tmp_link) === false)
                         {
@@ -570,18 +581,17 @@ if(!function_exists('register_frontend_modfiles'))
         // sanity check of parameter passed to the function
         $file_id = strtolower($file_id);
         $aAllowedAction = array( 'css', 'script', 'js', 'jquery', 'javascript' );
-        if(!in_array($file_id, $aAllowedAction)) { return false; }
+        if (!in_array($file_id, $aAllowedAction)) { return false; }
         global $wb, $database, $include_head_link_css, $include_head_links, $page_id;
         // define default baselink and filename for optional module javascript and stylesheet files
         $head_links = "";
         $base_file = '';
         $base_link = '';
-
         switch ($file_id)
         {
             case 'css':
                 $base_link = '<link href="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.css"';
-                $base_link.= ' rel="stylesheet" type="text/css" media="screen" />';
+                $base_link.= ' rel="stylesheet" media="screen" type="text/css" />';
                 $base_file = "frontend.css";
                 if(!empty($include_head_link_css))
                 {
@@ -591,28 +601,34 @@ if(!function_exists('register_frontend_modfiles'))
                 break;
             case 'jquery':
                 $aFilterSettings = getOutputFilterSettings();
-                $key = preg_replace('=^.*?filter([^\.\/\\\\]+)(\.[^\.]+)?$=is', '\1', 'filterJquery.inc');
+                $key = preg_replace('=^.*?filter([^\.\/\\\\]+)(\.[^\.]+)?$=is', '\1', 'filterJquery.php');
                 $bLoadJquery = !isset($aFilterSettings[$key]);
                 $bLoadJquery = @!$aFilterSettings[$key] ?: $bLoadJquery;
-                if ( $bLoadJquery ) {
+                if ($bLoadJquery) {
                     $head_links .= bind_jquery($file_id);
                 }
                 break;
             case 'js':
-//                $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js" type="text/javascript"></script>';
-//                $base_file = "frontend.js";
-//                if(!empty($include_head_links))
-//                {
-//                  $head_links .= !strpos($head_links, $include_head_links) ? $include_head_links : '';
-//                  $include_head_links = '';
-//                }
+//                break;
+                $aFilterSettings = getOutputFilterSettings();
+                $key = preg_replace('=^.*?filter([^\.\/\\\\]+)(\.[^\.]+)?$=is', '\1', 'filterFrontendJs.php');
+                $bLoadJs = !isset($aFilterSettings[$key]);
+                $bLoadJs = @!$aFilterSettings[$key] ?: $bLoadJs;
+                if ($bLoadJs) {
+                    $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js" type="text/javascript"></script>';
+                    $base_file = "frontend.js";
+                    if (!empty($include_head_links))
+                    {
+                      $head_links .= !strpos($head_links, $include_head_links) ? $include_head_links : '';
+                      $include_head_links = '';
+                    }
+                }
                 break;
             case 'script_old':
                 break;
             default:
                 break;
         }
-
         if( $file_id != 'jquery_old')
         {
             // gather information for all models embedded on actual page
@@ -629,24 +645,23 @@ if(!function_exists('register_frontend_modfiles'))
                     // create link with frontend.js or frontend.css source for the current module
                         $tmp_link = str_replace("{MODULE_DIRECTORY}", $row['module'], $base_link);
                         // define constant indicating that the register_frontent_files was invoked
-   
                         if($file_id == 'css')
                         {
                             if(!defined('MOD_FRONTEND_CSS_REGISTERED')) define('MOD_FRONTEND_CSS_REGISTERED', true);
-                        } else
-                        {
+                        } else {
                             if(!defined('MOD_FRONTEND_JAVASCRIPT_REGISTERED')) define('MOD_FRONTEND_JAVASCRIPT_REGISTERED', true);
                         }
                         // ensure that frontend.js or frontend.css is only added once per module type
                         if( $tmp_link && strpos($head_links, $tmp_link) === false)
                         {
-                            $head_links .= $tmp_link."\n";
+                            $head_links .= $tmp_link."\n\n";
                         }
                     };
                 }
             }
         }
         print $head_links;
+//        return $head_links;
     }
 }
 

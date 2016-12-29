@@ -99,7 +99,7 @@ function change_os(type) {
 <tbody>
 <tr style="background: #a9c9ea;">
     <td valign="top">
-        <img src="../templates/wb_theme/images/logo.png" alt="Logo" />
+        <img src="../templates/DefaultTheme/images/logo.png" alt="Logo" />
     </td>
     <td>
         <h1 style="border:none; margin-top:1em;font-size:150%;">Installation Wizard</h1>
@@ -330,7 +330,7 @@ But this solution does not guarranty a correct displaying of the content from al
             <td class="name">Default Language: </td>
             <td class="value"><select <?php echo field_error('default_language');?> tabindex="3" name="default_language" style="width: 100%;">
 <?php
-/* 
+/*
  Find all available languages in /language/ folder and build option list from
 */
     $sLangDir = str_replace('\\', '/', dirname(dirname(__FILE__)).'/languages/');

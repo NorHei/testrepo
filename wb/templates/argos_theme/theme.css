@@ -174,3 +174,21 @@ button.status { cursor :pointer; border-radius :5px; -khtml-border-radius :5px; 
 .block-outer {padding: 3px 3px 0; border: 1px solid #DEE5F8; border-radius: 5px; margin-bottom: 25px; box-shadow: 1px 1px 5px #666; }
 .section-active { padding:1px 5px; background:#DEE5F8; border-radius: 5px 5px 0 0; margin-bottom:5px; }
 .section-inactive { padding:1px 5px; background:#eee; border-radius: 5px 5px 0 0; margin-bottom:5px; }
+li,
+ul { list-style: none;}
+/* pages_settings */
+div table.pages-settings { width: 100%; white-space: nowrap; border-collapse: collapse; table-layout: fixed; }
+
+div table.table.pages-settings tr { line-height: 2.2525em; }
+div table.table.pages-settings tr.submit { line-height: 5.2525em; }
+div table.table.pages-settings thead tr th:first-child,
+div table.table.pages-settings tbody tr td:first-child { width: 60%!important; padding-right: 0.8525em; text-align: right;  }
+div table.table.pages-settings thead tr th:nth-child(2),
+div table.table.pages-settings tbody tr td:nth-child(2) { width: 100%; padding-right: 0.8525em;  }
+
+div table.access li { line-height: 1.8525em; }
+div table.table.pages-settings tbody tr td label,
+div table.access.pages-settings tbody tr td label.access { color: #1C517A; font-weight: bold; }
+div table.pages-settings tbody tr td span { padding: 0 0.925em; }
+tr.border { margin: 1.8525em 0; border-top: #C3C3C3 solid 2px; border-bottom: #C3C3C3 solid 2px; line-height: 3.525em !important; }
+td input[type="checkbox"] { width: 1.225em !important; vertical-align: middle; }

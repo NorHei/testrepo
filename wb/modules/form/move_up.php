@@ -13,7 +13,7 @@
  * @version         $Id: move_up.php 1457 2011-06-25 17:18:50Z Luisehahne $
  * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/branches/2.8.x/wb/modules/form/move_up.php $
  * @lastmodified    $Date: 2011-06-25 19:18:50 +0200 (Sa, 25. Jun 2011) $
- * @description     
+ * @description
  */
 
 require('../../config.php');

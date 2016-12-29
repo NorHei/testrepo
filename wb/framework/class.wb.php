@@ -59,22 +59,19 @@ class wb extends SecureTokensInterface
  * @param array &$matches: an array-var whitch will return possible matches
  * @return bool: true there is a match, otherwise false
  */
-    public function is_group_match( $groups_list1 = '', $groups_list2 = '', &$matches = null )
+    public function is_group_match($mGroupsList1 = '', $mGroupsList2 = '', &$matches = null)
     {
-        if( $groups_list1 == '' ) { return false; }
-        if( $groups_list2 == '' ) { return false; }
-        if( !is_array($groups_list1) )
-        {
-            $groups_list1 = explode(',', $groups_list1);
+        if ($mGroupsList1 == '' || $mGroupsList2 == '') { return false; }
+        if (!is_array($mGroupsList1)) {
+            $mGroupsList1 = preg_split('/[\s,=+\-\;\:\.\|]+/', $mGroupsList1, -1, PREG_SPLIT_NO_EMPTY);
         }
-        if( !is_array($groups_list2) )
-        {
-            $groups_list2 = explode(',', $groups_list2);
+        if (!is_array($mGroupsList2)) {
+            $mGroupsList2 = preg_split('/[\s,=+\-\;\:\.\|]+/', $mGroupsList2, -1, PREG_SPLIT_NO_EMPTY);
         }
-        $matches = array_intersect( $groups_list1, $groups_list2);
-        return ( sizeof($matches) != 0 );
+        $matches = array_intersect($mGroupsList1, $mGroupsList2);
+        return (sizeof($matches) != 0);
     }
-/* ****************
+/**
  * check if current user is member of at least one of given groups
  * ADMIN (uid=1) always is treated like a member of any groups
  *
@@ -318,7 +315,7 @@ class wb extends SecureTokensInterface
         header( 'Location: '.$location);
         exit( 0);
       } else {
-  
+
         //            $aDebugBacktrace = debug_backtrace();
         //            array_walk( $aDebugBacktrace, create_function( '$a,$b', 'print "<br /><b>". basename( $a[\'file\'] ). "</b> &nbsp; <font color=\"red\">{$a[\'line\']}</font> &nbsp; <font color=\"green\">{$a[\'function\']} ()</font> &nbsp; -- ". dirname( $a[\'file\'] ). "/";' ) );
         $msg = "<div style=\"text-align:center;\"><h2>An error has occurred</h2><p>The <strong>Redirect</strong> could not be start automatically.\n".
@@ -447,14 +444,32 @@ class wb extends SecureTokensInterface
                     $sMessagePath='',
                     $aAttachment=null
                     ) {
+
+        $aFromAddress     = array();
+        $aToAddress       = array();
+        $aReplyToAddress  = array();
+
         // Strip breaks and trim
+        if ($sFromname!='') {
+            $sFromname    = preg_replace( "/[^a-z0-9 !?:;,.\/_\-=+@#$&\*\(\)]/im", "", $sFromname );
+            $sFromname    = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $sFromname );
+        }
         $sFromAddress     = trim(preg_replace('/[\r\n]/', '', $sFromAddress));
+
+        if ($toName!='') {
+            $toName       = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $toName );
+        }
         $toAddress        = trim(preg_replace('/[\r\n]/', '', $toAddress));
-        $sSubject         = trim(preg_replace('/[\r\n]/', '', $sSubject));
+
+        if ($sReplyToName!='') {
+            $sReplyToName = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $sReplyToName );
+        }
+        //Set who the message is to be sent from
         $sReplyToAddress  = trim(preg_replace('/[\r\n]/', '', $sReplyToAddress));
+        $sReplyToAddress  = ( ($sReplyToAddress=='')?$toAddress:$sReplyToAddress );
+
+        $sSubject         = trim(preg_replace('/[\r\n]/', '', $sSubject));
         // sanitize parameter to prevent injection
-        $sRecipient       = preg_replace( "/[^a-z0-9 !?:;,.\/_\-=+@#$&\*\(\)]/im", "", $sFromname );
-        $sFromname        = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $sRecipient );
         $sMessage         = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $sMessage );
 
         // create PHPMailer object and define default settings
@@ -466,19 +481,13 @@ class wb extends SecureTokensInterface
         // convert commaseperated toAdresses List to an array
         $aToAddress = $myMail->parseAddresses( $toAddress, false );
 
-        // set user defined from address
         if ($sFromAddress!='') {
-//Set who the message is to be sent from
+        // set user defined from address
             $myMail->setFrom($sFromAddress, $sFromname);
-            $sReplyToAddress = ( ($sReplyToAddress=='')?$sFromAddress:$sReplyToAddress );
-        // convert commaseperated toAdresses List to an array
-            $aReplyToAddress = $myMail->parseAddresses( $sReplyToAddress, false );
-            foreach ($aReplyToAddress as $replyToAddr) {                            // TO:
-                $myMail->addReplyTo($replyToAddr['address']);
-            }
-            foreach ($aToAddress as $toAddr) {                            // TO:
-                $myMail->AddAddress($toAddr['address']);
-            }
+        // set user defined to address
+            $myMail->AddAddress($toAddress, $toName);
+        // set user defined to ReplyTo
+            if ($sReplyToAddress!='') {$myMail->addReplyTo($sReplyToAddress, $sReplyToName);}
         }
 
 //Set the subject line
@@ -614,4 +623,76 @@ class wb extends SecureTokensInterface
         return Sanitize::StripFromText($mText, $iFlags);
     }
 
+  /**
+   * ReplaceAbsoluteMediaUrl
+   * @param string $sContent
+   * @return string
+   * @description Replace URLs witch are pointing into MEDIA_DIRECTORY with an URL
+   *              independend placeholder
+   */
+/*
+  public function ReplaceAbsoluteMediaUrl( $sContent)
+  {
+//    $oReg = WbAdaptor::getInstance();
+    if( ini_get( 'magic_quotes_gpc') == true) {
+      $sContent = $this->strip_slashes( $sContent);
+    }
+    if( is_string( $sContent)) {
+      $sRelUrl = preg_replace('/^https?:\/\/[^\/]+(.*)/is', '\1', WB_URL);
+      $sDocumentRootUrl = str_replace($sRelUrl, '', WB_URL);
+      $sMediaUrl = WB_URL.MEDIA_DIRECTORY.'/';
+      $aSearchfor = array(
+          '@(<[^>]*=\s*")('.preg_quote($sMediaUrl).
+          ')([^">]*".*>)@siU', '@(<[^>]*=\s*")('.preg_quote( WB_URL.'/').')([^">]*".*>)@siU',
+          '/(<[^>]*?=\s*\")(\/+)([^\"]*?\"[^>]*?)/is',
+          '/(<[^>]*=\s*")('.preg_quote($sMediaUrl, '/').')([^">]*".*>)/siU'
+          );
+      $aReplacements = array( '$1{SYSVAR:AppUrl.MediaDir}$3', '$1{SYSVAR:AppUrl}$3','\1'.$sDocumentRootUrl.'/\3','$1{SYSVAR:MEDIA_REL}$3' );
+      $sContent = preg_replace( $aSearchfor, $aReplacements, $sContent);
+    }
+    return $sContent;
+  }
+  public function OldReplaceAbsoluteMediaUrl( $sContent)
+  {
+    $sRelUrl = preg_replace('/^https?:\/\/[^\/]+(.*)/is', '\1', WB_URL);
+    $sDocumentRootUrl = str_replace($sRelUrl, '', WB_URL);
+    $sMediaUrl = WB_URL.MEDIA_DIRECTORY;
+    $aPatterns = array(
+        '/(<[^>]*?=\s*\")(\/+)([^\"]*?\"[^>]*?)/is',
+        '/(<[^>]*=\s*")('.preg_quote($sMediaUrl, '/').')([^">]*".*>)/siU'
+    );
+    $aReplacements = array(
+        '\1'.$sDocumentRootUrl.'/\3',
+        '$1{SYSVAR:MEDIA_REL}$3'
+    );
+    $content = preg_replace($aPatterns, $aReplacements, $content);
+    return $sContent;
+  }
+*/
+
+/**
+ * get all defined variables from an info.php file
+ * @param string $sFilePath  full path and filename
+ * @return array containing all settings (empty array on error)
+ */
+    public function getContentFromInfoPhp($sFilePath)
+    {
+        $aInfo = array();
+        if (is_readable($sFilePath)) {
+            $aOldVars = array();
+            $aOldVars = get_defined_vars();
+            include $sFilePath;
+            $aNewVars = get_defined_vars();
+            $aInfo = array_diff_key($aNewVars, $aOldVars);
+            $aCommon = array();
+            foreach ($aInfo as $key => $val) {
+                if (is_array($val)) { continue; }
+                $sShortKey = str_replace(array('template_', 'module_'), '', $key);
+                $aCommon[$sShortKey] = $val;
+                unset($aInfo[$key]);
+            }
+            $aInfo['common'] = $aCommon;
+        }
+        return $aInfo;
+    } // end of getContentFromInfoPhp()
 }

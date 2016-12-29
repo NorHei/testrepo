@@ -19,19 +19,23 @@
 
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
-if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
+if (defined('WB_PATH') == false) {
+    die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).'');
+} else {
 /* -------------------------------------------------------- */
-if(!function_exists('insertDropletFile')) { require('droplets.functions.php'); }
-
-    $table_name = TABLE_PREFIX .'mod_droplets';
-    $description = 'INT NOT NULL default 0 ';
-    $database->field_add($table_name,'show_wysiwyg',$description.'AFTER `active`' );
-    $database->field_add($table_name,'admin_view',$description.'AFTER `active`' );
-    $database->field_add($table_name,'admin_edit',$description.'AFTER `active`' );
-
-    $sBaseDir = realpath(dirname(__FILE__).'/example/');
-    $sBaseDir    = rtrim(str_replace('\\', '/', $sBaseDir), '/').'/';
-    $aDropletFiles = getDropletFromFiles($sBaseDir);
-    $bOverwriteDroplets = false;
-    insertDropletFile($aDropletFiles,$msg,$bOverwriteDroplets,$admin);
+    if(!function_exists('insertDropletFile')) {require('droplets.functions.php');}
+    $msg = array();
+    // create tables from sql dump file
+    if (is_readable(__DIR__.'/install-struct.sql')) {
+        if (!$database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, true )){
+            echo $msg[] = $database->get_error();
+        } else {
+        }
+        $sBaseDir = realpath(dirname(__FILE__).'/example/');
+        $sBaseDir    = rtrim(str_replace('\\', '/', $sBaseDir), '/').'/';
+        $aDropletFiles = getDropletFromFiles($sBaseDir);
+        $bOverwriteDroplets = false;
+        insertDropletFile($aDropletFiles, $database, $admin,$msg,$bOverwriteDroplets);
+    }
+}
 

@@ -38,7 +38,7 @@ if (!check_media_path($directory)) {
 }
 
 // Get the temp id
-$file_id = intval($admin->checkIDKEY('id', false, $_SERVER['REQUEST_METHOD']));
+$iFileId = $file_id = intval($admin->checkIDKEY('id', false, $_SERVER['REQUEST_METHOD']));
 if (!$file_id) {
     $admin->print_error($MESSAGE['GENERIC_SECURITY_ACCESS'],$dirlink, false);
 }
@@ -51,7 +51,8 @@ $home_folders = get_home_folders();
 // Figure out what folder name the temp id is
 if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
     // Loop through the files and dirs an add to list
-   while (false !== ($file = readdir($handle))) {
+    $temp_id = 0;
+    while (false !== ($file = readdir($handle))) {
         $info = pathinfo($file);
         $ext = isset($info['extension']) ? $info['extension'] : '';
         if(substr($file, 0, 1) != '.' AND $file != '.svn' AND $file != 'index.php') {
@@ -105,17 +106,21 @@ if(media_filename($admin->get_post('name')) == "") {
 
 // Check if they entered an extension
 if($type == 'file') {
+    if (strstr($new_name,'.')){
+        $new_name = str_replace('.', '_', $new_name);
+    }
     if(media_filename($admin->get_post('extension')) == "") {
-        $admin->print_error($MESSAGE['MEDIA_BLANK_EXTENSION'], "rename.php?dir=$directory&id=$file_id", false);
+        $name = $new_name;
     } else {
         $extension = media_filename($admin->get_post('extension'));
+        $name = $new_name.'.'.trim($extension,'.');
     }
-} else {
+} elseif($type == 'folder') {
     $extension = '';
+    $name = $new_name;
 }
 
 // Join new name and extension
-$name = $new_name.$extension;
 
 $info = pathinfo(WB_PATH.MEDIA_DIRECTORY.$directory.'/'.$name);
 $ext = isset($info['extension']) ? $info['extension'] : '';
@@ -162,7 +167,6 @@ if(rename(WB_PATH.MEDIA_DIRECTORY.$directory.'/'.$rename_file, WB_PATH.MEDIA_DIR
     $usedFiles = array();
     // feature freeze
     // require_once(ADMIN_PATH.'/media/dse.php');
-
     $admin->print_success($MESSAGE['MEDIA_RENAMED'], $dirlink);
 } else {
     $admin->print_error($MESSAGE['MEDIA_CANNOT_RENAME'], "rename.php?dir=$directory&id=$file_id", false);

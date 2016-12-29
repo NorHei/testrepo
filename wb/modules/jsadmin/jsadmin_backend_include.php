@@ -28,16 +28,19 @@ $script = $_SERVER['SCRIPT_NAME'];
 $page_type = '';
 //$module_dir = $script;
 if( !isset( $module_dir ) ) { $module_dir= 'jsadmin'; }
-if(strstr($script, $admin_folder."/pages/index.php"))
+
+if(strstr($script, $admin_folder."/pages/index.php")){
     $page_type = 'pages';
-elseif(strstr($script, $admin_folder."/pages/sections.php"))
+}elseif(strstr($script, $admin_folder."/pages/sections.php")){
     $page_type = 'sections';
-elseif(strstr($script, $admin_folder."/settings/tool.php")
-    && isset($_REQUEST["tool"]) && $_REQUEST["tool"] == 'jsadmin')
-    $page_type = 'config';
-elseif(strstr($script, $admin_folder."/pages/modify.php"))  {
+}elseif(strstr($script, $admin_folder."/settings/tool.php")
+    && isset($_REQUEST["tool"]) && $_REQUEST["tool"] == 'jsadmin'){
+    $page_type = 'settings';
+}elseif(strstr($script, $admin_folder."/pages/modify.php"))  {
     $page_type = 'modules';
-} 
+}elseif(strstr($script, $admin_folder."/admintools/tool.php"))  {
+    $page_type = 'tool';
+}
 
 if($page_type) {
 
@@ -81,9 +84,13 @@ if($page_type) {
 ?>
 <script  type="text/javascript">
 <!--
-var JsAdmin = { WB_URL : '<?php echo WB_URL ?>', ADMIN_URL : '<?php echo ADMIN_URL ?>', ModuleUrl : '<?php echo $module_dir ?>' };
+var JsAdmin = {
+    ADMIN_DIRECTORY : '<?php echo '/'.ADMIN_DIRECTORY ?>',
+    WB_URL : '<?php echo WB_URL ?>',
+    ADMIN_URL : '<?php echo ADMIN_URL ?>',
+    ModuleUrl : '<?php echo $module_dir ?>'
+};
 var JsAdminTheme = { THEME_URL : '<?php echo THEME_URL ?>' };
-
 //-->
 </script>
 <?php

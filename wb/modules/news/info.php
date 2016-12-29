@@ -21,9 +21,9 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 
 $module_directory   = 'news';
-$module_name        = 'News';
+$module_name        = 'News v3.6.3-dev';
 $module_function    = 'page';
-$module_version     = '3.6.0';
+$module_version     = '3.6.3-dev';
 $module_platform    = '2.8.3';
 $module_author      = 'Ryan Djurovich, Rob Smith, Werner v.d.Decken';
 $module_license     = 'GNU General Public License';

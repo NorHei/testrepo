@@ -52,6 +52,7 @@ if (!function_exists('emailAdmin')) {
         return $retval;
     }
 }
+
    $emailAdmin = (function () use ( $database, $wb )
    {
         $retval = $wb->get_email();
@@ -85,7 +86,6 @@ if (!function_exists('make_checkbox')) {
     function make_checkbox(&$key, $idx, $params) {
         $field_id = $params[0][0];
         $seperator = $params[0][1];
-
         $label_id = 'wb_'.preg_replace('/[^a-z0-9]/i', '_', $key).$field_id;
         if(in_array($key, $params[1])) {
             $key = '<input class="frm-field_checkbox" type="checkbox" id="'.$label_id.'" name="field'.$field_id.'['.$idx.']" value="'.$key.'" />'.PHP_EOL.'<label for="'.$label_id.'" class="frm-checkbox_label">'.$key.'</lable>'.$seperator;
@@ -206,10 +206,10 @@ if($_POST == array())
                 // Print field_loop after replacing vars with values
                 $vars = array('{TITLE}', '{REQUIRED}');
                 if (($field['type'] == "radio") || ($field['type'] == "checkbox")) {
-                    $field_title = $field['title'];
+                    $field_title = PHP_EOL.'<label>'.$field['title'].'</label>'.PHP_EOL;
                 } elseif($field['type'] == 'heading') {
                     $field_title = PHP_EOL.'<label>'.$field['title'].'</label>'.PHP_EOL;
-                }else {
+                } else {
                     $field_title = PHP_EOL.'<label for="field'.$field_id.'">'.$field['title'].'</label>'.PHP_EOL;
                 }
                 $values = array($field_title);
@@ -242,6 +242,7 @@ if($_POST == array())
                     $vars[] = '{FIELD}';
                     $options = explode(',', $value);
                     array_walk($options, 'make_checkbox', array(array($field_id,$field['extra']),(isset($_SESSION['field'.$field_id])?$_SESSION['field'.$field_id]:array())));
+//                    array_walk($options, 'make_radio', array($field_id,$field['title'],$field['extra'], (isset($_SESSION['field'.$field_id])?$_SESSION['field'.$field_id]:array())));
                     $x = sizeof($options)-1;
                     $options[$x]=substr($options[$x],0,strlen($options[$x]));
                     $values[] = implode($options);
@@ -258,7 +259,6 @@ if($_POST == array())
                     $values[] = '<input type="text" name="field'.$field_id.'" id="field'.$field_id.'" value="'.(isset($_SESSION['field'.$field_id])?$_SESSION['field'.$field_id]:'').'"'.$max_lenght_para.' class="frm-email" />';
                 }
                 if(isset($_SESSION['field'.$field_id])) unset($_SESSION['field'.$field_id]);
-
                 if($field['type'] != '') {
                     echo str_replace($vars, $values, $field_loop);
                 }
@@ -267,7 +267,7 @@ if($_POST == array())
             // Captcha
             if($use_captcha) { ?>
                 <tr>
-                <td class="frm-field_title"><?php echo $TEXT['VERIFICATION']; ?>:</td>
+                <td class="frm-field_title"><label><?php echo $TEXT['VERIFICATION']; ?></label>:</td>
                 <td><?php call_captcha(); ?></td>
                 </tr>
                 <?php
@@ -287,8 +287,8 @@ if($_POST == array())
 } else {  // $_POST == array()
 
     // Check that submission ID matches
-    if( isset($_SESSION['form_submission_id']) 
-        && isset($_POST['submission_id']) 
+    if( isset($_SESSION['form_submission_id'])
+        && isset($_POST['submission_id'])
         && ($_SESSION['form_submission_id'] == $_POST['submission_id'])
     ) {
 
@@ -296,7 +296,7 @@ if($_POST == array())
        $mail_replyName = '';
         if( $wb->is_authenticated() && $wb->get_email() ) {
            $mail_replyto = $wb->get_email();
-           $mail_replyName = htmlspecialchars($wb->add_slashes($wb->get_display_name()));
+           $mail_replyName = htmlspecialchars($database->escapeString($wb->get_display_name()));
         }
 
         // Set new submission ID in session
@@ -317,47 +317,38 @@ if($_POST == array())
         // First start message settings
         $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'mod_form_settings` '
               . 'WHERE `section_id` = '.(int)$section_id.'';
-        if($oSetting = $database->query($sql) ) {
+        if($oSetting = $database->query($sql) )
+        {
             if($oSetting->numRows() > 0)
             {
                 $aSettings = $oSetting->fetchRow(MYSQLI_ASSOC);
+                // who should manage the formular
                 $email_to = (($aSettings['email_to'] != '') ? $aSettings['email_to'] : $emailAdmin());
-                $email_from = $wb->add_slashes(SERVER_EMAIL);
-/*
-                if(substr($email_from, 0, 5) == 'field') {
-                    // Set the email from field to what the user entered in the specified field
-                    $email_from = htmlspecialchars($wb->add_slashes($_POST[$email_from]));
-                }
-*/
+                $mail_replyName = $email_toname = @$_SESSION['DISPLAY_NAME']?:$TEXT['GUEST'];
+                // where the formular comes from
+                $email_from = $database->escapeString(SERVER_EMAIL);
                 $email_fromname = $aSettings['email_fromname'];
-                $email_fromname = (($mail_replyName='') ? $aSettings['email_fromname'] : $mail_replyName);
-//                 $email_fromname = (($mail_replyName='') ? htmlspecialchars($wb->add_slashes($aSettings['email_fromname'])) : $mail_replyName);
-
                 if(substr($email_fromname, 0, 5) == 'field') {
                     // Set the email_fromname to field to what the user entered in the specified field
-                    $email_fromname = htmlspecialchars($wb->add_slashes($_POST[$email_fromname]));
+                    $email_fromname = htmlspecialchars($database->escapeString($_POST[$email_fromname]));
                 }
 
                 $email_subject = (($aSettings['email_subject'] != '') ? $aSettings['email_subject'] : $MOD_FORM['EMAIL_SUBJECT']);
                 $success_page = $aSettings['success_page'];
                 $success_email_to = $mail_replyto;
-                $success_email_from = $wb->add_slashes(SERVER_EMAIL);
+                $success_email_toName = $mail_replyName;
+                $success_email_from = $database->escapeString(SERVER_EMAIL);
                 $success_email_fromname = $aSettings['success_email_fromname'];
-/*
-*/
                 if($mail_replyto == '') {
                     $success_email_to = (($aSettings['success_email_to'] != '') ? $aSettings['success_email_to'] : '');
                     if(substr($success_email_to, 0, 5) == 'field') {
                         // Set the success_email to field to what the user entered in the specified field
-                         $mail_replyto = $success_email_to = htmlspecialchars($wb->add_slashes($_POST[$success_email_to]));
+                         $mail_replyto = $success_email_to = htmlspecialchars($database->escapeString($_POST[$success_email_to]));
                     }
                     $success_email_to = '';
-                    $email_fromname = $TEXT['GUEST'];
-//                    $success_email_fromname = $TEXT['UNKNOWN'];
-//                    $email_from = $TEXT['UNKNOWN'];
                 }
 
-                $success_email_text = htmlspecialchars($wb->add_slashes($aSettings['success_email_text']));
+                $success_email_text = htmlspecialchars($database->escapeString($aSettings['success_email_text']));
                 $success_email_text = (($success_email_text != '') ? $success_email_text : $MOD_FORM['SUCCESS_EMAIL_TEXT']);
                 $success_email_subject = (($aSettings['success_email_subject'] != '') ? $aSettings['success_email_subject'] : $MOD_FORM['SUCCESS_EMAIL_SUBJECT']);
                 $max_submissions = $aSettings['max_submissions'];
@@ -390,34 +381,14 @@ if($_POST == array())
         }
         if(isset($_SESSION['captcha'])) { unset($_SESSION['captcha']); }
 
-/* for StripCodeFromText test only
-[[loginbox]]
-
-<script type="text/javascript">
-var WB_URL = '{WB_URL}';
-var THEME_URL = '{THEME_URL}';
-var ADMIN_URL = '{ADMIN_URL}';
-var LANGUAGE = '{LANGUAGE}';
-</script>
-
-Hier testen wir Module und stellen Tutorials zur Verfügung
-
-<?php
-function confirm_link(message, url) {
-    if(confirm(message)) location.href = url;
-}
-?>
-*/
-//
-
         // Loop through fields and add to message body
         // Get list of fields
         $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'mod_form_fields` '
               . 'WHERE `section_id` = '.(int)$section_id.' '
               . 'ORDER BY position ASC';
-        if($oField = $database->query($sql)) 
+        if($oField = $database->query($sql))
         {
-            while($aFields = $oField->fetchRow(MYSQLI_ASSOC)) 
+            while($aFields = $oField->fetchRow(MYSQLI_ASSOC))
             {
                 // Add to message body $field
                 if($aFields['type'] != '') {
@@ -503,9 +474,9 @@ function confirm_link(message, url) {
                 echo '<p class="frm-warning"><a href="'.$sRecallUrl.'">'.$TEXT['BACK'].'</a></p>'."\n";
             } else {
                 $success = false;
+
 // Check how many times form has been submitted in last hour
                 $last_hour = time()-3600;
-
                 $sql  = 'SELECT `submission_id` FROM `'.TABLE_PREFIX.'mod_form_submissions` '
                       . 'WHERE `submitted_when` >= '.$last_hour.'';
                 if($oSubmissions = $database->query($sql))
@@ -526,6 +497,14 @@ function confirm_link(message, url) {
                         $email_fromname = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $recipient );
                         $email_body = preg_replace( "/(content-type:|bcc:|cc:|to:|from:)/im", "", $email_body );
                         $aAttachment=null;
+                        $aArray = array(
+                            'SERVER_EMAIL' => SERVER_EMAIL,
+                            'email_to' => $email_to,
+                            'email_subject' => $email_subject,
+                            'email_fromname' => $email_fromname,
+                            'mail_replyto' => $mail_replyto,
+                            'mail_replyName' => $mail_replyName,
+                            );
                         if($email_from != '') {
                             if($mail_replyto != '') {
                                 // send form to admin, can replyto to given e-mail adress
@@ -535,9 +514,9 @@ function confirm_link(message, url) {
                                     $email_subject,
                                     $email_body,
                                     $email_fromname,
-                                    '',
+                                    $email_toname,
                                     $mail_replyto,
-                                    '',
+                                    $mail_replyName,
                                     '',
                                     $aAttachment
                                 );
@@ -548,9 +527,9 @@ function confirm_link(message, url) {
                                     $email_subject,
                                     $email_body,
                                     $email_fromname,
-                                    '',
+                                    $email_toname,
                                     $mail_replyto,
-                                    '',
+                                    $mail_replyName,
                                     '',
                                     $aAttachment
                                 );
@@ -572,7 +551,7 @@ function confirm_link(message, url) {
                                         $success_email_subject,
                                         ($success_email_text)."\n".($email_body).$MOD_FORM['SUCCESS_EMAIL_TEXT_GENERATED'],
                                         $success_email_fromname,
-                                        '',
+                                        $success_email_toName,
                                         '',
                                         '',
                                         '',
@@ -585,7 +564,7 @@ function confirm_link(message, url) {
                                         $success_email_subject,
                                         ($success_email_text)."\n".($email_body).$MOD_FORM['SUCCESS_EMAIL_TEXT_GENERATED'],
                                         $success_email_fromname,
-                                        '',
+                                        $success_email_toName,
                                         '',
                                         '',
                                         '',
@@ -735,5 +714,4 @@ function confirm_link(message, url) {
             echo '<p>&nbsp;</p>'."\n".'<p><a href="'.$sRecallUrl.'">'.$TEXT['BACK'].'</a></p>'."\n";
         }
     }
-
 }

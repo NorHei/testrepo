@@ -79,7 +79,7 @@ $FTAN = $admin->getFTAN('');
             <input type="submit" value="<?php echo $TEXT['SETTINGS']; ?>" style="width: 100%;" />
         </form>
     </td>
-<?php if( $admin->ami_group_member('1') ) {  ?>
+<?php if( @DEBUG && $admin->ami_group_member('1') ) {  ?>
     <td >
         <form action="<?php echo WB_URL; ?>/modules/form/reorgPosition.php" method="post" class="mod_form" >
             <input type="hidden" value="<?php echo $page_id; ?>" name="page_id">
@@ -124,7 +124,6 @@ if($oFields = $database->query($sql)) {
                     echo $TEXT['ACTIONS'];
                 ?>
                 <th style=" width: 3%;">POS</th>
-                </th>
             </tr>
         </thead>
         <tbody>
@@ -177,7 +176,7 @@ if($oFields = $database->query($sql)) {
                     endswitch;
                     echo $sTitle;
 /**
- * 
+ *
                     if($aFields['type'] == 'textfield') {
                         echo $TEXT['SHORT_TEXT'];
                     } elseif($aFields['type'] == 'textarea') {
@@ -212,7 +211,7 @@ if($oFields = $database->query($sql)) {
                 </td>
                 <td style="text-align: center;">
 <?php if($aFields['position'] != 1) { ?>
-                    <a href="<?php echo $ModuleUrl; ?>move_up.php?page_id=<?php echo $page_id; ?>&amp;section_id=<?php echo $section_id; ?>&amp;field_id=<?php echo $sFielIdkey; ?>&amp;move_id=<?php echo $aFields['field_id']; ?>&amp;position=<?php echo $aFields['position']; ?>&amp;module=<?php echo $sModulName; ?>" title="<?php echo $TEXT['MOVE_UP']; ?>"> 
+                    <a href="<?php echo $ModuleUrl; ?>move_up.php?page_id=<?php echo $page_id; ?>&amp;section_id=<?php echo $section_id; ?>&amp;field_id=<?php echo $sFielIdkey; ?>&amp;move_id=<?php echo $aFields['field_id']; ?>&amp;position=<?php echo $aFields['position']; ?>&amp;module=<?php echo $sModulName; ?>" title="<?php echo $TEXT['MOVE_UP']; ?>">
                         <img src="<?php echo THEME_URL; ?>/images/up_16.png" alt="^" />
                     </a>
 <?php } ?>
@@ -229,12 +228,12 @@ if($oFields = $database->query($sql)) {
                 $url = ($ModuleUrl.'delete_field.php?page_id='.$page_id.'&amp;section_id='.$section_id.'&amp;field_id='.$sFielIdkey)
 ?>
                     <a href="javascript:confirm_link('<?php echo url_encode($TEXT['ARE_YOU_SURE']); ?>','<?php echo $url; ?>');" title="<?php echo $TEXT['DELETE']; ?>">
-                        <img src="<?php echo THEME_URL; ?>/images/delete_16.png" border="0" alt="X" />
+                        <img src="<?php echo THEME_URL; ?>/images/delete_16.png" alt="X" />
                     </a>
                 </td>
                 <td style="text-align: right; padding-right: 5px;">
 <?php
-if ( DEBUG ) { 
+if ( DEBUG ) {
                     echo $aFields['position'];
 }
 ?>
@@ -318,14 +317,14 @@ if($oSubmissions = $database->query($sql)) {
                 <td class="frm-Scroll" style="text-align: center; width: 5%;">&nbsp;</td>
                 <td class="frm-Scroll" style=" width: 5%;"  >&nbsp;</td>
                 <td class="frm-Scroll"  style="text-align: center; width: 5%;">
-<?php 
+<?php
                 $url = (WB_URL.'/modules/form/delete_submission.php?page_id='.$page_id.'&amp;section_id='.$section_id.'&amp;submission_id='.$sSubmissionIdkey)
 ?>
                     <a href="javascript:confirm_link('<?php echo url_encode($TEXT['ARE_YOU_SURE']); ?>', '<?php echo $url; ?>');" title="<?php echo $TEXT['DELETE']; ?>">
                         <img src="<?php echo THEME_URL; ?>/images/delete_16.png" alt="X" />
                     </a>
                 </td>
-<?php 
+<?php
 if ( DEBUG ) { ?>
                 <td class="frm-Scroll" style=" width: 3%;" ><?php echo $sSubmissionIdkey; ?></td>
 <?php } else  { ?>

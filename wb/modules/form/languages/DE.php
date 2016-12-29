@@ -50,7 +50,7 @@ $MOD_FORM['TO'] = 'Empfänger';
 $MOD_FORM['EXCESS_SUBMISSIONS'] = 'Dieses Formular wurde zu oft aufgerufen. Bitte versuchen Sie es in einer Stunde noch einmal.';
 $MOD_FORM['INCORRECT_CAPTCHA'] = 'Die eingegebene Pr&uuml;fziffer stimmt nicht &uuml;berein. Wenn Sie Probleme mit dem Lesen der Pr&uuml;fziffer haben, bitte schreiben Sie eine E-Mail an den <a href="mailto:{{webmaster_email}}">Webmaster</a>';
 
-$MOD_FORM['PRINT']  = 'Versand einer E-Mail Bestätigung ist nicht möglich!';
+$MOD_FORM['PRINT']  = 'Versand einer E-Mail Bestätigung ist nicht möglich! ';
 $MOD_FORM['PRINT'] .= 'Drucken Sie bitte diese Nachricht aus!';
 $MOD_FORM['RECIPIENT'] = 'Die E-Mail Bestätigung erfolgt nur an angemeldete Benutzer!';
 
@@ -63,3 +63,5 @@ $TEXT['UNKNOWN'] = 'unbekannt';
 $TEXT['PRINT_PAGE'] = 'Seite drucken';
 $TEXT['REQUIRED_JS'] = 'Javascript erforderlich';
 $TEXT['SUBMISSIONS_PERPAGE'] = 'Gespeicherte Einträge pro Seite';
+$TEXT['ADMIN'] = 'Admin';
+$MENU['USERS'] = 'Benutzer';

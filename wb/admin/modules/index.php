@@ -20,6 +20,7 @@
 if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 $admin = new admin('Addons', 'modules');
+
 // Setup template object, parse vars to it, then parse it
 // Create new template object
 $template = new Template(dirname($admin->correct_theme_source('modules.htt')));
@@ -62,7 +63,7 @@ $template->set_block('module_advanced_block', 'manuell_uninstall_block', 'manuel
 $module_files = glob(WB_PATH . '/modules/*', GLOB_ONLYDIR|GLOB_NOSORT );
 natcasesort($module_files);
 $template->set_block('manuell_install_block', 'manuell_install_select_block', 'manuell_install_select');
-foreach ($module_files as $index => $sAddsonsPath) 
+foreach ($module_files as $index => $sAddsonsPath)
 {
     if( !$admin->get_permission( basename($sAddsonsPath), 'module' )) { continue; }
     if (is_dir($sAddsonsPath)) {

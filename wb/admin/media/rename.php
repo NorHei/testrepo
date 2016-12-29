@@ -16,8 +16,9 @@
  *
  */
 
+require(dirname(dirname(__DIR__)).'/config.php');
+
 // Create admin object
-require('../../config.php');
 require_once(WB_PATH.'/framework/class.admin.php');
 $admin = new admin('Media', 'media_rename', false);
 
@@ -34,7 +35,7 @@ $rootlink = 'browse.php?dir=';
 
 // first Check to see if it contains ..
 if (!check_media_path($directory)) {
-    $admin->print_error($MESSAGE['MEDIA']['DIR_DOT_DOT_SLASH'],$rootlink, false);
+    $admin->print_error($MESSAGE['MEDIA_DIR_DOT_DOT_SLASH'],$rootlink, false);
 }
 
 // Get the temp id
@@ -70,7 +71,8 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
     $temp_id = 0;
     if(isset($DIR)) {
         sort($DIR);
-        foreach($DIR AS $name) {
+        foreach($DIR AS $name)
+        {
             $temp_id++;
             if($file_id == $temp_id) {
                 $rename_file = $name;
@@ -81,7 +83,8 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
 
     if(isset($FILE)) {
         sort($FILE);
-        foreach($FILE AS $name) {
+        foreach($FILE AS $name)
+        {
             $temp_id++;
             if($file_id == $temp_id) {
                 $rename_file = $name;
@@ -92,7 +95,19 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
 }
 
 if(!isset($rename_file)) {
-    $admin->print_error($MESSAGE['MEDIA']['FILE_NOT_FOUND'], $dirlink, false);
+    $admin->print_error($MESSAGE['MEDIA_FILE_NOT_FOUND'], $dirlink, false);
+}
+
+$sExtension = '';
+$sBasename = $rename_file;
+preg_match (
+    '/^(?:.*?[\/])?([^\/]*?)\.([^\.]*)$/iU',
+    str_replace('\\', '/', $rename_file),
+    $aMatches
+);
+if (sizeof($aMatches) == 3) {
+    $sBasename  = $aMatches[1];
+    $sExtension = $aMatches[2];
 }
 
 // Setup template object, parse vars to it, then parse it
@@ -118,11 +133,12 @@ if($type == 'folder') {
 $template->set_var(array(
                     'THEME_URL' => THEME_URL,
                     'FILENAME' => $rename_file,
+                    'BASENAME' => $sBasename,
                     'DIR' => $directory,
                     'FILE_ID' => $admin->getIDKEY($file_id),
                     // 'FILE_ID' => $file_id,
                     'TYPE' => $type,
-                    'EXTENSION' => $extension,
+                    'EXTENSION' => $sExtension,
                     'FTAN' => $admin->getFTAN()
                 )
             );

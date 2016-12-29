@@ -37,16 +37,16 @@ class frontend extends wb {
     public $page_id,$page_title,$menu_title,$parent,$root_parent,$level,$position,$visibility;
     public $page_description,$page_keywords,$page_link;
     public $page_trail=array();
-    
+
     public $page_access_denied;
     public $page_no_active_sections;
-    
+
     // website settings
     public $website_title,$website_description,$website_keywords,$website_header,$website_footer;
 
     // ugly database stuff
     public $extra_where_sql, $sql_where_language;
-    
+
     public function __construct() {
         parent::__construct(1);
     }
@@ -119,7 +119,8 @@ class frontend extends wb {
 
     public function get_page_details() {
         global $database;
-        if($this->page_id != 0) {
+        if($this->page_id != 0)
+        {
             // Query page details
             $sql = 'SELECT * FROM `'.TABLE_PREFIX.'pages` WHERE `page_id`='.(int)$this->page_id;
             $get_page = $database->query($sql);
@@ -183,9 +184,10 @@ class frontend extends wb {
             // Page keywords
             $this->page_keywords=$this->page['keywords'];
             // Page link
-            $this->link=$this->page_link($this->page['link']);
+            $this->link = $this->page_link($this->page['link']);
             $_SESSION['PAGE_ID'] = $this->page_id;
             $_SESSION['HTTP_REFERER'] = $this->link;
+
         // End code to set details as either variables of constants
         }
 
@@ -219,7 +221,7 @@ class frontend extends wb {
                     // User isnt allowed on this page so tell them
                     $this->page_access_denied=true;
                 }
-                
+
             }
         }
         // check if there is at least one active section
@@ -254,7 +256,7 @@ class frontend extends wb {
         } elseif(SEARCH == 'private' AND $this->is_authenticated() == true) {
             define('SHOW_SEARCH', true);
         } elseif(SEARCH == 'registered' AND $this->is_authenticated() == true) {
-            define('SHOW_SEARCH', true);    
+            define('SHOW_SEARCH', true);
         } else {
             define('SHOW_SEARCH', false);
         }
@@ -282,7 +284,7 @@ class frontend extends wb {
     public function preprocess(&$content)
     {
 /**
- * 
+ *
         global $database;
         $replace_list = array();
         $pattern = '/\[wblink([0-9]+)\]/isU';
@@ -359,7 +361,7 @@ class frontend extends wb {
        }
        $wb->show_menu();
     }
-    
+
     public function show_menu() {
         global $database;
         if ($this->menu_start_level>0) {

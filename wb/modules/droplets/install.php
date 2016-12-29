@@ -23,9 +23,10 @@ if(defined('WB_PATH'))
     if (is_readable(__DIR__.'/install-struct.sql')) {
         $database->SqlImport(__DIR__.'/install-struct.sql', TABLE_PREFIX, __FILE__ );
     }
+    if(!function_exists('insertDropletFile')) { require('droplets.functions.php'); }
+    $msg = array();
+    $sBaseDir = rtrim(str_replace('\\', '/',realpath(dirname(__FILE__).'/example/')), '/').'/';
+    $aDropletFiles = getDropletFromFiles($sBaseDir);
+    $bOverwriteDroplets = false;
+    insertDropletFile($aDropletFiles, $database, $admin,$msg,$bOverwriteDroplets);
 }
-      if(!function_exists('insertDropletFile')) { require('droplets.functions.php'); }
-      $sBaseDir = rtrim(str_replace('\\', '/',realpath(dirname(__FILE__).'/example/')), '/').'/';
-        $aDropletFiles = getDropletFromFiles($sBaseDir);
-        $bOverwriteDroplets = false;
-        insertDropletFile($aDropletFiles,$msg,$bOverwriteDroplets);

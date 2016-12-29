@@ -23,8 +23,12 @@ if(!defined('WB_PATH')) {
     throw new IllegalFileException();
 }
 /* -------------------------------------------------------- */
-// Include PHPMailer class
-if( !class_exists( 'PHPMailer' ) ){ require(WB_PATH.'/include/phpmailer/class.phpmailer.php'); }
+//SMTP needs accurate times, and the PHP time zone MUST be set
+//This should be done in your php.ini, but this is how to do it if you don't have access to that
+date_default_timezone_set('Etc/UTC');
+
+// Include PHPMailer autoloader
+if (!class_exists( 'PHPMailer')){ require(WB_PATH.'/include/phpmailer/class.phpmailer.php'); }
 
 class wbmailer extends PHPMailer 
 {
@@ -78,7 +82,7 @@ class wbmailer extends PHPMailer
      * $this->Debugoutput = function($str, $level) {echo "debug level $level; message: $str";};
      * </code>
  */
-        $this->set('SMTPDebug', 2);                               // Enable verbose debug output
+        $this->set('SMTPDebug', 4);                               // Enable verbose debug output
         $this->set('Debugoutput', 'error_log');
 
         // set method to send out emails  
@@ -88,7 +92,7 @@ class wbmailer extends PHPMailer
             $this->isSendmail();                                         // telling the class to use SendMail transport
             $this->set('Host', $db_wbmailer_smtp_host);
             $this->set('Port', intval($db_wbmailer_smtp_port));            // TCP port to connect to
-//            $this->set('SMTPKeepAlive', true);                             // SMTP connection will not close after each email sent
+            $this->set('SMTPKeepAlive', true);                             // SMTP connection will not close after each email sent
             // check if SMTP authentification is required
             if ($db_wbmailer_smtp_auth  && (mb_strlen($db_wbmailer_smtp_username) > 1) && (mb_strlen($db_wbmailer_smtp_password) > 1) ) {
                 // use SMTP authentification

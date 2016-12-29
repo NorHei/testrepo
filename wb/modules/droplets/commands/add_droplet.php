@@ -20,27 +20,8 @@
 // Must include code to stop this file being accessed directly
 if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly'); }
 /* -------------------------------------------------------- */
-$droplet_id = 0;
-if($admin->get_permission('admintools') == true) {
-
+$droplet_id = $oApp->getIDKEY(0);
+if ($oApp->get_permission('admintools') == true) {
     $modified_when = time();
-    $modified_by = intval($admin->get_user_id());
-
-    // Insert new row into database
-    $sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_droplets` SET '
-    . '`name` = \'\', '
-    . '`code` = \'\', '
-    . '`description` = \'\', '
-    . '`comments` = \'\', '
-    . '`active` = 1, '
-    . '`admin_edit` = 0, '
-    . '`admin_view` = 0, '
-    . '`show_wysiwyg`= 0, '
-    . '`modified_when` = '.$modified_when.', '
-    . '`modified_by` = '.$modified_by.' ';
-    $database->query($sql);
-
-    // Get the id 
-    $droplet_id = intval( $database->getLastInsertId());
-
+    $modified_by = intval($oApp->get_user_id());
 }

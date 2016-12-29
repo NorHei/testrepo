@@ -18,18 +18,26 @@
 
 // Must include code to stop this file being access directly
 if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
-$sCallingScript = $_SERVER['SCRIPT_NAME'];
-$_SESSION['HTTP_REFERER'] =  isset($_SESSION['HTTP_REFERER']) ? $_SESSION['HTTP_REFERER'] : $sCallingScript;
+
+$sCallingScript = WB_URL;
+$redirect_url = ((isset($_SESSION['HTTP_REFERER']) && $_SESSION['HTTP_REFERER'] != '') ? $_SESSION['HTTP_REFERER'] : $sCallingScript );
+$redirect_url = ( isset($redirect) && ($redirect!='') ? $redirect : $redirect_url);
 require_once(WB_PATH.'/include/captcha/captcha.php');
-echo '<style type="text/css">';
-include(WB_PATH .'/account/frontend.css');
-echo "\n</style>\n";
-    $error = array();
-    $success = array();
+/**
+ * echo '<style type="text/css">';
+ * include(WB_PATH .'/account/frontend.css');
+ * echo "\n</style>\n";
+ */
+
+$error = array();
+$success = array();
+$sAddonName = basename(__DIR__);
+if(file_exists(WB_PATH .'/'.$sAddonName.'/languages/EN.php')) {require(WB_PATH .'/'.$sAddonName.'/languages/EN.php');}
+if(file_exists(WB_PATH .'/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {require(WB_PATH .'/'.$sAddonName.'/languages/'.LANGUAGE .'.php');}
 
 if(isset($_POST['action']) && $_POST['action']=='send') {
     require(dirname(__FILE__).'/signup2.php');
-} 
+}
 if(sizeof($success)>0){
 //$_SESSION['display_form'] = false;
 ?>
@@ -46,15 +54,14 @@ if(sizeof($error)>0){
 ?>
 <p class="mod_preferences_error">
 <?php
-   foreach($error AS $value){ ?>
-    <?php echo nl2br($value); ?>
-<?php } ?>
+    echo implode('<br />', $error);
+?>
 </p>
 <?php } ?>
 
 
 <div style="margin: 1em auto;">
-    <button type="button" value="cancel" onClick="javascript: window.location = '<?php print $_SESSION['HTTP_REFERER'] ?>';"><?php print $TEXT['CANCEL'] ?></button>
+    <button type="button" value="cancel" onclick="window.location = '<?php echo $redirect_url; ?>';"><?php print $TEXT['CANCEL'] ?></button>
 </div>
 <h1>&nbsp;<?php echo $TEXT['SIGNUP']; ?></h1>
 
@@ -87,9 +94,10 @@ if(sizeof($error)>0){
     </td>
 </tr>
 <tr>
-    <td><?php echo $TEXT['DISPLAY_NAME']; ?> (<?php echo $TEXT['FULL_NAME']; ?>):</td>
+    <td><?php echo $TEXT['DISPLAY_NAME']; ?>:</td>
     <td class="value_input">
         <input type="text" name="display_name" maxlength="255" style="width:300px;" />
+        <label> (<?php echo $TEXT['FULL_NAME']; ?>)</label>
     </td>
 </tr>
 <tr>
@@ -120,5 +128,5 @@ if(ENABLED_CAPTCHA) {
 </form>
 
 <br />
-&nbsp; 
+&nbsp;
 <?php } ?>
