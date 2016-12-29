@@ -15,7 +15,7 @@
  * @lastmodified    $Date: 2015-04-27 10:02:19 +0200 (Mo, 27. Apr 2015) $
  *
  */
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 require_once(WB_PATH.'/framework/functions.php');
 

@@ -23,8 +23,8 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 $module_directory = 'jsadmin';
 $module_name = 'Javascript Admin';
 $module_function = 'tool';
-$module_version = '1.5.0';
-$module_platform = '2.7 | 2.8.x';
+$module_version = '2.0.0';
+$module_platform = '2.8.3';
 $module_author = 'Stepan Riha, Swen Uth';
 $module_license    = 'BSD License';
 $module_description = 'This module adds Javascript functionality to the Website Baker Admin to improve some of the UI interactions. Uses the YahooUI library.';

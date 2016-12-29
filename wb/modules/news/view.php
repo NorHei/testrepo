@@ -12,7 +12,7 @@
  * @version         $Id: view.php 1538 2011-12-10 15:06:15Z Luisehahne $
  * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/modules/news/view.php $
  * @lastmodified    $Date: 2011-12-10 16:06:15 +0100 (Sa, 10. Dez 2011) $
- *
+ *  if ( $setting_posts_per_page && $setting_posts_per_page + $position <= $i ) { break; }
  */
 
 /* -------------------------------------------------------- */
@@ -21,8 +21,11 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 global $post_id, $post_section, $TEXT, $MESSAGE, $MOD_NEWS;
 // load module language file
-$lang = (dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php';
-require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $lang );
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
 //overwrite php.ini on Apache servers for valid SESSION ID Separator
 if (function_exists('ini_set')) {
     ini_set('arg_separator.output', '&amp;');
@@ -39,7 +42,7 @@ $ModuleRel = '/modules/'.basename(__DIR__).'/';
 $ModuleUrl = WB_URL.'/modules/'.basename(__DIR__).'/';
 $ModulePath = WB_PATH.'/modules/'.basename(__DIR__).'/';
 $sRecallAddress = WB_URL.PAGES_DIRECTORY.$GLOBALS['wb']->page['link'].PAGE_EXTENSION;
-$position = (isset($_GET['p']) ? intval($_GET['p']) : 0);
+
 // Get user's username, display name, email, and id - needed for insertion into post info
 $users = array();
 $sql = 'SELECT `user_id`,`username`,`display_name`,`email` FROM `'.TABLE_PREFIX.'users`';
@@ -57,6 +60,8 @@ $groups = array(
         'image'     => ''
     )
 );
+
+
 $sql = 'SELECT `group_id`, `title`, `active` FROM `'.TABLE_PREFIX.'mod_news_groups` '
      . 'WHERE `section_id`='.(int)$section_id.' '
      . 'ORDER BY `position` ASC';
@@ -68,9 +73,6 @@ if (($query_users = $database->query($sql))) {
         $groups[$group['group_id']]['image'] = (is_readable(WB_PATH.$sImageUrl) ? WB_URL.$sImageUrl : '');
     }
 }
-// Check if we should show the main page or a post itself
-// if(!defined('POST_ID') OR !is_numeric(POST_ID))
-if (!isset($post_id) || !is_numeric($post_id)) {
     // Check if we should only list posts from a certain group
     if (isset($_GET['g']) AND is_numeric($_GET['g'])) {
         $query_extra = 'AND `group_id`='.(int)$_GET['g'].' ';
@@ -90,8 +92,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
         }
     }
     // Get total number of posts relatet to now
+// Check if we should show the main page or a post itself
     $t = time();
-/*
     $sql = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.'mod_news_posts` '
          . 'WHERE `section_id`='.(int)$section_id.' AND `active`=1 '
          .        'AND `title`!=\'\' '
@@ -99,14 +101,29 @@ if (!isset($post_id) || !is_numeric($post_id)) {
          .        'AND (`published_until`=0 OR `published_until`>='.$t.') '
          .        $query_extra;
     $total_num = intval($database->get_one($sql));
-*/
-    // Work-out if we need to add limit code to sql
-    if ($setting_posts_per_page != 0) {
+    if ( $total_num && $setting_posts_per_page ) {
+        $iNumberOfPages = (int)($total_num / $setting_posts_per_page)+($total_num % $setting_posts_per_page ? 1:0 );
+        $position  = intval( isset($_GET['p'] ) ? $_GET['p'] : 0 );
+        $position  = abs( ( $position < $total_num) ? $position : ($iNumberOfPages*$setting_posts_per_page) );
+        // Work-out if we need to add limit code to sql
         $limit_sql = ' LIMIT '.$position.', '.$setting_posts_per_page;
-        $limit_sql = '';
     } else {
+        $display_previous_next_links = '';
+        $position = 0;
+        $next_link = '';
+        $next_page_link = '';
+        $previous_link = '';
+        $previous_page_link = '';
+        $out_of = '';
+        $of = '';
         $limit_sql = '';
     }
+
+// if(!defined('POST_ID') OR !is_numeric(POST_ID))
+if (!isset($post_id) || !is_numeric($post_id)) {
+/*
+$setting_posts_per_page = 12/5 = 2 5 = 10
+*/
     // Query posts (for this page)
     $sql = 'SELECT * FROM `'.TABLE_PREFIX.'mod_news_posts` '
          . 'WHERE `section_id`='.$section_id.' '
@@ -117,10 +134,12 @@ if (!isset($post_id) || !is_numeric($post_id)) {
          .        $query_extra
          . 'ORDER BY `position` DESC'.$limit_sql;
     $query_posts = $database->query($sql);
-    $total_num = $query_posts->numRows();
+//    $total_num = $query_posts->numRows();
     // Create previous and next links
+
     if ($setting_posts_per_page != 0) {
-        if ($position > 0) {
+        $spaces = str_repeat('&#160;', 25);
+        if ( ($position > 0) && ($position < $total_num) ) {
             if (isset($_GET['g']) AND is_numeric($_GET['g'])) {
                 $pl_prepend = '<a href="?p='.($position-$setting_posts_per_page).'&amp;g='.$_GET['g'].'">&lt;&lt; ';
             } else {
@@ -130,12 +149,13 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             $previous_link = $pl_prepend.$TEXT['PREVIOUS'].$pl_append;
             $previous_page_link = $pl_prepend.$TEXT['PREVIOUS_PAGE'].$pl_append;
         } else {
-            $previous_link = '';
-            $previous_page_link = '';
+            $previous_link = $spaces;
+            $previous_page_link = $spaces;
         }
+
         if ($position + $setting_posts_per_page >= $total_num) {
-            $next_link = '';
-            $next_page_link = '';
+            $next_link = $spaces;
+            $next_page_link = $spaces;
         } else {
             if (isset($_GET['g']) AND is_numeric($_GET['g'])) {
                 $nl_prepend = '<a href="?p='.($position+$setting_posts_per_page).'&amp;g='.$_GET['g'].'"> ';
@@ -147,15 +167,17 @@ if (!isset($post_id) || !is_numeric($post_id)) {
             $next_page_link = $nl_prepend.$TEXT['NEXT_PAGE'].$nl_append;
         }
         if ($position+$setting_posts_per_page > $total_num) {  // 
-            $num_of = $position+$total_num;
+            $num_of = $total_num;
         } else {
             $num_of = $position+$setting_posts_per_page;
         }
-        $out_of = ($position+1).'-'.$num_of.' '.strtolower($TEXT['OUT_OF']).' '.$total_num;
-        $of = ($position+1).'-'.$num_of.' '.strtolower($TEXT['OF']).' '.$total_num;
-        $display_previous_next_links = '';
-    } else {
-        $display_previous_next_links = 'none';
+        if ( ($position >= 0) && ($position < $total_num) ) {
+            $out_of = ($position+1).'-'.$num_of.' '.strtolower($TEXT['OUT_OF']).' '.$total_num;
+            $of = ($position+1).'-'.$num_of.' '.strtolower($TEXT['OF']).' '.$total_num;
+            $display_previous_next_links = $spaces;
+        } else {
+            $display_previous_next_links = 'none';
+        }
     }
     if ( $total_num=== 0) { // $num_posts
         $setting_header = '';
@@ -271,7 +293,9 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                     $group_image= "<img src='".$group_image."' alt='".$group_title."' />";
                 }
                 // Replace [wblink--PAGE_ID--] with real link
+                $sMediaUrl = WB_URL.MEDIA_DIRECTORY;
                 $short = ($post['content_short']);
+                $short = (str_replace('{SYSVAR:MEDIA_REL}', $sMediaUrl, $short));
                 // Replace vars with values
 //                $post_long_len = mb_strlen($post['content_long']);
 //                $bIsEmptyLongContent = (bool)( $post_long_len == 0);
@@ -325,7 +349,8 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 }
                 print (str_replace($aPlaceHolders, $aReplacements, $setting_post_loop));
             }
-            if ( $setting_posts_per_page == $i ) { break; }
+//            if ( $setting_posts_per_page == $i ) { break; }
+            if ( $setting_posts_per_page && $setting_posts_per_page + $position <= $i ) { break; }
         } // end while posts
     }
     // Print footer
@@ -427,7 +452,9 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 $group_image    = $groups[$group_id]['image'];
                 $display_image  = ($group_image == '') ? "none" : "inherit";
                 $display_group  = ($group_id == 0) ? 'none' : 'inherit';
-                $post_short     =$post['content_short'];
+                $sMediaUrl = WB_URL.MEDIA_DIRECTORY;
+                $post_short = ($post['content_short']);
+                $post_short = (str_replace('{SYSVAR:MEDIA_REL}', $sMediaUrl, $post_short));
                 if ($group_image != "") $group_image= "<img src='".$group_image."' alt='".$group_title."' />";
 
                 $aPlaceHolders = $addBracket(
@@ -484,7 +511,9 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                     $aReplacements[] = $users[$uid]['display_name'];
                     $aReplacements[] = $users[$uid]['email'];
                 }
+                $sMediaUrl = WB_URL.MEDIA_DIRECTORY;
                 $post_long = ($post['content_long'] != '') ? $post['content_long'] : $post['content_short'];
+                $post_long = (str_replace('{SYSVAR:MEDIA_REL}', $sMediaUrl, $post_long));
                 print (str_replace($aPlaceHolders, $aReplacements, $setting_post_header));
                 print $post_long;
                 print (str_replace($aPlaceHolders, $aReplacements, $setting_post_footer));
@@ -590,7 +619,7 @@ if (!isset($post_id) || !is_numeric($post_id)) {
                 'TEXT_COMMENTS'
             );
             $aReplacements = array(
-                WB_URL.'/modules/news/comment.php?post_id='.$post_id.'&amp;section_id='.$section_id,
+                WB_URL.'/modules/news/comment.php?post_id='.$post_id.'&amp;section_id='.$section_id.'&amp;p='.$position,
                 $MOD_NEWS['TEXT_ADD_COMMENT'],
                 $MOD_NEWS['TEXT_COMMENTS']
             );

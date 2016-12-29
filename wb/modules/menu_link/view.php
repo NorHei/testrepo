@@ -22,12 +22,10 @@ if(defined('WB_PATH') == false) { die('Cannot access '.basename(__DIR__).'/'.bas
 /* -------------------------------------------------------- */
 
 // check if module language file exists for the language set by the user (e.g. DE, EN)
-if(!file_exists(WB_PATH .'/modules/menu_link/languages/'.LANGUAGE .'.php')) {
-    // no module language file exists for the language set by the user, include default module language file EN.php
-    require_once(WB_PATH .'/modules/menu_link/languages/EN.php');
-} else {
-    // a module language file exists for the language defined by the user, load it
-    require_once(WB_PATH .'/modules/menu_link/languages/'.LANGUAGE .'.php');
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
 }
 
 // redirect menu-link

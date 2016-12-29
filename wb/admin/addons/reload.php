@@ -29,7 +29,7 @@ if (count($post_check) == 0) die(header('Location: index.php?advanced'));
  * check if user has permissions to access this file
  */
 // include WB configuration file and WB admin class
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 // check user permissions for admintools (redirect users with wrong permissions)
 $admin = new admin('Admintools', 'admintools', false, false);
@@ -62,6 +62,33 @@ if (!$admin->checkFTAN())
 }
 
 /**
+ * delete no existing addons in table
+ */
+$sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` '
+      . 'ORDER BY `type`, `directory` ';
+if ( $oAddons = $database->query( $sql ) ) {
+    while ( $aAddon = $oAddons->fetchRow( MYSQLI_ASSOC ) ) {
+        $delAddon = 'DELETE  FROM `'.TABLE_PREFIX.'addons` WHERE `addon_id`='.(int)$aAddon['addon_id'];
+        $sAddonFile = WB_PATH.'/'.$aAddon['type'].'s/'.$aAddon['directory'];
+        switch ($aAddon['type']):
+            case 'language':
+                if ( !file_exists( $sAddonFile.'.php' ) )
+                { 
+                    $oDelResult = $database->query( $delAddon );
+                }
+                break;
+            default:
+                if ( !file_exists( $sAddonFile ) )
+                { 
+                    $oDelResult = $database->query( $delAddon );
+//                    echo $sAddonFile.'<br />';
+                }
+            break;
+        endswitch;
+    }
+}
+/**
+ * 
  * Reload all specified Addons
  */
 $msg = array();
@@ -85,7 +112,7 @@ foreach ($post_check as $key) {
             $aAddonList = glob(WB_PATH.'/templates/*', GLOB_ONLYDIR );
             foreach( $aAddonList as $sAddonFile ) {
                 if (is_readable( $sAddonFile )) {
-                    load_module( $sAddonFile );
+                    load_template( $sAddonFile );
                 }
             }
             // add success message
@@ -94,10 +121,10 @@ foreach ($post_check as $key) {
             break;
 
         case 'reload_languages':
-            $aAddonList = glob(WB_PATH.'/languages/*', GLOB_ONLYDIR );
+            $aAddonList = glob(WB_PATH.'/languages/*.php' );
             foreach( $aAddonList as $sAddonFile ) {
                 if (is_readable( $sAddonFile )) {
-                    load_module( $sAddonFile );
+                    load_language( $sAddonFile );
                 }
             }
             // add success message

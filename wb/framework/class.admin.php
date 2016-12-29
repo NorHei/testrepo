@@ -110,7 +110,7 @@ class admin extends wb {
         global $MENU, $MESSAGE, $TEXT, $database;
         // Connect to database and get website title
         // $GLOBALS['FTAN'] = $this->getFTAN();
-        $this->createFTAN();
+//        $this->createFTAN();
         $sql = 'SELECT `value` FROM `'.TABLE_PREFIX.'settings` '
              . 'WHERE `name`=\'website_title\'';
         $get_title = $database->query($sql);
@@ -175,9 +175,9 @@ class admin extends wb {
 //                    print $permission_title.'<br />';
                     $header_template->set_block('infoBasis', '');
                     $header_template->set_var( array(
-                                        'VERSION'             => VERSION,
-                                        'SP'                  => (defined('SP') ? SP : ''),
-                                        'REVISION'            => REVISION,
+                                        'VERSION'             => WB_VERSION,
+                                        'SP'                  => (defined('WB_SP') ? WB_SP : ''),
+                                        'REVISION'            => WB_REVISION,
                                         'PHP_VERSION'         => phpversion(),
                                         'MYSQLI_VERSION'      => $this->mysqlVersion(),
                                         'MYSQLSTRICT'         => ( ($this->mysqlStrict())?'STRICT': 'NON STRICT' ),

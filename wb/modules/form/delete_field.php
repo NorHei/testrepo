@@ -15,7 +15,7 @@
  * @description
  */
 
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 
 // Include WB admin wrapper script
 $update_when_modified = true; // Tells script to update when this page was last updated
@@ -30,7 +30,9 @@ if (!$field_id) {
 $sSectionIdPrefix = (defined( 'SEC_ANCHOR' ) && ( SEC_ANCHOR != '' )  ? SEC_ANCHOR : 'Sec' );
 
 // Delete row
-$database->query("DELETE FROM ".TABLE_PREFIX."mod_form_fields WHERE field_id = '$field_id'");
+    $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_form_fields` '
+          . 'WHERE `field_id` = '.$database->escapeString($field_id);
+    $database->query($sql);
 
 // Include the ordering class
 require(WB_PATH.'/framework/class.order.php');

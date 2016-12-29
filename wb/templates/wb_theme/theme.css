@@ -39,6 +39,7 @@ div.box { width :100%; margin :-10px 0 0 0; font-size :small; text-align :right;
 .content,
 #content_container { min-width :80em; width :70%; }
 #admintools { margin : auto 1.225em; }
+input#admintools { margin : auto 0.225em; }
 #admintools ul { padding :0;  width :100%; }
 #admintools li { list-style-type :none; display :inline; float :left; width :47%; margin :0 0.825em ; }
 .description { padding :4px 4px 0 4px; text-align :left; vertical-align :top; }

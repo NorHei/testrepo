@@ -23,7 +23,7 @@
 $bAdvanced = intval ( isset( $_POST['advanced'] ) && ($_POST['advanced'] == 1) ? 1 : 0 );
 
 // Print admin header
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 
 // suppress to print the header, so no new FTAN will be set
@@ -261,18 +261,18 @@ while($search_setting = $res_search->fetchRow()) :
              ? $old_value 
              : $admin->get_post($post_name);
     if (isset($value)) {
-        $value = $admin->add_slashes($value);
+        $value = $database->escapeString($value);
         $sql = 'UPDATE `'.TABLE_PREFIX.'search` '
              . 'SET `value`=\''.$value.'\' '
              . 'WHERE `name`=\''.$setting_name.'\' AND `extra`=\'\'';
         if(!($database->query($sql))) {
-            $admin->print_error($database->get_error, $js_back );
+            $admin->print_error( TABLE_PREFIX.'search :: '.$MESSAGE['GENERIC_NOT_UPGRADED'].'<br />'.$database->get_error, $js_back );
             break;
         }
         // $sql_info = mysql_info($database->db_handle); //->> nicht mehr erforderlich
     }
 endwhile;
 
-$admin->print_success($MESSAGE['SETTINGS']['SAVED'], $js_back );
+$admin->print_success($MESSAGE['SETTINGS_SAVED'], $js_back );
 $admin->print_footer();
 

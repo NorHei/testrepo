@@ -2,7 +2,7 @@
 /**
  *
  * @category       modules
- * @package        wrapper
+ * @package        wrapper-3.0.1a
  * @authors        WebsiteBaker Project
  * @copyright      WebsiteBaker Org. e.V.
  * @link           http://websitebaker.org/
@@ -15,8 +15,10 @@
  *
  */
 
-
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
-if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
+if(!defined('WB_PATH')) {
+    require_once( dirname(dirname(__DIR__)).'/framework/globalExceptionHandler.php');
+    throw new IllegalFileException();
+}
 /* -------------------------------------------------------- */

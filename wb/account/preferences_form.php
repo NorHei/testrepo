@@ -19,18 +19,19 @@
 // prevent this file from being accesses directly
 if(defined('WB_PATH') == false) { exit("Cannot access this file directly"); }
 $sCallingScript = WB_URL;
-//$_SESSION['HTTP_REFERER'] =  isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $sCallingScript;
+$redirect_url = ((isset($_SESSION['HTTP_REFERER']) && $_SESSION['HTTP_REFERER'] != '') ? $_SESSION['HTTP_REFERER'] : WB_URL );
+$redirect_url = ( isset($redirect) && ($redirect!='') ? $redirect : $redirect_url);
     if($wb->is_authenticated() === false) {
 // User needs to login first
         header("Location: ".WB_URL."/account/login.php?redirect=".$wb->link);
         exit(0);
     }
 // load module default language file (EN)
-    require_once(WB_PATH .'/account/languages/EN.php');
-// check for user defined language file, load it and override EN-Settings with
-    if(file_exists(WB_PATH .'/account/languages/' .LANGUAGE .'.php')) {
-        require_once(WB_PATH .'/account/languages/' .LANGUAGE .'.php');
-    }
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
     require_once(WB_PATH.'/framework/functions-utf8.php');
     echo '<style type="text/css">';
     include(WB_PATH .'/account/frontend.css');
@@ -56,7 +57,7 @@ $sCallingScript = WB_URL;
             // do nothing
     endswitch; // switch
 // show template
-    $template->set_file('page', 'template.html');
+    $template->set_file('page', 'template.htt');
     $template->set_block('page', 'main_block', 'main');
 // get existing values from database
     $sql = "SELECT `display_name`,`email` FROM `".TABLE_PREFIX."users` WHERE `user_id` = '".$wb->get_user_id()."'";
@@ -172,7 +173,7 @@ $sCallingScript = WB_URL;
                         );
 // Insert language text and messages
     $template->set_var(array(
-                                'HTTP_REFERER' => $sCallingScript,//$_SESSION['HTTP_REFERER'],
+                                'HTTP_REFERER' => $redirect_url,//$_SESSION['HTTP_REFERER'],
                                 'TEXT_SAVE'    => $TEXT['SAVE'],
                                 'TEXT_RESET' => $TEXT['RESET'],
                                 'TEXT_CANCEL' => $TEXT['CANCEL'],

@@ -24,6 +24,7 @@ if (!class_exists('database', false))              { require(__DIR__.'/class.dat
 if (!class_exists('wbmailer', false))              { require(__DIR__.'/class.wbmailer.php'); }
 if (!class_exists('SecureTokens', false))          { require(__DIR__.'/SecureTokens.php'); }
 if (!class_exists('SecureTokensInterface', false)) { require(__DIR__.'/SecureTokensInterface.php'); }
+if (!class_exists('Sanitize', false )) { include __DIR__.'/Sanitize.php'; }
 
 class wb extends SecureTokensInterface
 {
@@ -597,6 +598,7 @@ class wb extends SecureTokensInterface
             return false;
         }
     }
+
 /**
  * remove <?php code ?>, [[text]], link, script, scriptblock and styleblock from a given string
  * and return the cleaned string
@@ -606,11 +608,10 @@ class wb extends SecureTokensInterface
  *    false: if @param is not a string
  *    string: cleaned string
  */
-    public function StripCodeFromText($sValue, $bPHPCode=false){
-        if(!is_string($sValue)) { return false; }
-        $sValue = ( ($bPHPCode==true) ? preg_replace ('/\[\[.*?\]\]\s*?|<\?php\s+.*\?>\s*?/isU', '', $sValue ) : $sValue );
-        $sPattern = '/\[\[.*?\]\]\s*?|<!--\s+.*?-->\s*?|<(script|link|style)[^>]*\/>\s*?|<(script|link|style)[^>]*?>.*?<\/\2>\s*?|\s*$/isU';
-        return (preg_replace ($sPattern, '', $sValue));
+    public function StripCodeFromText($mText, $iFlags = Sanitize::REMOVE_DEFAULT )
+    {
+        if (!class_exists('Sanitize')) { include __DIR__.'/Sanitize.php'; }
+        return Sanitize::StripFromText($mText, $iFlags);
     }
 
 }

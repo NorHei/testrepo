@@ -15,7 +15,7 @@
  * @lastmodified    $Date: 2012-02-29 01:50:57 +0100 (Mi, 29. Feb 2012) $
  *
  */
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 
 if(isset($_GET['advanced']) && $_GET['advanced'] == 'yes') {
@@ -170,12 +170,13 @@ if($is_advanced)
                      ));
 
     // Insert language values
-    $result = $database->query("SELECT * FROM `".TABLE_PREFIX."addons` WHERE `type` = 'language' ORDER BY `directory`");
-    if($result->numRows() > 0)
+$sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` '
+      . 'WHERE `type` = \'language\' '
+      . 'ORDER BY `directory`';
+    if($result = $database->query($sql))
     {
         while($addon = $result->fetchRow(MYSQLI_ASSOC)) {
-            $langIcons = (empty($addon['directory'])) ? 'none' : strtolower($addon['directory']);
-
+            $langIcons = (empty($addon['directory']) ? 'none' : strtolower($addon['directory']));
             $template->set_var('CODE',        $addon['directory']);
             $template->set_var('NAME',        $addon['name']);
             $template->set_var('FLAG',        THEME_URL.'/images/flags/'.$langIcons);

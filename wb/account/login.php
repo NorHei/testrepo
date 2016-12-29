@@ -16,28 +16,28 @@
  *
  */
 
-require(dirname(__DIR__).'/config.php');
-
-if( !class_exists('frontend')) { require(WB_PATH.'/framework/class.frontend.php');  }
+if ( !defined( 'WB_PATH' ) ){ require(dirname(__DIR__).'/config.php'); }
+if ( !class_exists('frontend')) { require(WB_PATH.'/framework/class.frontend.php');  }
 // Create new frontend object
 if (!isset($wb) || !($wb instanceof frontend)) { $wb = new frontend(); }
 
 // Make sure the login is enabled
 if(!FRONTEND_LOGIN) {
     if(INTRO_PAGE) {
-        header('Location: '.WB_URL.PAGES_DIRECTORY.'/index.php');
+        header('Location: '.WB_URL.'/index.php');
         exit(0);
     } else {
-          if ( $wb->get_user_id() && $wb->ami_group_member( '1' ) ) {
-          header('Location: '.WB_URL.'/index.php');
-          } else {
-          $wb->print_missing_frontend_login();
-}
+        header('Location: '.WB_URL.'/index.php');
         exit(0);
+          if ( $wb->get_user_id() && $wb->ami_group_member( '1' ) ) {
+          } else {
+              $wb->print_missing_frontend_login();
+          }
+          exit(0);
     }
 }
 
-$page_id = !empty($_SESSION['PAGE_ID']) ? $_SESSION['PAGE_ID'] : 0;
+$page_id = @$_SESSION['PAGE_ID'] ?: 0;
 
 // Required page details
 // $page_id = 0;
@@ -53,7 +53,7 @@ define('VISIBILITY', 'public');
 // Set the page content include file
 define('PAGE_CONTENT', WB_PATH.'/account/login_form.php');
 
-require_once(WB_PATH.'/framework/class.Login.php');
+require_once(WB_PATH.'/framework/Login.php');
 require_once(WB_PATH.'/framework/class.frontend.php');
 
 // Create new frontend object
@@ -84,7 +84,7 @@ $thisApp = new Login(
                         "MAX_USERNAME_LEN" => "30",
                         "MAX_PASSWORD_LEN" => "30",
                         "LOGIN_URL" => $loginUrl,
-                        "DEFAULT_URL" => WB_URL.PAGES_DIRECTORY."/",
+                        "DEFAULT_URL" => WB_URL."/index.php",
                         "TEMPLATE_DIR" => $ThemePath,
                         "TEMPLATE_FILE" => "login.htt",
                         "FRONTEND" => true,

@@ -54,8 +54,8 @@ if(!defined('WB_URL')) {
         $getMissingTables = (function (array $aTablesList) use ( $oDb )
         {
             $aTablesList = array_flip($aTablesList);
-            $sPattern = addcslashes ( TABLE_PREFIX, '%_' );
-            $sql = 'SHOW TABLES LIKE "'.$sPattern.'%"';
+            $sPattern =  addcslashes( TABLE_PREFIX, '%_' );
+            $sql = 'SHOW TABLES LIKE \''.$sPattern.'%\'';
             if (($oTables = $oDb->query( $sql ))) {
                 while ($aTable = $oTables->fetchRow(MYSQLI_NUM)) {
                     $sTable =  preg_replace('/^'.preg_quote(TABLE_PREFIX, '/').'/s', '', $aTable[0]);
@@ -94,6 +94,7 @@ if(!defined('WB_URL')) {
                     $msg[] = $oDb->get_error();
                 }
             }
+
             $table_name = TABLE_PREFIX.'mod_form_settings';
             $field_name = 'perpage_submissions';
             $description = "INT NOT NULL DEFAULT '10' AFTER `max_submissions`";

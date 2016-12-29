@@ -77,11 +77,4 @@
             $msgTxt = $MESSAGE['GENERIC_SECURITY_ACCESS'];
             $msgCls = 'error-box';
         }
-/*
-ob_start();
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-print_r( http_build_query( $aDefaultSettings, '', '; ') ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
-$debugMessage = ob_get_clean();
-$debugMessage = '';
-*/
 // end of file

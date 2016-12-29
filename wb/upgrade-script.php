@@ -37,8 +37,22 @@ function status_msg($message, $class='check', $element='span')
 }
 
     // pls add all addons to the blacklist array, which don't have a valid upgrade.php'
-    $aModuleBlackList = array ( 'guestbook', 'lib_jquery', 'bookings_v2.36' );
-
+    $aModuleBlackList = array ( 'guestbook', 'lib_jquery', 'bookings_v2.36', 'oneforall' );
+    $aModuleWhiteList = array ( 
+                              'captcha_control', 
+                              'ckeditor', 
+                              'code', 
+                              'droplets',
+                              'form',
+                              'jsadmin',
+                              'menu_link',
+                              'mod_multilingual',
+                              'news',
+                              'output_filter',
+                              'show_menu2',
+                              'wrapper',
+                              'wysiwyg' 
+    );
 // database tables including in WB package
 $table_list = array ('settings','groups','addons','pages','sections','search','users');
 /*
@@ -56,6 +70,7 @@ $FAIL          = ' <span class="error">FAILED</span> ';
 $DEFAULT_THEME = 'wb_theme';
 $stepID = 0;
 $dirRemove = array(
+            '[INCLUDE]lightbox/',
             '[MODULES]SecureFormSwitcher/',
             '[MODULES]fckeditor/'
 /*
@@ -69,6 +84,9 @@ $dirRemove = array(
 $filesRemove = array(
             '[ROOT]SP5_UPGRADE_DE',
             '[ROOT]SP5_UPGRADE_EN',
+
+            '[ACCOUNT]template.html',
+
             '[ADMIN]preferences/details.php',
             '[ADMIN]preferences/email.php',
             '[ADMIN]preferences/password.php',
@@ -79,6 +97,15 @@ $filesRemove = array(
             '[FRAMEWORK]SecureForm.mtab.php',
             '[FRAMEWORK]SecureForm.php',
 /*  */
+            '[MODULES]ckeditor/ckeditor/plugins/plugin.js',
+
+            '[MODULES]captcha_control/uninstall.php',
+            '[MODULES]jsadmin/uninstall.php',
+            '[MODULES]menu_link/uninstall.php',
+            '[MODULES]output_filter/uninstall.php',
+            '[MODULES]output_filter/filters/filterScript.php',
+            '[MODULES]show_menu2/uninstall.php',
+            '[MODULES]wysiwyg/uninstall.php',
 
             '[MODULES]droplets/add_droplet.php',
             '[MODULES]droplets/backup_droplets.php',
@@ -87,6 +114,7 @@ $filesRemove = array(
             '[MODULES]droplets/save_droplet.php',
             '[MODULES]droplets/languages/DA.php',
 
+            '[MODULES]form/save_field.php',
 
             '[TEMPLATE]argos_theme/templates/access.htt',
             '[TEMPLATE]argos_theme/templates/addons.htt',
@@ -115,6 +143,7 @@ $filesRemove = array(
             '[TEMPLATE]argos_theme/templates/users.htt',
             '[TEMPLATE]argos_theme/templates/users_form.htt',
 
+            '[TEMPLATE]wb_theme/uninstall.php',
             '[TEMPLATE]wb_theme/templates/access.htt',
             '[TEMPLATE]wb_theme/templates/addons.htt',
             '[TEMPLATE]wb_theme/templates/admintools.htt',
@@ -298,18 +327,10 @@ h3 { font-size: 120%; }
         exit();
     }
 
-$oldVersion  = 'Version '.WB_VERSION;
-$oldVersion .= (defined('WB_SP') ? ' '.WB_SP : '');
-$oldVersion .= (defined('WB_REVISION') && (WB_REVISION != '') ? ' Revision ['.WB_REVISION.'] ' : '') ;
-
-$newVersion  = 'Version '.VERSION;
-$newVersion .= (defined('SP') ? ' '.SP : '');
-$newVersion .= (defined('REVISION') && (REVISION != '') ? ' Revision ['.REVISION.'] ' : '');
-// set addition settings if not exists, otherwise upgrade will be breaks
-if(!defined('WB_SP')) { define('WB_SP',''); }
-if(!defined('WB_REVISION')) { define('WB_REVISION',''); }
-if( version_compare( WB_VERSION, '2.8.3', '!=' )) {
-    status_msg('It is not possible to upgrade from WebsiteBaker Versions '.$oldVersion.'.<br />For upgrading to version '.$newVersion.' you have to upgrade first to v.2.8.3 at least!!!', 'warning', 'div');
+$oldVersion  = trim(''.WB_VERSION.'+'.WB_REVISION.'+'.( defined('WB_SP') ? WB_SP : ''), '+');
+$newVersion  = trim(''.VERSION.'+'.REVISION.'+'.( defined('SP') ? SP : ''), '+');
+if ( version_compare($oldVersion, $newVersion, '>') === true ) {
+    status_msg('It is not possible to upgrade from WebsiteBaker Versions '.$oldVersion.'!<br />For upgrading to version '.$newVersion.' you have to upgrade first to v.2.8.3 at least!!!', 'warning', 'div');
     echo '<br />';
     echo "
     </body>
@@ -536,18 +557,6 @@ if (version_compare(WB_VERSION, '2.8', '<'))
     $sql .= 'WHERE `name`=\'no_results\'';
     echo ($database->query($sql)) ? ' $OK<br />' : ' $FAIL<br />';
 }
-/**********************************************************
- * upgrade media folder index protect files
- */
-    $dir = (WB_PATH.MEDIA_DIRECTORY);
-    echo '<h4>Upgrade '.MEDIA_DIRECTORY.'/ index.php protect files</h4><br />';
-    $array = rebuildFolderProtectFile($dir);
-    if( sizeof( $array ) ){
-        print '<br /><strong>Upgrade '.sizeof( $array ).'  protect files in '.MEDIA_DIRECTORY.'/</strong>'." $OK<br />";
-    } else {
-        print '<br /><strong>Upgrade '.MEDIA_DIRECTORY.'/ protect files</strong>'." $FAIL!<br />";
-        print implode ('<br />',$array);
-    }
 /* *****************************************************************************
  * - check for deprecated / never needed files
  */
@@ -624,6 +633,7 @@ if (version_compare(WB_VERSION, '2.8', '<'))
         echo '<h2>Step  '.(++$stepID).': Remove deprecated and old folders</h2>';
         $searches = array(
             '[ADMIN]',
+            '[INCLUDE]',
             '[MEDIA]',
             '[MODULES]',
             '[PAGES]',
@@ -631,6 +641,7 @@ if (version_compare(WB_VERSION, '2.8', '<'))
         );
         $replacements = array(
             '/'.substr(ADMIN_PATH, strlen(WB_PATH)+1).'/',
+            '/include/',
             MEDIA_DIRECTORY.'/',
             '/modules/',
             PAGES_DIRECTORY.'/',
@@ -672,11 +683,11 @@ if (version_compare(WB_VERSION, '2.8', '<'))
     $aModuleList = glob(WB_PATH.'/modules/*', GLOB_ONLYDIR );
     $upgradeID = 0;
     foreach($aModuleList as $sModul) {
-        if( !in_array( basename($sModul), $aModuleBlackList ) && file_exists($sModul.'/upgrade.php') ) {
+        if( in_array( basename($sModul), $aModuleWhiteList ) && file_exists($sModul.'/upgrade.php') ) {
             $currModulVersion = get_modul_version (basename($sModul), false);
             $newModulVersion =  get_modul_version (basename($sModul), true);
 //            echo '<h4>Step '.(++$upgradeID).' : Upgrade module \''.$sModul.'\' to version '.$newModulVersion.'</h4>';
-            if((version_compare($currModulVersion, $newModulVersion, '<' ) )) {
+            if((version_compare($currModulVersion, $newModulVersion, '<=' ) )) {
                 echo '<h5> '.sprintf("[%2s]", (++$upgradeID)).' : Upgrade module \''.basename($sModul).'\' from version '.$currModulVersion.' to version'.$newModulVersion.'</h5>';
                 
                 require_once($sModul.'/upgrade.php');

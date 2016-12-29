@@ -15,7 +15,7 @@
  * @description
  */
 
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 
 $admin_header = false;
 // Tells script to update when this page was last updated
@@ -45,42 +45,44 @@ if (!function_exists('emailAdmin')) {
 }
 
 // load module language file
-$lang = (dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php';
-require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $lang );
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
 
 // This code removes any <?php tags and adds slashes
 $friendly = array('&lt;', '&gt;', '?php');
 $raw = array('<', '>', '');
 
 //$header     = CleanInput('header');
-$header = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('header'),true));
+$header = $admin->StripCodeFromText($admin->get_post('header'),true);
 //$field_loop = CleanInput('field_loop');
-$field_loop = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('field_loop'),true));
-//$footer     = CleanInput('footer');
-$footer = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('footer'),true));
+$field_loop = $admin->StripCodeFromText($admin->get_post('field_loop'),true);
+$footer = $admin->StripCodeFromText($admin->get_post('footer'),true);
 //$email_to   = CleanInput('email_to');
-$email_to = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('email_to'),true));
-$email_to   = ($email_to != '' ? $email_to : emailAdmin());
-$email_from = $admin->add_slashes(SERVER_EMAIL);
+$email_to   = $admin->StripCodeFromText($admin->get_post('email_to'), true);
+$email_to   = $admin->StripCodeFromText($email_to != '' ? $email_to : emailAdmin());
+$email_from = SERVER_EMAIL;
 //$use_captcha =CleanInput('use_captcha');
-$use_captcha = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('use_captcha'),true));
+$use_captcha = $admin->StripCodeFromText($admin->get_post('use_captcha'),true);
 
 if( isset($_POST['email_fromname_field']) && ($_POST['email_fromname_field'] != '')) {
-    $email_fromname = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('email_fromname_field'),true));
+    $email_fromname = $admin->StripCodeFromText($admin->get_post('email_fromname_field'),true);
 } else {
-    $email_fromname = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('email_fromname'),true));
+    $email_fromname = $admin->StripCodeFromText($admin->get_post('email_fromname'),true);
 }
 
 $email_fromname = ($email_fromname != '' ? $email_fromname : WBMAILER_DEFAULT_SENDERNAME);
-$email_subject = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('email_subject'),true));
-$success_page = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('success_page'),true));
-$success_email_to = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('success_email_to'),true));
-$success_email_from = $admin->add_slashes(SERVER_EMAIL);
-$success_email_fromname = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('success_email_fromname'),true));
+$email_subject = ($admin->StripCodeFromText($admin->get_post('email_subject'),true));
+$success_page = ($admin->StripCodeFromText($admin->get_post('success_page'),true));
+$success_email_to = ($admin->StripCodeFromText($admin->get_post('success_email_to'),true));
+$success_email_from = (SERVER_EMAIL);
+$success_email_fromname = ($admin->StripCodeFromText($admin->get_post('success_email_fromname'),true));
 $success_email_fromname = ($success_email_fromname != '' ? $success_email_fromname : $email_fromname);
-$success_email_text = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('success_email_text'),true));
+$success_email_text = ($admin->StripCodeFromText($admin->get_post('success_email_text'),true));
 $success_email_text = (($success_email_text != '') ? $success_email_text : '');
-$success_email_subject = $admin->add_slashes($admin->StripCodeFromText($admin->get_post('success_email_subject'),true));
+$success_email_subject = ($admin->StripCodeFromText($admin->get_post('success_email_subject'),true));
 $success_email_subject = (($success_email_subject  != '') ? $success_email_subject : '');
 
 if(!is_numeric($_POST['max_submissions'])) {
@@ -109,23 +111,23 @@ $sBacklink = ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPref
 
 // Update settings
 $sql  = 'UPDATE `'.TABLE_PREFIX.'mod_form_settings` SET ' 
-      . '`header` = \''.$header.'\', '
-      . '`field_loop` = \''.$field_loop.'\', '
-      . '`footer` = \''.$footer.'\', '
-      . '`email_to` = \''.$email_to.'\', '
-      . '`email_from` = \''.$email_from.'\', '
-      . '`email_fromname` = \''.$email_fromname.'\', '
-      . '`email_subject` = \''.$email_subject.'\', '
+      . '`header` = \''.$database->escapeString($header).'\', '
+      . '`field_loop` = \''.$database->escapeString($field_loop).'\', '
+      . '`footer` = \''.$database->escapeString($footer).'\', '
+      . '`email_to` = \''.$database->escapeString($email_to).'\', '
+      . '`email_from` = \''.$database->escapeString($email_from).'\', '
+      . '`email_fromname` = \''.$database->escapeString($email_fromname).'\', '
+      . '`email_subject` = \''.$database->escapeString($email_subject).'\', '
       . '`success_page` = '.(int)$success_page.', '
-      . '`success_email_to` = \''.$success_email_to.'\', '
-      . '`success_email_from` = \''.$success_email_from.'\', '
-      . '`success_email_fromname` = \''.$success_email_fromname.'\', '
-      . '`success_email_text` = \''.$success_email_text.'\', '
-      . '`success_email_subject` = \''.$success_email_subject.'\', '
-      . '`max_submissions` = \''.$max_submissions.'\', '
-      . '`stored_submissions` = \''.$stored_submissions.'\', '
-      . '`perpage_submissions` = \''.$perpage_submissions.'\', '
-      . '`use_captcha` = \''.$use_captcha.'\' '
+      . '`success_email_to` = \''.$database->escapeString($success_email_to).'\', '
+      . '`success_email_from` = \''.$database->escapeString($success_email_from).'\', '
+      . '`success_email_fromname` = \''.$database->escapeString($success_email_fromname).'\', '
+      . '`success_email_text` = \''.$database->escapeString($success_email_text).'\', '
+      . '`success_email_subject` = \''.$database->escapeString($success_email_subject).'\', '
+      . '`max_submissions` = \''.$database->escapeString($max_submissions).'\', '
+      . '`stored_submissions` = \''.$database->escapeString($stored_submissions).'\', '
+      . '`perpage_submissions` = \''.$database->escapeString($perpage_submissions).'\', '
+      . '`use_captcha` = \''.$database->escapeString($use_captcha).'\' '
       . 'WHERE `section_id` = '.(int)$section_id.' ';
 
 if($database->query($sql)) {

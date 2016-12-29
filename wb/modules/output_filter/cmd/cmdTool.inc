@@ -29,7 +29,7 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
             $admin->print_error($MESSAGE['ADMIN_INSUFFICIENT_PRIVELLIGES'], $js_back);
         }
         $SettingsDenied = array( 'at_replacement', 'dot_replacement', 'email_filter', 'mailto_filter', 'OutputFilterMode' );
-        if ($database->field_exists( TABLE_PREFIX.'mod_output_filter', 'email_filter')) {
+        if ($database->field_exists( TABLE_PREFIX.'mod_output_filter', 'sys_rel')) {
             include('cmdUpgrade.inc' );
         } else {
         }
@@ -40,8 +40,6 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
             }
 // read settings from the database to show
         $aFilterSettings = getOutputFilterSettings();
-//print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-//print_r( $aFilterSettings ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
 
 // extended defaultSettings for email filter
         $aEmailDefaults = array();
@@ -62,27 +60,30 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
             );
         }
         $aDefaultSettings = array_diff_key( $aFilterSettings, $aEmailSettings );
-
         // preset settings as default
-        $getDefaultSettings = (function() use ( $sAddonName, $aDefaultSettings ){
-            $aFiles = glob(WB_PATH.'/modules/'.$sAddonName.'/filters/*');
+        $aFiles = glob(WB_PATH.'/modules/'.$sAddonName.'/filters/*');
+        $getDefaultSettings = (function() use ( $sAddonName, $aDefaultSettings, $aFiles ){
             foreach ( $aFiles  as $sFilterFile) {
                 $key = preg_replace('=^.*?filter([^\.\/\\\\]+)(\.[^\.]+)?$=is', '\1', $sFilterFile);
                 $aDefaultSettings[$key] = '0';
             }
           return $aDefaultSettings;
         });
-
         $aDefaultSettings = array_merge( $getDefaultSettings(), $aEmailDefaults );
-
-        $aAllowedFilters = array_keys ( $aDefaultSettings );
-/*
-ob_start();
-print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-print_r( http_build_query( $aDefaultSettings, '', '; ') ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
-$debugMessage = ob_get_clean();
-$debugMessage = '';
-*/
+        $aAllowedFilters  = array_keys ( $aDefaultSettings );
+        $aFilterExists    = array_diff ( $aAllowedFilters, $SettingsDenied );
+        // remove not existing filters from table
+        foreach ( $aFilterExists  as $sFilterName) {
+            $sFilterFile = WB_PATH.'/modules/'.$sAddonName.'/filters/filter'.$sFilterName.'.php';
+            if( !file_exists( $sFilterFile ) ) {
+                $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_output_filter`'
+                      . 'WHERE `name` = \''.$sFilterName.'\'';
+                if( $database->query( $sql ) ){
+                    unset($aDefaultSettings[$sFilterName]);
+                }
+            }
+        }
+//        $aAllowedFilters  = array_keys ( $aDefaultSettings );
 // Create new template object   
         $oTpl = new Template( $sAddonThemePath );
 //        $oTpl->debug = true;
@@ -162,6 +163,3 @@ $debugMessage = '';
             $oTpl->parse('main', 'main_block', true);
             $oTpl->pparse('output', 'page');
     }
-//$aVars = $oTpl->get_vars();
-//print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
-//print_r( $aVars ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 

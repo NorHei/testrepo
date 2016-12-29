@@ -51,6 +51,7 @@ class frontend extends wb {
         parent::__construct(1);
     }
 
+
     public function page_select() {
         global $page_id, $no_intro, $database;
         // We have no page id and are supposed to show the intro page
@@ -70,30 +71,18 @@ class frontend extends wb {
         // Get default page
         // Check for a page id
         $now = time();
-
-        $sql  = 'SELECT `p`.`page_id`, `link`, `level`  '
-              . 'FROM `'.TABLE_PREFIX.'pages` `p` '
-              .       'INNER JOIN `'.TABLE_PREFIX.'sections` '
-              .       'USING(`page_id`) ';
-        if(defined('FRONTEND_LOGIN') && ( FRONTEND_LOGIN )  ) {
-          if ( $this->get_user_id() && $this->ami_group_member( '1' ) ) {
-             $sql .= 'WHERE `parent`>=0 AND '
-                 .        ' (`visibility`=\'public\' OR `visibility`=\'registered\')  AND ';
-          } else {
-            $sql .= 'WHERE `parent`>=0 AND '
-                 .        ' `visibility`=\'public\' AND ';
-          }
-        } else {
-             $sql .= 'WHERE `parent`>=0 AND '
-                 .        ' (`visibility`=\'public\' OR `visibility`=\'registered\')  AND ';
-        }
-        $sql .=        '('
-           .            '('.$now.'>=`publ_start` OR `publ_start`=0) AND '
-           .            '('.$now.'<=`publ_end` OR `publ_end`=0) '
-           .        ')'
-           .        (trim($this->sql_where_language) ? $this->sql_where_language : '')
-           . ' ORDER BY `p`.`position` ASC';
-
+        $sql = 'SELECT `p`.`page_id`, `link` '
+             . 'FROM `'.TABLE_PREFIX.'pages` `p` '
+             .       'INNER JOIN `'.TABLE_PREFIX.'sections` '
+             .       'USING(`page_id`) '
+             . 'WHERE `parent`=0 '
+             .   'AND `visibility`=\'public\' '
+             .   'AND ('
+             .            '('.$now.'>=`publ_start` OR `publ_start`=0) AND '
+             .            '('.$now.'<=`publ_end` OR `publ_end`=0) '
+             .        ')'
+             .        (trim($this->sql_where_language) ? $this->sql_where_language : '')
+             . ' ORDER BY `p`.`position` ASC';
         if (!($oPages = $database->query($sql))) {
         // error on read database
             throw new Exception(
@@ -102,8 +91,10 @@ class frontend extends wb {
             );
             exit;
         }
-        if (!($aDefaultPage = $oPages->fetchRow( MYSQLI_ASSOC ))) {
-        // No active page found, so show the "under construction page"
+        if (
+            !($aDefaultPage = $oPages->fetchRow(MYSQLI_ASSOC)) &&
+            (!isset($page_id) || !intval($page_id))
+        ) {        // No active page found, so show the "under construction page"
             $this->print_under_construction();
             exit;
         }

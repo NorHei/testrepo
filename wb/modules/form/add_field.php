@@ -15,8 +15,7 @@
  * @description
  */
 // Include config file
-$config_file = dirname(dirname((__DIR__))).'/config.php';
-if(file_exists($config_file) && !defined('WB_URL')) { require($config_file); }
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
@@ -25,9 +24,9 @@ $sBacklink = ADMIN_URL.'/pages/modify.php?page_id='.$page_id;
 if (!$admin->checkFTAN( $_SERVER["REQUEST_METHOD"] ))
 {
 //    $admin->print_header();
-    $admin->print_error('FTAN:: '.$MESSAGE['GENERIC_SECURITY_ACCESS'], $sBacklink);
+    $admin->print_error($_SERVER["REQUEST_METHOD"].':: '.$MESSAGE['GENERIC_SECURITY_ACCESS'], $sBacklink);
 }
-$aFtan = $admin->getFTAN('');
+//$aFtan = $admin->getFTAN('');
 
 // Include the ordering class
 require(WB_PATH.'/framework/class.order.php');
@@ -38,9 +37,9 @@ $field_id = 0;
 try {
 // Insert new row into database
  $sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_form_fields` SET '
-      . '`section_id` = '.$section_id.', '
-      . '`page_id` = '.$page_id.', '
-      . '`position` = '.$position.', '
+      . '`section_id` = '.$database->escapeString($section_id).', '
+      . '`page_id` = '.$database->escapeString($page_id).', '
+      . '`position` = '.$database->escapeString($position).', '
       . '`title` = \'\', '
       . '`type` = \'\', '
       . '`required` = 0, '

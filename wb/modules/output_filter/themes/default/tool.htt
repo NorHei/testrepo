@@ -27,9 +27,7 @@
   <input type="hidden" name="action" value="save" />
   {FTAN}
   <div id="selectOutputFilters">
-      <div class="filter_table_list_container">
-        <input type="hidden" value="0" name="filter_forced">
-        <table class="filter_table_select">
+    <table class="filter_table_title">
           <thead>
             <tr>
               <th class="filter_check_all" style="opacity: 1;">
@@ -40,8 +38,12 @@
               </th>
             </tr>
           </thead>
-          <tbody>
+    </table>
+      <div class="filter_table_list_container">
+        <input type="hidden" value="0" name="filter_forced">
+        <table class="filter_table_select">
 
+          <tbody>
 <!-- BEGIN filter_block -->
             <tr>
               <td class="filter_table_name">{FNAME}</td>

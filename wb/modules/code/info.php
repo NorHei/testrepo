@@ -21,10 +21,10 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 
 $module_directory   = 'code';
-$module_name        = 'Code';
+$module_name        = 'Code 3.0.0';
 $module_function    = 'page';
-$module_version     = '2.8.4';
-$module_platform    = '2.7 | 2.8.x';
+$module_version     = '3.0.0';
+$module_platform    = '2.8.3';
 $module_author      = 'Ryan Djurovich';
 $module_license     = 'GNU General Public License';
 $module_description = 'This module allows you to execute PHP commands (limit access to users you trust!!)';

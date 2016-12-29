@@ -22,10 +22,10 @@ if(!defined('WB_URL')) {
 }
 /* -------------------------------------------------------- */
 $module_directory = 'form';
-$module_name = 'Form';
+$module_name = 'Form Modul v3.0.0';
 $module_function = 'page';
-$module_version = '2.9.2';
-$module_platform = '2.8.4';
+$module_version = '3.0.0';
+$module_platform = '2.8.3';
 $module_author = 'Ryan Djurovich & Rudolph Lartey - additions John Maats - PCWacht, dev-team';
 $module_license = 'GNU General Public License';
 $module_description = 'This module allows you to create customised online forms, such as a feedback form. '.

@@ -23,9 +23,9 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 
 $module_directory = 'output_filter';
-$module_name = 'Frontend Output Filter v1.0';
+$module_name = 'Output Filter Frontend v1.0.0 ';
 $module_function = 'tool';
-$module_version = '1.0-dev.0';
+$module_version = '1.0.0';
 $module_platform = '2.8.3 SP6';
 $module_author = 'Christian Sommer(doc), Manuela v.d. Decken(DarkViper), Dietmar Wöllbrink(luisehahne)';
 $module_license = 'GNU General Public License';

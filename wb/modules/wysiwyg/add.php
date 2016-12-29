@@ -14,16 +14,17 @@
  * @lastmodified    $Date: 2011-01-10 13:21:47 +0100 (Mo, 10 Jan 2011) $
  *
  */
-
 /* -------------------------------------------------------- */
 // Must include code to stop this file being accessed directly
-if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
-/* -------------------------------------------------------- */
-// Insert an extra row into the database
-$sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_wysiwyg` '
-     . 'SET `page_id`='.$page_id.', '
-     .     '`section_id`='.$section_id.', '
-     .     '`content`=\'\', '
-     .     '`text`=\'\'';
-$database->query($sql);
-
+if(!defined('WB_PATH')) {
+    require_once(dirname(dirname(dirname(__FILE__))).'/framework/globalExceptionHandler.php');
+    throw new IllegalFileException();
+} else {
+    // Insert an extra row into the database
+    $sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_wysiwyg` '
+         . 'SET `page_id`='.$database->escapeString($page_id).', '
+         .     '`section_id`='.$database->escapeString($section_id).', '
+         .     '`content`=\'\', '
+         .     '`text`=\'\'';
+    $database->query($sql);
+}

@@ -4,8 +4,8 @@
  * @category        admin
  * @package         login
  * @author          Ryan Djurovich, WebsiteBaker Project
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link            http://www.websitebaker2.org/
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
  * @platform        WebsiteBaker 2.8.3
  * @requirements    PHP 5.3.6 and higher
@@ -62,7 +62,7 @@ if(isset($_POST['email']) && $_POST['email'] != "") {
             }
 
             $sql  = 'UPDATE `'.TABLE_PREFIX.'users` SET '
-                  . '`password` = \''.md5($new_pass).'\', '
+                  . '`password` = \''.$database->escapeString(md5($new_pass)).'\', '
                   . '`last_reset` = '.time().' '
                   . 'WHERE `user_id` = '.$results_array['user_id'].'';
             $database->query($sql);
@@ -83,7 +83,7 @@ if(isset($_POST['email']) && $_POST['email'] != "") {
                     $display_form = false;
                 } else {
                     $sql = 'UPDATE `'.TABLE_PREFIX.'users` SET '
-                    . '`password` = \''.$old_pass.'\' '
+                    . '`password` = \''.$database->escapeString($old_pass).'\' '
                     . 'WHERE `user_id` = '.$results_array['user_id'].'';
 //                    $database->query("UPDATE ".TABLE_PREFIX."users SET password = '".$old_pass."' WHERE user_id = '".$results_array['user_id']."'");
                     $database->query($sql);

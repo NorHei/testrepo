@@ -23,9 +23,9 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 
 $module_directory = 'droplets';
-$module_name = 'Droplets v1.9.2';
+$module_name = 'Droplets v2.0.0';
 $module_function = 'tool';
-$module_version = '1.9.2';
+$module_version = '2.0.0';
 $module_platform = '2.8.3';
 $module_author = 'Ruud and pcwacht, Luisehahne';
 $module_license = 'GNU General Public License';

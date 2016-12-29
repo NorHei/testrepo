@@ -31,12 +31,10 @@ $js_back = ADMIN_URL.'/admintools/tool.php';
 $ToolUrl = ADMIN_URL.'/admintools/tool.php?tool=droplets';
 
 // Load Language file
-if(LANGUAGE_LOADED) {
-    if(!file_exists($ModulePath.'languages/'.LANGUAGE.'.php')) {
-        require_once($ModulePath.'languages/EN.php');
-    } else {
-        require_once($ModulePath.'languages/'.LANGUAGE.'.php');
-    }
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
 }
 
 if( !$admin->get_permission($sModulName,'module' ) ) {
@@ -108,6 +106,11 @@ if($num_droplets > 0) {
 //print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />'; 
 //print_r( $oDroplets ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die(); 
 ?>
+<script type="text/javascript">
+<!--
+var SAddonUrl = '<?php echo $ModuleUrl; ?>';
+-->
+</script>
 <script src="<?php echo $ModuleUrl; ?>js/wz_tooltip.js"></script>
 <script src="<?php echo $ModuleUrl; ?>js/tip_balloon.js"></script>    <table class="droplets_data" >
     <thead>

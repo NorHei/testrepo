@@ -13,31 +13,6 @@
  * This module will activate a global exception handler to catch all thrown exceptions
  *
  */
-/**
- * define several default exceptions directly to prevent from extra loading requests
- */
-    class AppException extends Exception{
-        public function __toString() {
-            $file = str_replace(dirname(dirname(__FILE__)), '', $this->getFile());
-            if(DEBUG) {
-                $trace = $this->getTrace();
-                $result = 'Exception: "'.$this->getMessage().'" @ ';
-                if($trace[0]['class'] != '') {
-                  $result .= $trace[0]['class'].'->';
-                }
-                $result .= $trace[0]['function'].'(); in'.$file.'<br />'."\n";
-                if(mysql_errno()) {
-                    $result .= mysql_errno().': '.mysql_error().'<br />'."\n";
-                }
-                $result .= '<pre>'."\n";
-                $result .= print_r($trace, true)."\n";
-                $result .= '</pre>'."\n";
-            }else {
-                $result = 'Exception: "'.$this->getMessage().'" >> Exception detected in: ['.$file.']<br />'."\n";
-            }
-            return $result;
-        }
-    }
 
 /**
  * define Exception to show error after accessing a forbidden file
@@ -48,15 +23,6 @@
             $out  = '<div style="color: #ff0000; text-align: center;"><br />';
             $out .= '<br /><br /><h1>Illegale file access</h1>';
             $out .= '<h2>'.$file.'</h2></div>';
-            return $out;
-        }
-    } // end of class
-/**
- * define Exception to show error message
- */
-    class ErrorMsgException extends Exception {
-        public function __toString() {
-            $out  = $this->getMessage();
             return $out;
         }
     } // end of class
@@ -73,16 +39,9 @@
             $sResponse  = $_SERVER['SERVER_PROTOCOL'].' 403 Forbidden';
             header($sResponse);
             echo $e;
-        }elseif($e instanceof ErrorMsgException) {
-            echo (string)$e;
-        }elseif($e instanceof RuntimeException) {
-            $out  = 'There was a serious runtime error:'."\n";
-            $out .= $e->getMessage()."\n";
-            $out .= 'in line ('.$e->getLine().') of ('.$file.')'."\n";
-            echo $out;
         }else {
         // default exception handling
-            $out  = 'There was an unknown exception:'."\n";
+            $out  = 'There was an uncatched exception:'."\n";
             $out .= $e->getMessage()."\n";
             $out .= 'in line ('.$e->getLine().') of ('.$file.')'."\n";
             echo $out;

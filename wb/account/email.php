@@ -23,8 +23,8 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
     $password = $wb->get_post('current_password');
     $email = $wb->get_post('email');
 // validate password
-    $sql  = "SELECT `user_id` FROM `".TABLE_PREFIX."users` ";
-    $sql .= "WHERE `user_id` = ".$wb->get_user_id()." AND `password` = '".md5($password)."'";
+    $sql  = 'SELECT `user_id` FROM `'.TABLE_PREFIX.'users` '
+          . 'WHERE `user_id` = '.$wb->get_user_id().' AND `password` = \''.md5($password).'\'';
     $rowset = $database->query($sql);
 // Validate values
     if($rowset->numRows() == 0) {

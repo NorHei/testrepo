@@ -86,7 +86,7 @@ if (!function_exists('get_page_link')) {
     function get_page_link( $id )
     {
         global $database;
-        $sql = 'SELECT `link` FROM `'.TABLE_PREFIX.'pages` WHERE `page_id` = '.$id;
+        $sql = 'SELECT `link` FROM `'.TABLE_PREFIX.'pages` WHERE `page_id` = '.intval($id);
         $link = $database->get_one( $sql );
         return $link;
     }
@@ -466,20 +466,19 @@ if (!function_exists('page_footer')) {
 
 function bind_jquery ($file_id='jquery')
 {
-
         $jquery_links = '';
         /* include the Javascript jquery api  */
-        if( $file_id == 'jquery' AND file_exists(WB_PATH .'/include/jquery/jquery-min.js'))
+        if( $file_id == 'jquery' && file_exists(WB_PATH .'/include/jquery/jquery-min.js'))
         {
             $wbpath = str_replace('\\','/',WB_PATH);  // fixed localhost problem with ie
             $jquery_links .= "<script type=\"text/javascript\">\n"
                 ."var URL = '".WB_URL."';\n"
                 ."var WB_URL = '".WB_URL."';\n"
+                ."var THEME_URL = '".THEME_URL."';\n"
                 ."var TEMPLATE_DIR = '".TEMPLATE_DIR."';\n"
                 ."var TEMPLATE = '".TEMPLATE."';\n"
                 ."var EDITOR = '".WYSIWYG_EDITOR."';\n"
                 ."</script>\n";
-
             $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-min.js" type="text/javascript"></script>'."\n";
             $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-insert.js" type="text/javascript"></script>'."\n";
             $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-include.js" type="text/javascript"></script>'."\n";
@@ -504,10 +503,8 @@ if(!function_exists('register_frontend_modfiles_body'))
     {
         // sanity check of parameter passed to the function
         $file_id = strtolower($file_id);
-        if($file_id !== "css" && $file_id !== "javascript" && $file_id !== "js" && $file_id !== "jquery")
-        {
-            return;
-        }
+        $aAllowedAction = array( 'css', 'js', 'jquery', 'javascript' );
+        if(!in_array($file_id, $aAllowedAction)) { return false; }
 
        // define constant indicating that the register_frontent_files was invoked
        if(!defined('MOD_FRONTEND_BODY_JAVASCRIPT_REGISTERED')) define('MOD_FRONTEND_BODY_JAVASCRIPT_REGISTERED', true);
@@ -572,60 +569,67 @@ if(!function_exists('register_frontend_modfiles'))
     {
         // sanity check of parameter passed to the function
         $file_id = strtolower($file_id);
-        if($file_id !== "css" && $file_id !== "javascript" && $file_id !== "js" && $file_id !== "jquery")
-        {
-            return;
-        }
-
+        $aAllowedAction = array( 'css', 'script', 'js', 'jquery', 'javascript' );
+        if(!in_array($file_id, $aAllowedAction)) { return false; }
         global $wb, $database, $include_head_link_css, $include_head_links, $page_id;
         // define default baselink and filename for optional module javascript and stylesheet files
         $head_links = "";
+        $base_file = '';
+        $base_link = '';
 
         switch ($file_id)
         {
             case 'css':
-            $base_link = '<link href="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.css"';
-            $base_link.= ' rel="stylesheet" type="text/css" media="screen" />';
-            $base_file = "frontend.css";
-            if(!empty($include_head_link_css))
-            {
-              $head_links .=  !strpos($head_links, $include_head_link_css) ? $include_head_link_css : '';
-              $include_head_link_css = '';
-            }
-            break;
+                $base_link = '<link href="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.css"';
+                $base_link.= ' rel="stylesheet" type="text/css" media="screen" />';
+                $base_file = "frontend.css";
+                if(!empty($include_head_link_css))
+                {
+                  $head_links .=  !strpos($head_links, $include_head_link_css) ? $include_head_link_css : '';
+                  $include_head_link_css = '';
+                }
+                break;
             case 'jquery':
-            $head_links .= bind_jquery($file_id);
-            break;
+                $aFilterSettings = getOutputFilterSettings();
+                $key = preg_replace('=^.*?filter([^\.\/\\\\]+)(\.[^\.]+)?$=is', '\1', 'filterJquery.inc');
+                $bLoadJquery = !isset($aFilterSettings[$key]);
+                $bLoadJquery = @!$aFilterSettings[$key] ?: $bLoadJquery;
+                if ( $bLoadJquery ) {
+                    $head_links .= bind_jquery($file_id);
+                }
+                break;
             case 'js':
-            $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js" type="text/javascript"></script>';
-            $base_file = "frontend.js";
-            if(!empty($include_head_links))
-            {
-              $head_links .= !strpos($head_links, $include_head_links) ? $include_head_links : '';
-              $include_head_links = '';
-            }
-            break;
+//                $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js" type="text/javascript"></script>';
+//                $base_file = "frontend.js";
+//                if(!empty($include_head_links))
+//                {
+//                  $head_links .= !strpos($head_links, $include_head_links) ? $include_head_links : '';
+//                  $include_head_links = '';
+//                }
+                break;
+            case 'script_old':
+                break;
             default:
-            break;
+                break;
         }
 
-        if( $file_id != 'jquery')
+        if( $file_id != 'jquery_old')
         {
             // gather information for all models embedded on actual page
 //            $page_id = $wb->page_id;
-            $sql  = 'SELECT `module` FROM `'.TABLE_PREFIX.'sections` ';
-            $sql .= 'WHERE `page_id` = '.(int)$page_id.' AND `module`<>\'wysiwyg\'';
-            if( ($query_modules = $database->query($sql)) )
+            $sql  = 'SELECT `module` FROM `'.TABLE_PREFIX.'sections` '
+                  . 'WHERE `page_id` = '.(int)$page_id;
+            if( ($oModules = $database->query($sql)) )
             {
-                while($row = $query_modules->fetchRow())
+                while($row = $oModules->fetchRow( MYSQLI_ASSOC ))
                 {
                     // check if page module directory contains a frontend.js or frontend.css file
                     if(file_exists(WB_PATH ."/modules/" .$row['module'] ."/$base_file"))
                     {
                     // create link with frontend.js or frontend.css source for the current module
                         $tmp_link = str_replace("{MODULE_DIRECTORY}", $row['module'], $base_link);
-
                         // define constant indicating that the register_frontent_files was invoked
+   
                         if($file_id == 'css')
                         {
                             if(!defined('MOD_FRONTEND_CSS_REGISTERED')) define('MOD_FRONTEND_CSS_REGISTERED', true);
@@ -634,21 +638,12 @@ if(!function_exists('register_frontend_modfiles'))
                             if(!defined('MOD_FRONTEND_JAVASCRIPT_REGISTERED')) define('MOD_FRONTEND_JAVASCRIPT_REGISTERED', true);
                         }
                         // ensure that frontend.js or frontend.css is only added once per module type
-                        if(strpos($head_links, $tmp_link) === false)
+                        if( $tmp_link && strpos($head_links, $tmp_link) === false)
                         {
                             $head_links .= $tmp_link."\n";
                         }
                     };
                 }
-            }
-            // include the Javascript email protection function
-            if( $file_id != 'css' && file_exists(WB_PATH .'/modules/droplets/js/mdcr.js'))
-               {
-                $head_links .= '<script src="'.WB_URL.'/modules/droplets/js/mdcr.js" type="text/javascript"></script>'."\n";
-            }
-               elseif( $file_id != 'css' && file_exists(WB_PATH .'/modules/output_filter/js/mdcr.js'))
-               {
-                $head_links .= '<script src="'.WB_URL.'/modules/output_filter/js/mdcr.js" type="text/javascript"></script>'."\n";
             }
         }
         print $head_links;
@@ -656,22 +651,5 @@ if(!function_exists('register_frontend_modfiles'))
 }
 
     function moveCssToHead($content) {
-        // move css definitions into head section
-        $pattern1 = '/(?:<body.*?)(<link[^>]*?\"text\/css\".*?\/>)/si';
-        $pattern2 = '/(?:<body.*?)(<style[^>]*?\"text\/css\"[^>]*?>.*?<\/style>)/si';
-        while(preg_match($pattern1, $content, $matches)==1) {
-        // loop through all linked CSS
-            $insert = $matches[1];
-            $content = str_replace($insert, '', $content);
-            $insert = "\n".$insert."\n</head>\n<body";
-            $content = preg_replace('/<\/head>.*?<body/si', $insert, $content);
-        }
-        while(preg_match($pattern2, $content, $matches)==1) {
-        // loop through all inline CSS
-            $insert = $matches[1];
-            $content = str_replace($insert, '', $content);
-            $insert = "\n".$insert."\n</head>\n<body";
-            $content = preg_replace('/<\/head>.*?<body/si', $insert, $content);
-        }
-        return $content;
+       return OutputFilterApi('CssToHead', $sContent);
     }

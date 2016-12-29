@@ -15,7 +15,7 @@
  * @description
  */
 
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 
 $print_info_banner = true;
 // Tells script to update when this page was last updated
@@ -31,8 +31,11 @@ if (!$field_id) {
  $admin->print_error('IDKEY:: '.$MESSAGE['GENERIC_SECURITY_ACCESS'], ADMIN_URL.'/pages/modify.php?page_id='.$page_id.'#'.$sSectionIdPrefix.$section_id);
 }
 // load module language file
-$lang = (dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php';
-require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $lang );
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
 
 $type = 'none';
 // Get header and footer
@@ -199,16 +202,6 @@ $sToken = $aFtan['name'].'='.$aFtan['value'];
         <td align="left">
             <input name="save" type="submit" value="<?php echo $TEXT['SAVE']; ?>" style="width: 100px; margin-top: 5px;" />
         </td>
-        <?php
-        // added by John Maats, PCWacht, 12 januar 2006
-        if ($type<>'none') {
-        ?>
-        <td align="center">
-            <input type="button" value="<?php echo $TEXT['ADD'].' '.$TEXT['FIELD']; ?>" onclick="window.location = '<?php echo WB_URL; ?>/modules/form/add_field.php?page_id=<?php echo $page_id; ?>&amp;section_id=<?php echo $section_id; ?>&amp;<?php echo $sToken; ?>';" style="width: 200px; margin-top: 5px;" />  
-        </td>
-        <?php }
-        // end addition
-        ?>
         <td align="right">
             <input type="button" value="<?php echo $TEXT['CLOSE']; ?>" onclick="window.location = '<?php echo ADMIN_URL; ?>/pages/modify.php?page_id=<?php echo $page_id.'#'.$sSectionIdPrefix.$section_id; ?>';" style="width: 100px; margin-top: 5px;" />
         </td>

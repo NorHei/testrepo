@@ -15,16 +15,7 @@
  * @lastmodified    $Date: 2012-03-14 00:01:47 +0100 (Mi, 14. Mrz 2012) $
  *
  */
-// aktivate exceptionhandler ---
-    if(!function_exists('globalExceptionHandler')) {
-        include(__DIR__.'/globalExceptionHandler.php');
-    }
 
-// Stop execution if PHP version is too old
-if (version_compare(PHP_VERSION, '5.3.6', '<')) { 
-    throw new Exception('PHP-'.PHP_VERSION.' found, but at last PHP-5.3.6 required !!'); 
-}
-/* -------------------------------------------------------- */
 
 /**
  * sanitize $_SERVER['HTTP_REFERER']
@@ -69,9 +60,33 @@ function makePhExp($sList)
     return preg_replace('/^(.*)$/', '[$1]', $aList);
 }
 
+/* ***************************************************************************************
+ * Start initialization                                                                  *
+ ****************************************************************************************/// aktivate exceptionhandler ---
+//    throw new Exception('PHP-'.PHP_VERSION.' found, but at last PHP-5.3.6 required !!'); 
+// Stop execution if PHP version is too old
+if (version_compare(PHP_VERSION, '5.3.6', '<')) { 
+// PHP less then 5.3.6 is prohibited ---
+    if (version_compare(PHP_VERSION, '5.3.6', '<')) {
+        $sMsg = '<p style="color: #ff0000;">WebsiteBaker is not able to run with PHP-Version less then 5.3.6!!<br />'
+              . 'Please change your PHP-Version to any kind from 5.3.6 and up!<br />'
+              . 'If you have problems to solve that, ask your hosting provider for it.<br  />'
+              . 'The very best solution is the use of PHP-5.5 and up</p>';
+        die($sMsg);
+    }
+}
+
+/* -------------------------------------------------------- */
+if(!function_exists('globalExceptionHandler')) {
+    include(__DIR__.'/globalExceptionHandler.php');
+}
 if (ini_get('display_errors')) {
     ini_set('display_errors', 'off');
 }
+if (!ini_get('error_log')) {
+    ini_set ('error_log', 1 );
+}
+
 if (!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', 'admin'); }
 if (!preg_match('/xx[a-z0-9_][a-z0-9_\-\.]+/i', 'xx'.ADMIN_DIRECTORY)) {
     throw new RuntimeException('Invalid admin-directory: ' . ADMIN_DIRECTORY);
@@ -80,6 +95,15 @@ if (!preg_match('/xx[a-z0-9_][a-z0-9_\-\.]+/i', 'xx'.ADMIN_DIRECTORY)) {
 if ( !defined('ADMIN_URL')) { define('ADMIN_URL', WB_URL.'/'.ADMIN_DIRECTORY); }
 if ( !defined('WB_PATH')) { define('WB_PATH', dirname(dirname(__FILE__))); }
 if ( !defined('ADMIN_PATH')) { define('ADMIN_PATH', WB_PATH.'/'.ADMIN_DIRECTORY); }
+
+if ( !defined('WB_REL')){
+    $x1 = parse_url(WB_URL);
+    define('WB_REL', (isset($x1['path']) ? $x1['path'] : ''));
+}
+if ( !defined('DOCUMENT_ROOT')) {
+    define('DOCUMENT_ROOT', preg_replace('/'.preg_quote(str_replace('\\', '/', WB_REL), '/').'$/', '', str_replace('\\', '/', WB_PATH)));
+    $_SERVER['DOCUMENT_ROOT'] = DOCUMENT_ROOT;
+}
 
 if (file_exists(WB_PATH.'/framework/class.database.php')) {
     // sanitize $_SERVER['HTTP_REFERER']
@@ -100,9 +124,26 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     require_once(WB_PATH.'/framework/class.database.php');
     // Create database class
     $database = new database();
-
+    // activate frontend OutputFilterApi (initialize.php)
+    if (is_readable(WB_PATH .'/modules/output_filter/OutputFilterApi.php')) {
+        if (!function_exists('OutputFilterApi')) {
+            include WB_PATH .'/modules/output_filter/OutputFilterApi.php';
+        }
+    } else {
+        throw new RuntimeException('missing mandatory global OutputFilterApi!');
+    }
     if (version_compare(PHP_VERSION, '5.4.0', '<')) {
         @ini_set("magic_quotes_runtime", 0); // Disable magic_quotes_runtime
+        @ini_set("magic_quotes_gpc", 0); // Disable magic_quotes_gpc
+    }
+    if (get_magic_quotes_gpc()) {
+        $unescape = function(&$value, $key) {
+            $value = stripslashes($value);
+        };
+        array_walk_recursive($_POST, $unescape);
+        array_walk_recursive($_GET,  $unescape);
+        array_walk_recursive($_REQUEST, $unescape);
+        array_walk_recursive($_COOKIE, $unescape);
     }
     // Get website settings (title, keywords, description, header, and footer)
     $sql = 'SELECT `name`, `value` FROM `'.TABLE_PREFIX.'settings`';
@@ -154,9 +195,9 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     }
     // set error-reporting
     if (intval(ER_LEVEL) > 0 ) {
-        error_reporting(ER_LEVEL);
+        error_reporting( ER_LEVEL );
         if (intval(ini_get ( 'display_errors' )) == 0 ) {
-            ini_set('display_errors', 1);
+            ini_set('display_errors', 0);
         }
     }
     // Start a session
@@ -186,6 +227,11 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     }
     // Load Language file
     if (!defined('LANGUAGE_LOADED')) {
+        require(WB_PATH .'/languages/EN.php');
+        if(file_exists(WB_PATH .'/languages/'.LANGUAGE .'.php')) {
+            require(WB_PATH .'/languages/'.LANGUAGE .'.php');
+        }
+/*
         if (!file_exists(WB_PATH.'/languages/'.LANGUAGE.'.php')) {
 //            throw new RuntimeException('Error loading language file '.LANGUAGE.', please check configuration');
             require_once(WB_PATH.'/languages/EN.php');
@@ -193,6 +239,7 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
         } else {
             require_once(WB_PATH.'/languages/'.LANGUAGE.'.php');
         }
+*/
     }
     // Get users timezone
     if (isset($_SESSION['TIMEZONE'])) {

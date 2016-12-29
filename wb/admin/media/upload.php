@@ -17,7 +17,7 @@
  */
 
 // Print admin header
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 include_once('resize_img.php');
 include_once('parameters.php');
 

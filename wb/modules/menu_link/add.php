@@ -23,8 +23,8 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 
     // Insert new row into database
     $sql = 'INSERT INTO `'.TABLE_PREFIX.'mod_menu_link` SET '
-         . '`page_id` = '.$page_id.', '
-         . '`section_id` = '.$section_id.', '
+         . '`page_id` = '.$database->escapeString($page_id).', '
+         . '`section_id` = '.$database->escapeString($section_id).', '
          . '`target_page_id` = 0, '
          . '`redirect_type`  = \'301\', '
          . '`anchor` = 0, '

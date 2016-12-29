@@ -18,7 +18,7 @@
   <tr>
     <td class="content">
       <form name="login" class="login" action="{ACTION_URL}" method="post" >
-        <input type="hidden" name="url" value="{{URL}" />
+        <input type="hidden" name="url" value="{URL}" />
         <input type="hidden" name="username_fieldname" value="{USERNAME_FIELDNAME}" />
         <input type="hidden" name="password_fieldname" value="{PASSWORD_FIELDNAME}" />
         <table summary="" cellpadding="5" cellspacing="0" border="0" align="center" width="500">

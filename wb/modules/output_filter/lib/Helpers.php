@@ -95,7 +95,7 @@ class Helpers
 
 } // end class Helpers
 
-require( dirname(dirname(dirname((__DIR__)))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 
 
 $oHelpers = new Helpers();

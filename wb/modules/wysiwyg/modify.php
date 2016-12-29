@@ -24,8 +24,8 @@ $sMediaUrl = WB_URL.MEDIA_DIRECTORY;
 // Get page content   htmlspecialchars
 $sql = 'SELECT `content` FROM `'.TABLE_PREFIX.'mod_wysiwyg` WHERE `section_id`='.(int)$section_id;
 if ( ($content = $database->get_one($sql)) ) {
-    $content = (str_replace('{SYSVAR:MEDIA_REL}', $sMediaUrl, $content));
-}else {
+    $content = htmlspecialchars(str_replace('{SYSVAR:MEDIA_REL}', $sMediaUrl, $content));
+} else {
     $content = '';
 }
 
@@ -70,7 +70,7 @@ show_wysiwyg_editor('content'.$section_id,'content'.$section_id,$content,'100%',
                 <input name="pagetree" type="submit" value="<?php echo $TEXT['SAVE'].' &amp; '.$TEXT['BACK']; ?>" style="min-width: 100px; margin-top: 5px;" />
             </td>
             <td style="text-align: right;margin-right: 1em;">
-                <input name="cancel" type="button" value="<?php echo $TEXT['CANCEL']; ?>" onclick="javascript: window.location = 'index.php';" style="min-width: 100px; margin-top: 5px;" />
+                <input name="cancel" type="button" value="<?php echo $TEXT['CANCEL']; ?>" onclick="window.location = 'index.php';" style="min-width: 100px; margin-top: 5px;" />
             </td>
         </tr>
     </table>

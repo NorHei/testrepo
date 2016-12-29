@@ -18,10 +18,16 @@
 $starttime = array_sum(explode(" ",microtime()));
 
 // Include config file
-$config_file = __DIR__.'/config.php';
-if(file_exists($config_file))
-{
-    require_once($config_file);
+if (!defined('WB_PATH')) {
+    $sStartupFile = __DIR__.'/config.php';
+    if (is_readable($sStartupFile)) {
+        require($sStartupFile);
+    } else {
+        die(
+            'tried to read a nonexisting or not readable startup file ['
+          . basename(dirname($sStartupFile)).'/'.basename($sStartupFile).']!!'
+        );
+    }
 }
 
 // Check if the config file has been set-up
@@ -44,13 +50,15 @@ if(!defined('TABLE_PREFIX'))
 
 if( !class_exists('frontend')) { require(WB_PATH.'/framework/class.frontend.php');  }
 // Create new frontend object
-if (!isset($wb) || !($wb instanceof frontend)) {
-    $wb = new frontend();
-}
-    $wb->createFTAN();
-// Load OutputFilter opf_controller functions
-if (is_readable(__DIR__.'/modules/output_filter/OutputFilterApi.php')) {
-    include __DIR__.'/modules/output_filter/OutputFilterApi.php';
+if (!isset($wb) || !($wb instanceof frontend)) { $wb = new frontend(); }
+
+// activate frontend Output_Filter (index.php)
+if (is_readable(WB_PATH .'/modules/output_filter/index.php')) {
+    if (!function_exists('executeFrontendOutputFilter')) {
+        include WB_PATH .'/modules/output_filter/index.php';
+    }
+} else {
+    throw new RuntimeException('missing mandatory global Output_Filter!');
 }
 // Figure out which page to display
 // Stop processing if intro page was shown

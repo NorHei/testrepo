@@ -87,7 +87,7 @@ function show_wysiwyg_editor($name, $id, $content, $width = '100%', $height = '2
 
     $temp = '';
     if (isset($admin->page_id)) {
-        $query = "SELECT `template` from `".TABLE_PREFIX."pages` where `page_id`='".$page_id."'";
+        $query = "SELECT `template` from `".TABLE_PREFIX."pages` where `page_id`='".intval($page_id)."'";
         $temp = $database->get_one( $query );
     }
     $templateFolder = ($temp == "") ? DEFAULT_TEMPLATE : $temp;
@@ -138,13 +138,13 @@ $ckeditor->looking_for_wysiwyg_admin( $database );
  */
 if( !$bWbConfigSetting ) { 
     $ckeditor->config['extraPlugins'] = 'justify,find,flash,colorbutton,colordialog,dialogadvtab,autogrow,'
-                                      . 'div,font,forms,iframe,indentblock,language,bidi,liststyle,pagebreak,save,'
+                                      . 'div,font,forms,iframe,indentblock,bidi,liststyle,pagebreak,save,'
                                       . 'selectall,showblocks,smiley,templates,codemirror,syntaxhighlight,'
-                                      . 'wblink,wbdroplets,youtube,oembed,backup,wbsave,wbabout,wbrelation'
+                                      . 'wblink,wbdroplets,youtube,oembed,backup,wbabout,wbrelation'
                                       .'';
 
-    $ckeditor->config['removePlugins'] = 'link,wsc,save,newpage,print,shybutton,preview,'
-                                        .'sourcearea,sourcedialog,imageresponsive,image2';
+    $ckeditor->config['removePlugins'] = 'link,wsc,save,newpage,print,shybutton,preview,wbsave,'
+                                        .'sourcearea,sourcedialog,imageresponsive,image2,language';
  }
 
 if( !$bWbConfigSetting ) { $ckeditor->config['uiColor'] = '#BFD7EB'; }

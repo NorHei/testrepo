@@ -15,14 +15,17 @@
  * @description
  */
 
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 //if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 
 // Include WB admin wrapper script
 require(WB_PATH.'/modules/admin.php');
 // load module language file
-$lang = (dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php';
-require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $lang );
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
 /* */
 
 include_once (WB_PATH.'/framework/functions.php');

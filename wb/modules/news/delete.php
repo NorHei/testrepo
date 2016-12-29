@@ -21,30 +21,46 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 /* -------------------------------------------------------- */
 function mod_news_delete($database, $page_id, $section_id)
 {
+
     //get and remove all php files created for the news section
-    $query_details = $database->query("SELECT * FROM `".TABLE_PREFIX."mod_news_posts` WHERE `section_id` = '$section_id'");
-    if($query_details->numRows() > 0) {
-        while($link = $query_details->fetchRow(MYSQLI_ASSOC)) {
-            if(is_writable(WB_PATH.PAGES_DIRECTORY.$link['link'].PAGE_EXTENSION)) {
-            unlink(WB_PATH.PAGES_DIRECTORY.$link['link'].PAGE_EXTENSION);
+    $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'mod_news_posts` '
+          . 'WHERE `section_id` = '.$database->escapeString($section_id);
+    $oPosts = $database->query($sql);
+    if($oPosts->numRows() > 0) {
+        while($aPost = $oPosts->fetchRow(MYSQLI_ASSOC)) {
+            if(is_writable(WB_PATH.PAGES_DIRECTORY.$aPost['link'].PAGE_EXTENSION)) {
+            unlink(WB_PATH.PAGES_DIRECTORY.$aPost['link'].PAGE_EXTENSION);
             }
         }
     }
+
     //check to see if any other sections are part of the news page, if only 1 news is there delete it
-    $query_details = $database->query("SELECT * FROM `".TABLE_PREFIX."sections` WHERE `page_id` = '$page_id'");
-    if($query_details->numRows() == 1) {
-        $query_details2 = $database->query("SELECT * FROM `".TABLE_PREFIX."pages` WHERE `page_id` = '$page_id'");
-        $link = $query_details2->fetchRow(MYSQLI_ASSOC);
+    $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'sections` '
+          . 'WHERE `page_id` = '.$database->escapeString($page_id);
+    $oSection = $database->query($sql);
+    if($oSection->numRows() == 1) {
+        $sql  = 'SELECT * FROM `'.TABLE_PREFIX.'pages` '
+              . 'WHERE `page_id` = '.$database->escapeString($page_id);
+        $oPages = $database->query($sql);
+        $link = $oPages->fetchRow(MYSQLI_ASSOC);
         if(is_writable(WB_PATH.PAGES_DIRECTORY.$link['link'].PAGE_EXTENSION)) {
             unlink(WB_PATH.PAGES_DIRECTORY.$link['link'].PAGE_EXTENSION);
         }
     }
 
-    $database->query("DELETE FROM `".TABLE_PREFIX."mod_news_posts` WHERE `section_id` = '$section_id'");
-    $database->query("DELETE FROM `".TABLE_PREFIX."mod_news_groups` WHERE `section_id` = '$section_id'");
-    $database->query("DELETE FROM `".TABLE_PREFIX."mod_news_comments` WHERE `section_id` = '$section_id'");
-    $database->query("DELETE FROM `".TABLE_PREFIX."mod_news_settings` WHERE `section_id` = '$section_id'");
+    $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_news_groups` '
+          . 'WHERE `section_id` = '.$database->escapeString($section_id);
+    $database->query($sql);
+    $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_news_posts` '
+          . 'WHERE `section_id` = '.$database->escapeString($section_id);
+    $database->query($sql);
+    $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_news_comments` '
+          . 'WHERE `section_id` = '.$database->escapeString($section_id);
+    $database->query($sql);
+    $sql  = 'DELETE FROM `'.TABLE_PREFIX.'mod_news_settings` '
+          . 'WHERE `section_id` = '.$database->escapeString($section_id);
+    $database->query($sql);
 }
 
-mod_news_delete($database, $page_id, $section_id);
+if( !function_exists('mod_news_delete') ){ mod_news_delete($database, $page_id, $section_id );}
 

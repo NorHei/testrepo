@@ -19,8 +19,11 @@
 if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__).'/'.basename(__FILE__).''); }
 /* -------------------------------------------------------- */
 // load module language file
-$lang = (dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php';
-require_once(!file_exists($lang) ? (dirname(__FILE__)) . '/languages/EN.php' : $lang );
+$sAddonName = basename(__DIR__);
+require(WB_PATH .'/modules/'.$sAddonName.'/languages/EN.php');
+if(file_exists(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php')) {
+    require(WB_PATH .'/modules/'.$sAddonName.'/languages/'.LANGUAGE .'.php');
+}
 
 include_once(WB_PATH .'/framework/functions.php');
 $aWebsiteTitle = (defined('WEBSITE_TITLE') && WEBSITE_TITLE != '' ? WEBSITE_TITLE : $_SERVER['SERVER_NAME']);
@@ -39,9 +42,9 @@ function checkbreaks($value) {
 $aSuccess =array();
 if (!function_exists('emailAdmin')) {
     function emailAdmin() {
-        global $database,$admin;
-        $retval = $admin->get_email();
-        if($admin->get_user_id()!='1') {
+        global $database,$wb;
+        $retval = $wb->get_email();
+        if($wb->get_user_id()!='1') {
             $sql  = 'SELECT `email` FROM `'.TABLE_PREFIX.'users` '
                   . 'WHERE `user_id`=\'1\' ';
             $retval = $database->get_one($sql);
@@ -49,10 +52,10 @@ if (!function_exists('emailAdmin')) {
         return $retval;
     }
 }
-   $emailAdmin = (function () use ( $database, $admin )
+   $emailAdmin = (function () use ( $database, $wb )
    {
-        $retval = $admin->get_email();
-        if($admin->get_user_id()!='1') {
+        $retval = $wb->get_email();
+        if($wb->get_user_id()!='1') {
             $sql  = 'SELECT `email` FROM `'.TABLE_PREFIX.'users` '
                   . 'WHERE `user_id`=\'1\' ';
             $retval = $database->get_one($sql);

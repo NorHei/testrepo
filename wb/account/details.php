@@ -4,14 +4,14 @@
  * @category        frontend
  * @package         account
  * @author          WebsiteBaker Project
- * @copyright       2004-2009, Ryan Djurovich
- * @copyright       2009-2011, Website Baker Org. e.V.
- * @link            http://www.websitebaker2.org/
+ * @copyright       Ryan Djurovich
+ * @copyright       WebsiteBaker Org. e.V.
+ * @link            http://websitebaker.org/
  * @license         http://www.gnu.org/licenses/gpl.html
- * @platform        WebsiteBaker 2.8.x
- * @requirements    PHP 5.2.2 and higher
+ * @platform        WebsiteBaker 2.8.3
+ * @requirements    PHP 5.3.6 and higher
  * @version         $Id: details.php 1599 2012-02-06 15:59:24Z Luisehahne $
- * @filesource        $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/account/details.php $
+ * @filesource      $HeadURL: svn://isteam.dynxs.de/wb_svn/wb280/tags/2.8.3/wb/account/details.php $
  * @lastmodified    $Date: 2012-02-06 16:59:24 +0100 (Mo, 06. Feb 2012) $
  *
  */
@@ -19,7 +19,8 @@
 // Must include code to stop this file being access directly
 if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
 // sanitize entered values
-    $display_name = strip_tags($wb->get_post('display_name'));
+    $display_name = strip_tags( $wb->StripCodeFromText($wb->get_post('display_name')));
+    $display_name = ( $display_name == '' ? $wb->get_display_name() : $display_name );
     $language = preg_match('/^[a-z]{2}$/si', $wb->get_post('language'))
                 ? $wb->get_post('language') : 'EN';
     $timezone = is_numeric($wb->get_post('timezone')) ? $wb->get_post('timezone')*3600 : 0;
@@ -29,7 +30,7 @@ if(defined('WB_PATH') == false) { die("Cannot access this file directly"); }
     $sql  = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.'users` ';
     $sql .= 'WHERE `user_id` <> '.(int)$wb->get_user_id().' AND `display_name` LIKE \''.$display_name.'\'';
     if ($database->get_one($sql) > 0) {
-        $error[] = $MESSAGE['USERS_USERNAME_TAKEN'];
+        $error[] = $MESSAGE['MEDIA_BLANK_NAME'].' ('.$TEXT['DISPLAY_NAME'].')';
     } else {
 // Update the database
     $sql  = 'UPDATE `'.TABLE_PREFIX.'users` SET '

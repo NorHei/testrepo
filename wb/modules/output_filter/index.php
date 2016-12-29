@@ -28,6 +28,11 @@
 /* ****************************************************************** */
 /* *** from here insert ordered requests of individual filters    *** */
 /* ***                                                            *** */
+                'ScriptVars',
+                'LoadOnFly',
+                'Jquery',
+                'SnippetJs',
+                'FrontendJs',
                 'Droplets',
                 'Email',
                 'OpF',
@@ -35,8 +40,8 @@
 /* *** end of individual filters                                  *** */
 /* ****************************************************************** */
                 'WbLink',
+                'SysvarMedia',
                 'RelUrl',
-//                'Canonical',
                 'CssToHead',
             ),
             $sContent

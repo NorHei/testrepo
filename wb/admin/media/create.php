@@ -17,7 +17,7 @@
  */
 
 // Print admin header
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 // Include the WB functions file
 if( !defined('createFolderProtectFile') ){ require(WB_PATH.'/framework/functions.php');  }

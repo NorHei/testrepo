@@ -45,7 +45,7 @@ if(!defined('WB_PATH')) {
     $email_from = '';
     $email_fromname = '';
     $email_subject = '';
-    $success_page = 'none';
+    $success_page = 0;
     $success_email_to = '';
     $success_email_from = '';
     $success_email_fromname = '';
@@ -56,7 +56,7 @@ if(!defined('WB_PATH')) {
     $stored_submissions = 50;
     $perpage_submissions = 10;
     $use_captcha = true;
-    
+
     // Insert settings
     $sql  = 'INSERT INTO  `'.TABLE_PREFIX.'mod_form_settings` SET '
           . '`section_id` = \''.$database->escapeString($section_id).'\', '

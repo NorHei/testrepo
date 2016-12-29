@@ -23,7 +23,7 @@
 
 */
 
-require( dirname(dirname(dirname((__DIR__)))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname(dirname((__DIR__)))).'/config.php' ); }
 require_once(WB_PATH.'/include/captcha/captcha.php');
 
 if(!isset($_SESSION['captcha_time']))

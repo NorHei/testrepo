@@ -17,7 +17,7 @@
  */
 
 // Print admin header
-require( dirname(dirname((__DIR__))).'/config.php' );
+if ( !defined( 'WB_PATH' ) ){ require( dirname(dirname((__DIR__))).'/config.php' ); }
 if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.php'); }
 // suppress to print the header, so no new FTAN will be set
 $admin = new admin('Access', 'users_add',false);
@@ -40,13 +40,13 @@ $aInputs = array_merge( $_POST );
 // Get details entered
 $groups_id = ( isset($aInputs['groups']) ? implode(",", $aInputs['groups']) : '');
 $active = intval( is_array($aInputs['active'])  ?($aInputs['active'][0]):$aInputs['active']);
-$username_fieldname = $admin->get_post_escaped('username_fieldname');
-$username = strtolower($admin->get_post_escaped($username_fieldname));
+$username_fieldname = $admin->get_post('username_fieldname');
+$username = strtolower($admin->get_post($username_fieldname));
 $password = $admin->get_post('password');
 $password2 = $admin->get_post('password2');
-$display_name = $admin->get_post_escaped('display_name');
-$email = $admin->get_post_escaped('email');
-$home_folder = $admin->get_post_escaped('home_folder');
+$display_name = $admin->get_post('display_name');
+$email = $admin->get_post('email');
+$home_folder = $admin->get_post('home_folder');
 $default_language = DEFAULT_LANGUAGE;
 $default_timezone = DEFAULT_TIMEZONE;
 

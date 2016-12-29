@@ -100,7 +100,6 @@
             $sCommand = $sCmd;
         }
 
-
 $sCmd = '';
     }
     $sCommand = 'cmd'.str_replace( // remove spaces and add prefix 'cmd'

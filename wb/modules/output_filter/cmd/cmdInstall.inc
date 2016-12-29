@@ -73,5 +73,5 @@ if(defined('WB_PATH'))
         unset($getDefaultSettings);
     }
     $msg[] = '</div>';
-    print implode("\n", $msg)."\n";
+//    print implode("\n", $msg)."\n";
 }

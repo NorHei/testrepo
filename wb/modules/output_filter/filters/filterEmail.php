@@ -20,9 +20,9 @@
                 $aFilterSettings['OutputFilterMode'] |= pow(2, 2); // n | 2^2
             }else {
             // try to insert js-decrypt into <head> if available
-                $script = str_replace('\\', '/',str_replace(WB_PATH,'', dirname(__FILE__)).'/js/mdcr.js');
+                $script = str_replace('\\', '/',str_replace(WB_PATH,'', dirname(__DIR__)).'/js/mdcr.js');
                 if(is_readable(WB_PATH.$script)) {
-                    $scriptLink = '<script src="'.WB_URL.$script.'" type="text/javascript"></script>';
+                    $scriptLink = '<script src="'.WB_URL.$script.'" type="text/javascript"></script>'."\n";
                     $regex = '/(.*)(<\s*?\/\s*?head\s*>.*)/isU';
                     $replace = '$1'.$scriptLink.'$2';
                     $content = preg_replace ($regex, $replace, $content);

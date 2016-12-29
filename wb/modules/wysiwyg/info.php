@@ -22,7 +22,7 @@ if(defined('WB_PATH') == false) { die('Illegale file access /'.basename(__DIR__)
 $module_directory = 'wysiwyg';
 $module_name = 'WYSIWYG';
 $module_function = 'page';
-$module_version = '2.9.0';
+$module_version = '3.0.0';
 $module_platform = '2.8.2';
 $module_author = 'Ryan Djurovich';
 $module_license = 'GNU General Public License';

@@ -95,7 +95,7 @@ if(!function_exists('mod_news_Upgrade'))
                     $link = '/posts/'.preg_replace('/'.preg_quote(PAGE_EXTENSION).'$/i', '', $fileinfo->getFilename());
                     $sql  = 'UPDATE `'.TABLE_PREFIX.'mod_news_posts` SET '
                           . '`created_when`='.$fileinfo->getMTime().' '
-                          . 'WHERE `link`=\''.$link.'\' '
+                          . 'WHERE `link`=\''.$database->escapeString($link).'\' '
                           .   'AND `created_when`= 0';
                     $database->query($sql);
                 }

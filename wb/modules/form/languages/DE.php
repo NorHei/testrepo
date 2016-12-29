@@ -32,7 +32,7 @@ $MOD_FORM['SUBMIT_FORM'] = 'Absenden';
 $MOD_FORM['EMAIL_SUBJECT'] = 'Sie haben eine Nachricht über {{WEBSITE_TITLE}} erhalten';
 $MOD_FORM['SUCCESS_EMAIL_SUBJECT'] = 'Sie haben ein Forumlar über {{WEBSITE_TITLE}} gesendet';
 
-$MOD_FORM['SUCCESS_EMAIL_TEXT']  = 'Vielen Dank f&uuml;r die &Uuml;bermittlung Ihrer Nachricht an {{WEBSITE_TITLE}}.';
+$MOD_FORM['SUCCESS_EMAIL_TEXT']  = 'Vielen Dank f&uuml;r die &Uuml;bermittlung Ihrer Nachricht an {{WEBSITE_TITLE}}. ';
 $MOD_FORM['SUCCESS_EMAIL_TEXT'] .= 'Wir setzen uns schnellstens mit Ihnen in Verbindung.';
 
 $MOD_FORM['SUCCESS_EMAIL_TEXT_GENERATED'] = "\n"

@@ -1,15 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.3.1
--- http://www.phpmyadmin.net
+-- Erstellungszeit: 17. Dezember 2015 um 12:37
+-- Server Version: 5.1.41
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+-- --------------------------------------------------------
+-- Database structure for module 'wrapper'
 --
--- Host: localhost
--- Erstellungszeit: 01. Feb 2016 um 21:09
--- Server-Version: 5.6.24
--- PHP-Version: 7.0.1
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
---
--- Datenbank: `dw283-sp3db1`
+-- Replacements: {TABLE_PREFIX}, {TABLE_ENGINE}, {TABLE_COLLATION}
 --
 -- --------------------------------------------------------
 --
@@ -17,10 +13,13 @@ SET time_zone = "+00:00";
 --
 DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wrapper`;
 CREATE TABLE IF NOT EXISTS `{TABLE_PREFIX}mod_wrapper` (
-  `section_id` int(11) NOT NULL DEFAULT '0',
-  `page_id` int(11) NOT NULL DEFAULT '0',
-  `url` text{FIELD_COLLATION} NOT NULL,
-  `height` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`section_id`)
-){TABLE_ENGINE=MyISAM};
+  `section_id` INT NOT NULL DEFAULT '0',
+  `page_id` INT NOT NULL DEFAULT '0',
+  `url` VARCHAR(512){FIELD_COLLATION} NOT NULL DEFAULT '',
+  `height` INT NOT NULL DEFAULT '0',
+  PRIMARY KEY ( `section_id` )
+){TABLE_ENGINE};
 
+-- ALTER TABLE `{TABLE_PREFIX}mod_wrapper` CHANGE `url` `url` VARCHAR(512){FIELD_COLLATION} NOT NULL DEFAULT '';
+
+-- EndOfFile
