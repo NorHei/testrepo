@@ -24,7 +24,7 @@ $aRequestVars  = (@(${$requestMethod}) ? : null);
 
 $bAdvanced = intval (@$aRequestVars['advanced'] ?: 0);
 $sDefaultModules   = array('wysiwyg','menu_link','jsadmin');
-$sDefaultTemplates = array('wb_theme','default_theme','allcssRes');
+$sDefaultTemplates = array('DefaultTheme','DefaultTemplate');
 // Setup template object, parse vars to it, then parse it
 // Create new template object
 $template = new Template(dirname($admin->correct_theme_source('groups.htt')));
@@ -100,7 +100,7 @@ $template->pparse('output', 'page');
 // Create new template object
 $template = new Template(dirname($admin->correct_theme_source('groups_form.htt')));
 // $template->debug = true;
-$template->set_unknowns('keep');
+//$template->set_unknowns('keep');
 $template->set_file('page', 'groups_form.htt');
 $template->set_block('page', 'main_block', 'main');
 /*-------------------------------------------------------------------------------------------------------*/
@@ -114,22 +114,24 @@ $template->set_var('CANCEL_LINK', ADMIN_URL.'/access/index.php');
 // Tell the browser whether or not to show advanced options
 $template->set_block('main_block', 'groups_basic_block', 'groups_basic');
 $template->set_block('main_block', 'groups_extended_block', 'groups_extended');
-if($bAdvanced) 
+if($bAdvanced)
 {
     $template->set_var('DISPLAY_ADVANCED', '');
     $template->set_var('DISPLAY_BASIC', 'display:none;');
     $template->set_var('ADVANCED_VALUE', 0);
-    $template->set_var('ADVANCED_BUTTON', '<< '.$TEXT['HIDE_ADVANCED']);
+    $template->set_var('ADVANCED_BUTTON', '&laquo; '.$TEXT['HIDE_ADVANCED']);
     $template->parse('groups_extended', 'groups_extended_block', true);
     $template->set_block('groups_basic', '', '');
 } else {
     $template->set_var('DISPLAY_ADVANCED', 'display:none;');
     $template->set_var('DISPLAY_BASIC', '');
     $template->set_var('ADVANCED_VALUE', 1);
-    $template->set_var('ADVANCED_BUTTON', $TEXT['SHOW_ADVANCED'].' >>');
+    $template->set_var('ADVANCED_BUTTON', $TEXT['SHOW_ADVANCED'].' &raquo;');
     $template->parse('groups_basic', 'groups_basic_block', true);
     $template->set_block('groups_extended', '');
 }
+/*
+*/
 /*-------------------------------------------------------------------------------------------------------*/
 // Insert permissions values
 if($admin->get_permission('groups_add') != true) {
@@ -149,6 +151,7 @@ if($admin->get_permission('groups_add') != true) {
     $aAvailableItemsList = glob('*', GLOB_ONLYDIR|GLOB_NOSORT);
     $template_permissions = array_diff($aAvailableItemsList, $sDefaultTemplates);
     chdir($sOldWorkingDir);
+
 /*-------------------------------------------------------------------------------------------------------*/
 // Insert values into module list
     $template->set_block('main_block', 'module_list_block', 'module_list');
@@ -167,7 +170,7 @@ if($admin->get_permission('groups_add') != true) {
             $template->set_var('OPTGROUP', '');
             $template->set_block('module_group_block', '');
             if (strcasecmp($addon['function'], $GroupsFunction)!== 0){
-                $template->set_var('OPTGROUP', '<h3>'.ucwords($addon['function']).'</h3>');
+                $template->set_var('OPTGROUP', ucwords($addon['function']));
                 $template->parse('module_group', 'module_group_block', true);
             }
             $template->set_var('VALUE', $addon['directory']);
@@ -199,7 +202,7 @@ if($admin->get_permission('groups_add') != true) {
             $template->set_var('OPTGROUP', '');
             $template->set_block('template_function', '');
             if (strcasecmp($addon['function'], $GroupsFunction)!== 0){
-                $template->set_var('OPTGROUP', '<h3>'.ucwords($addon['function']).'</h3>');
+                $template->set_var('OPTGROUP', ucwords($addon['function']));
                 $template->parse('template_group', 'template_group_block', true);
             }
             $template->set_var('VALUE', $addon['directory']);

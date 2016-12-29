@@ -16,6 +16,8 @@
  *
  */
 
+$sStarttime = array_sum(explode(" ", microtime()));
+$aPhpFunctions = get_defined_functions();
 /**
  * sanitize $_SERVER['HTTP_REFERER']
  * @param string $sWbUrl qualified startup URL of current application
@@ -42,7 +44,6 @@ function SanitizeHttpReferer($sWbUrl = WB_URL) {
             unset($aRefUrl);
         }
     }
-
     $_SERVER['HTTP_REFERER'] = $sTmpReferer;
 }
 /**
@@ -86,12 +87,160 @@ $sErrorLogFile = dirname(__DIR__).'/var/logs/php_error.log';
 if (ini_get('display_errors')) {
     ini_set('display_errors', 'off');
 }
+$sErrorLogPath = dirname($sErrorLogFile);
+
 if (!file_exists($sErrorLogFile)) {
-    file_put_contents($sErrorLogFile, 'created: ['.date('c').']'.PHP_EOL, FILE_APPEND);
+    if (false === file_put_contents($sErrorLogFile, 'created: ['.date('c').']'.PHP_EOL, FILE_APPEND)) {
+        throw new Exception('unable to create logfile \'/var/logs/php_error.log\'');
+    }
+}
+if (!is_writeable($sErrorLogFile)) {
+    throw new Exception('not writeable logfile \'/var/logs/php_error.log\'');
 }
 ini_set('log_errors', 1);
 ini_set ('error_log', $sErrorLogFile);
 
+/**
+ * Read DB settings from configuration file
+ * @return array
+ * @throws RuntimeException
+ *
+ */
+function initReadSetupFile()
+{
+// check for valid file request. Becomes more stronger in next version
+//    initCheckValidCaller(array('save.php','index.php','config.php','upgrade-script.php'));
+    $aCfg = array();
+    $sSetupFile = dirname(dirname(__FILE__)).'/setup.ini.php';
+    if(is_readable($sSetupFile) && !defined('WB_URL')) {
+        $aCfg = parse_ini_file($sSetupFile, true);
+        if (!isset($aCfg['Constants']) || !isset($aCfg['DataBase'])) {
+            throw new InvalidArgumentException('configuration missmatch in setup.ini.php');
+        }
+        foreach($aCfg['Constants'] as $key=>$value) {
+            switch($key):
+                case 'DEBUG':
+                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                    if(!defined('DEBUG')) { define('DEBUG', $value); }
+                    break;
+                case 'WB_URL': // << case is set deprecated
+                case 'AppUrl':
+                    $value = trim(str_replace('\\', '/', $value), '/');
+                    if(!defined('WB_URL')) { define('WB_URL', $value); }
+                    break;
+                case 'ADMIN_DIRECTORY': // << case is set deprecated
+                case 'AcpDir':
+                    $value = trim(str_replace('\\', '/', $value), '/');
+                    if(!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', $value); }
+                    break;
+                default:
+                    if(!defined($key)) { define($key, $value); }
+                    break;
+            endswitch;
+        }
+    }
+    return $aCfg;
+//      throw new RuntimeException('unable to read setup.ini.php');
+}
+/**
+ * Set constants for system/install values
+ * @throws RuntimeException
+ */
+function initSetInstallWbConstants($aCfg) {
+    if (sizeof($aCfg)) {
+        foreach($aCfg['Constants'] as $key=>$value) {
+            switch($key):
+                case 'DEBUG':
+                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                    if(!defined('DEBUG')) { define('DEBUG', $value); }
+                    break;
+                case 'WB_URL': // << case is set deprecated
+                case 'AppUrl':
+                    $value = trim(str_replace('\\', '/', $value), '/');
+                    if(!defined('WB_URL')) { define('WB_URL', $value); }
+                    break;
+                case 'ADMIN_DIRECTORY': // << case is set deprecated
+                case 'AcpDir':
+                    $value = trim(str_replace('\\', '/', $value), '/');
+                    if(!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', $value); }
+                    if(!preg_match('/xx[a-z0-9_][a-z0-9_\-\.]+/i', 'xx'.ADMIN_DIRECTORY)) {
+                        throw new RuntimeException('Invalid admin-directory: ' . ADMIN_DIRECTORY);
+                    }
+                    break;
+                default:
+                    if(!defined($key)) { define($key, $value); }
+                    break;
+            endswitch;
+        }
+    }
+    if(!defined('WB_PATH')){ define('WB_PATH', dirname(__DIR__)); }
+    if(!defined('ADMIN_URL')){ define('ADMIN_URL', rtrim(WB_URL, '/\\').'/'.ADMIN_DIRECTORY); }
+    if(!defined('ADMIN_PATH')){ define('ADMIN_PATH', WB_PATH.'/'.ADMIN_DIRECTORY); }
+    if(!defined('WB_REL')){
+        $x1 = parse_url(WB_URL);
+        define('WB_REL', (isset($x1['path']) ? $x1['path'] : ''));
+    }
+    if(!defined('ADMIN_REL')){ define('ADMIN_REL', WB_REL.'/'.ADMIN_DIRECTORY); }
+    if(!defined('DOCUMENT_ROOT')) {
+        define('DOCUMENT_ROOT', preg_replace('/'.preg_quote(str_replace('\\', '/', WB_REL), '/').'$/', '', str_replace('\\', '/', WB_PATH)));
+        $_SERVER['DOCUMENT_ROOT'] = DOCUMENT_ROOT;
+    }
+    if(!defined('TMP_PATH')){ define('TMP_PATH', WB_PATH.'/temp'); }
+
+    if (defined('DB_TYPE'))
+    {
+    // import constants for compatibility reasons
+        $db = array();
+        if (defined('DB_TYPE'))      { $db['type']         = DB_TYPE; }
+        if (defined('DB_USERNAME'))  { $db['user']         = DB_USERNAME; }
+        if (defined('DB_PASSWORD'))  { $db['pass']         = DB_PASSWORD; }
+        if (defined('DB_HOST'))      { $db['host']         = DB_HOST; }
+        if (defined('DB_PORT'))      { $db['port']         = DB_PORT; }
+        if (defined('DB_NAME'))      { $db['name']         = DB_NAME; }
+        if (defined('DB_CHARSET'))   { $db['charset']      = DB_CHARSET; }
+        if (defined('TABLE_PREFIX')) { $db['table_prefix'] = TABLE_PREFIX; }
+    } else {
+        foreach($aCfg['DataBase'] as $key=>$value) {
+            switch($key):
+                case 'type':
+                    if(!defined('DB_TYPE')) { define('DB_TYPE', $value); }
+                    break;
+                case 'user':
+                    if(!defined('DB_USERNAME')) { define('DB_USERNAME', $value); }
+                    break;
+                case 'pass':
+                    if(!defined('DB_PASSWORD')) { define('DB_PASSWORD', $value); }
+                    break;
+                case 'host':
+                    if(!defined('DB_HOST')) { define('DB_HOST', $value); }
+                    break;
+                case 'port':
+                    if(!defined('DB_PORT')) { define('DB_PORT', $value); }
+                    break;
+                case 'name':
+                    if(!defined('DB_NAME')) { define('DB_NAME', $value); }
+                    break;
+                case 'charset':
+                    if(!defined('DB_CHARSET')) { define('DB_CHARSET', $value); }
+                    break;
+                default:
+                    $key = strtoupper($key);
+                    if(!defined($key)) { define($key, $value); }
+                    break;
+            endswitch;
+        }
+    }
+}
+
+/**
+ * WbErrorHandler()
+ *
+ * @param mixed $iErrorCode
+ * @param mixed $sErrorText
+ * @param mixed $sErrorFile
+ * @param mixed $iErrorLine
+ * @return
+ */
 function WbErrorHandler($iErrorCode, $sErrorText, $sErrorFile, $iErrorLine)
 {
      if (!(error_reporting() & $iErrorCode) || ini_get('log_errors') == 0) {
@@ -118,7 +267,7 @@ function WbErrorHandler($iErrorCode, $sErrorText, $sErrorFile, $iErrorLine)
     }
     $aBt= debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     $x = sizeof($aBt) -1;
-    $x = $x < 2 ? $x : 2;
+    $x = $x < 0 ? 0 : ($x <= 2 ? $x : 2);
     $sEntry = date('c').' '.'['.$sErrorType.'] '.str_replace(dirname(__DIR__), '', $sErrorFile).':['.$iErrorLine.'] '
             . ' from '.str_replace(dirname(__DIR__), '', $aBt[$x]['file']).':['.$aBt[$x]['line'].'] '
             . (@$aBt[$x]['class'] ? $aBt[$x]['class'].$aBt[$x]['type'] : '').$aBt[$x]['function'].' '
@@ -131,7 +280,27 @@ function WbErrorHandler($iErrorCode, $sErrorText, $sErrorFile, $iErrorLine)
  ****************************************************************************************/
 // activate errorhandler
     set_error_handler('WbErrorHandler');
-// ***
+    if (! defined('SYSTEM_RUN')) { define('SYSTEM_RUN', true); }
+// load configuration ---
+    $aCfg = initReadSetupFile();
+    initSetInstallWbConstants($aCfg);
+// ---------------------------
+// get Database connection data from configuration
+
+/*
+    $aSqlData = initGetDbConnectData($aCfg, $sDbConnectType);
+// Create global database instance ---
+// remove critical data from memory
+    unset($aSqlData, $aCfg);
+    $oDb = $database = WbDatabase::getInstance();
+    if($sDbConnectType == 'dsn') {
+        $bTmp = $oDb->doConnect($aSqlData['dsn'], $aSqlData['user'], $aSqlData['password'], null, $aSqlData['addons']);
+    }else {
+        $bTmp = $oDb->doConnect($aSqlData['url']);
+    }
+    if(!defined('TABLE_PREFIX')) { define('TABLE_PREFIX', $oDb->TablePrefix); }
+*/
+//
 if (!defined('ADMIN_DIRECTORY')) { define('ADMIN_DIRECTORY', 'admin'); }
 if (!preg_match('/xx[a-z0-9_][a-z0-9_\-\.]+/i', 'xx'.ADMIN_DIRECTORY)) {
     throw new RuntimeException('Invalid admin-directory: ' . ADMIN_DIRECTORY);
@@ -161,10 +330,18 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     if (!function_exists('PHPMailerAutoload') && is_readable($sTmp)) {
         require($sTmp);
     }
-    // load database class
+
+    if (!class_exists('database', false)){
+      // load database class
+      require(__DIR__.'/class.database.php');
+      // Create database class
+      $database = new database();
+    }
+
+/*
     require_once(WB_PATH.'/framework/class.database.php');
-    // Create database class
     $database = new database();
+*/
     // activate frontend OutputFilterApi (initialize.php)
     if (is_readable(WB_PATH .'/modules/output_filter/OutputFilterApi.php')) {
         if (!function_exists('OutputFilterApi')) {
@@ -211,9 +388,9 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
     @define('DO_NOT_TRACK', (isset($_SERVER['HTTP_DNT'])));
 
     if (!defined('DEBUG')){ define('DEBUG', false); }
-    $string_file_mode = STRING_FILE_MODE;
+    $string_file_mode = defined('STRING_FILE_MODE')?STRING_FILE_MODE:'0644';
     @define('OCTAL_FILE_MODE',(int) octdec($string_file_mode));
-    $string_dir_mode = STRING_DIR_MODE;
+    $string_dir_mode = defined('STRING_DIR_MODE')?STRING_DIR_MODE:'0755';
     @define('OCTAL_DIR_MODE',(int) octdec($string_dir_mode));
 //    $sSecMod = (defined('SECURE_FORM_MODULE') && SECURE_FORM_MODULE != '') ? '.'.SECURE_FORM_MODULE : '';
 //    $sSecMod = WB_PATH.'/framework/SecureForm'.$sSecMod.'.php';
@@ -294,7 +471,7 @@ if (file_exists(WB_PATH.'/framework/class.database.php')) {
         include __DIR__.'/Translate.php';
     }
     $oTrans = Translate::getInstance();
-    $oTrans->initialize(array('EN', DEFAULT_LANGUAGE, LANGUAGE), $sCachePath);
+    $oTrans->initialize(array('EN', DEFAULT_LANGUAGE, LANGUAGE), $sCachePath); // 'none'
     // Get users timezone
     if (isset($_SESSION['TIMEZONE'])) {
         define('TIMEZONE', $_SESSION['TIMEZONE']);

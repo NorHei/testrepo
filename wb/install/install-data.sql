@@ -49,6 +49,7 @@ INSERT INTO `{TABLE_PREFIX}settings` ( `name`, `value`) VALUES
 ( 'redirect_timer', '1000'),
 ( 'home_folders', 'true'),
 ( 'warn_page_leave', '1'),
+( 'confirmed_registration', '0'),
 ( 'default_template', 'DefaultTemplate'),
 ( 'default_theme', 'DefaultTheme'),
 ( 'default_charset', 'utf-8'),
@@ -68,6 +69,7 @@ INSERT INTO `{TABLE_PREFIX}settings` ( `name`, `value`) VALUES
 ( 'page_extension', '.php'),
 ( 'page_spacer', '-'),
 ( 'pages_directory', '/pages'),
+( 'page_icon_dir', '/templates/*/title_images'),
 ( 'rename_files_on_upload', 'ph.*?,cgi,pl,pm,exe,com,bat,pif,cmd,src,asp,aspx,js'),
 ( 'media_directory', '/media'),
 ( 'wbmailer_routine', 'phpmail'),
@@ -82,6 +84,7 @@ INSERT INTO `{TABLE_PREFIX}settings` ( `name`, `value`) VALUES
 ( 'sec_token_life_time', '1800'),
 ( 'secure_form_module', ''),
 ( 'debug', 'false'),
+( 'system_locked', '0'),
 ( 'wbmailer_smtp_port', '25'),
 ( 'wbmailer_smtp_secure', 'TLS'),
 ( 'mediasettings', '');

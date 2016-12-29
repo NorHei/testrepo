@@ -128,15 +128,16 @@ class Translate
 /**
  * clear all translation cache files
  */
-    public function clearCache()
+   public function clearCache()
     {
-        $sMask = preg_replace('/^(.*\/)\~[^\.]+(\.transcache)$/', '$1\*$2', $this->sCacheFile);
+        $sMask = $this->sCachePath.'*.transcache';
         $aFiles = glob($sMask, GLOB_NOSORT);
         foreach ($aFiles as $sFile) {
-            if (is_writable($sFile)) { unlink($sFile); }
+            if (is_writable($sFile)) {
+              unlink($sFile);
+            }
         }
-    }
-// -----------------------------------------------------------------------------
+    }// -----------------------------------------------------------------------------
 /**
  * Return complete table of translations
  * @return array containing all loaded translations

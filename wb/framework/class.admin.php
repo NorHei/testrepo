@@ -43,9 +43,11 @@ class admin extends wb {
     if( $section_name != '##skip##' )
     {
         global $database, $MESSAGE;
+        $database = @$GLOBALS['database'];
         // Specify the current applications name
         $this->section_name = $section_name;
         $this->section_permission = $section_permission;
+        $maintance = ( defined( 'SYSTEM_LOCKED') && ( SYSTEM_LOCKED == true) ? true : false);
         // Authenticate the user for this application
         if($auto_auth == true)
         {
@@ -60,6 +62,10 @@ class admin extends wb {
             if($this->get_permission($section_permission) == false) {
                 die($MESSAGE['ADMIN_INSUFFICIENT_PRIVELLIGES']);
             }
+        }
+        if( ( $maintance == true) || $this->get_session( 'USER_ID') != 1) {
+          //  check for show maintenance screen and terminate if needed
+          $this->ShowMaintainScreen( 'locked');
         }
 
         // Check if the backend language is also the selected language. If not, send headers again.
@@ -166,6 +172,75 @@ class admin extends wb {
             if($row) $view_url .= PAGES_DIRECTORY .$row['link']. PAGE_EXTENSION;
         }
 
+
+        $convertToReadableSize = function ($size){
+          $base = log($size) / log(1024);
+          $suffix = array("", " KB", " MB", " GB", " TB");
+          $f_base = floor($base);
+          return round(pow(1024, $base - floor($base)), 1) . $suffix[$f_base];
+        };
+
+        $sIconPost = '0';
+        $aFileStat = array();
+        $sErrorlogFile = WB_PATH.'/var/logs/php_error.log';
+        $sErrorlogUrl  = WB_URL.'/var/logs/php_error.log';
+        if (is_readable($sErrorlogFile)){
+            clearstatcache($sErrorlogFile);
+            $iFileSize = filesize($sErrorlogFile);
+            $sIconPost = (($iFileSize>3000)?'1':'0');
+        }
+        $header_template->set_var('ERROR_SIZE', $convertToReadableSize($iFileSize)); //
+//        $header_template->set_var('ERROR_MSG', $sErrorlogMsg); //
+        $header_template->set_var('ERROR_LOG', $sErrorlogUrl); // $sErrorlogUrl
+        $header_template->set_var('POST',$sIconPost);
+
+        $datalist['Header'] =
+                      array(
+                            'FTAN_GET' => ( DEBUG ? $this->getFTAN('GET') : '' ),
+                            'SECTION_NAME'        => $MENU[strtoupper($this->section_name)],
+                            'TEMPLATE_DIR'        => DEFAULT_THEME,
+                            'STYLE'               => strtolower($this->section_name),
+                            'BODY_TAGS'           => $body_tags,
+                            'WEBSITE_TITLE'       => ($aWebsiteTitle['value']),
+                            'TEXT_ADMINISTRATION' => $TEXT['ADMINISTRATION'],
+                            'CURRENT_USER'        => $MESSAGE['START_CURRENT_USER'],
+                            'DISPLAY_NAME'        => $this->get_display_name(),
+                            'CHARSET'             => $charset,
+                            'LANGUAGE'            => strtolower(LANGUAGE),
+                            'WB_URL'              => WB_URL,
+                            'ADMIN_URL'           => ADMIN_URL,
+                            'THEME_URL'           => THEME_URL,
+                            'TEMPLATE'            => defined('TEMPLATE')?TEMPLATE:DEFAULT_TEMPLATE,
+                            'EDITOR'              => WYSIWYG_EDITOR,
+                            'TITLE_START'         => $MENU['START'],
+                            'TITLE_VIEW'          => $MENU['VIEW'],
+                            'TITLE_HELP'          => $MENU['HELP'],
+                            'TITLE_INFO'          => 'WebsiteBaker System-Info',
+                            'TITLE_LOGOUT'        =>  $MENU['LOGOUT'],
+                            'URL_VIEW'            => $view_url,
+                            'INFO_URL'            => $info_url,
+                            'URL_HELP'            => 'http://help.websitebaker.org/',
+                            'BACKEND_MODULE_CSS'  => $this->register_backend_modfiles('css'),    // adds backend.css
+                            'BACKEND_MODULE_JS'   => $this->register_backend_modfiles('js')      // adds backend.js
+                        );
+
+/*------------------------------------------------------------------------------------*/
+    $header_template->set_var($datalist['Header'] );
+    $header_template->set_block( 'header_block', 'maintenance_block', 'maintenance');
+    if( $this->get_user_id() == 1) {
+
+      $sys_locked = ( ( ( int)( defined( 'SYSTEM_LOCKED') ? SYSTEM_LOCKED : 0)) == 1);
+      $header_template->set_var( 'MAINTENANCE_MODE', ( $sys_locked ? $this->_oTrans->TEXT_MAINTENANCE_OFF :
+        $this->_oTrans->TEXT_MAINTENANCE_ON));
+      $header_template->set_var( 'MAINTENANCE_ICON', THEME_URL.'/images/'.( $sys_locked ? 'lock' :
+        'unlock').'.png');
+      $header_template->set_var( 'MAINTAINANCE_URL', ADMIN_URL.'/settings/locking.php');
+      $header_template->parse( 'maintenance', 'maintenance_block', true);
+    } else {
+      $header_template->set_block( 'maintenance_block', '');
+    }
+/*------------------------------------------------------------------------------------*/
+
         // Create the backend menu
         $aMenu = array(
 //                    array(ADMIN_URL.'/start/index.php',               '', $MENU['START'],       'start',       1),
@@ -243,36 +318,6 @@ class admin extends wb {
                 }
             }
         }
-
-        $header_template->set_var(array(
-                            'FTAN_GET' => ( DEBUG ? $this->getFTAN('GET') : '' ),
-                            'SECTION_NAME'        => $MENU[strtoupper($this->section_name)],
-                            'TEMPLATE_DIR'        => DEFAULT_THEME,
-                            'STYLE'               => strtolower($this->section_name),
-                            'BODY_TAGS'           => $body_tags,
-                            'WEBSITE_TITLE'       => ($aWebsiteTitle['value']),
-                            'TEXT_ADMINISTRATION' => $TEXT['ADMINISTRATION'],
-                            'CURRENT_USER'        => $MESSAGE['START_CURRENT_USER'],
-                            'DISPLAY_NAME'        => $this->get_display_name(),
-                            'CHARSET'             => $charset,
-                            'LANGUAGE'            => strtolower(LANGUAGE),
-                            'WB_URL'              => WB_URL,
-                            'ADMIN_URL'           => ADMIN_URL,
-                            'THEME_URL'           => THEME_URL,
-                            'TEMPLATE'            => defined('TEMPLATE')?TEMPLATE:DEFAULT_TEMPLATE,
-                            'EDITOR'              => WYSIWYG_EDITOR,
-                            'TITLE_START'         => $MENU['START'],
-                            'TITLE_VIEW'          => $MENU['VIEW'],
-                            'TITLE_HELP'          => $MENU['HELP'],
-                            'TITLE_INFO'          => 'WebsiteBaker System-Info',
-                            'TITLE_LOGOUT'        =>  $MENU['LOGOUT'],
-                            'URL_VIEW'            => $view_url,
-                            'INFO_URL'            => $info_url,
-                            'URL_HELP'            => 'http://help.websitebaker.org/',
-                            'BACKEND_MODULE_CSS'  => $this->register_backend_modfiles('css'),    // adds backend.css
-                            'BACKEND_MODULE_JS'   => $this->register_backend_modfiles('js')        // adds backend.js
-                        )
-                    );
 
         $header_template->parse('header', 'header_block', false);
         $header_template->pparse('output', 'page');

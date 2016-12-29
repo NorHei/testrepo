@@ -22,6 +22,7 @@ if(!defined('WB_PATH')) {
     throw new IllegalFileException();
 }
 /* -------------------------------------------------------- */
+
 // compatibility mode for versions before 2.8.1
     if(isset($wb)) {$admin = $wb; }
     if(isset($wb->default_link)) { $default_link = $wb->default_link; }
@@ -47,7 +48,7 @@ if(!defined('WB_PATH')) {
     $sql  = 'SELECT `directory`,`function` FROM `'.TABLE_PREFIX.'addons` '
           . 'WHERE `type`=\'module\' '
           .   'AND `function` IN (\'snippet\', \'tool\') '
-          .   'AND `directory`IN('.$sAllowedModules.')'
+          .   'AND `directory` IN('.$sAllowedModules.')'
           . '';
     if(($oSnippets = $database->query($sql)))
     {
@@ -56,22 +57,21 @@ if(!defined('WB_PATH')) {
             $module_dir = $aSnippet['directory'];
             if (is_readable(WB_PATH.'/modules/'.$module_dir.'/include.php'))
             {
-                // script should always execute by a function
                 include(WB_PATH.'/modules/'.$module_dir.'/include.php');
             // check if frontend.css file needs to be included into the <head></head> of index.php
                 if( is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend.css')) {
-                    $include_head_link_css .= '<link href="'.WB_URL.'/modules/'.$module_dir.'/frontend.css"';
-                    $include_head_link_css .= ' rel="stylesheet" type="text/css" media="screen" />'."\n";
+                    $include_head_link_css .= "\t".'<link rel="stylesheet" href="'.WB_URL.'/modules/'.$module_dir.'/frontend.css"';
+                    $include_head_link_css .= ' media="screen" />'."\n";
                     $include_head_file = 'frontend.css';
                 }
             // check if frontend.js file needs to be included into the <body></body> of index.php
                 if(is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend.js')) {
-                    $include_head_links .= '<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend.js" type="text/javascript"></script>'."\n";
+                    $include_head_links .= "\t".'<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend.js" ></script>'."\n";
                     $include_head_file = 'frontend.js';
                 }
             // check if frontend_body.js file needs to be included into the <body></body> of index.php
                 if(is_readable(WB_PATH .'/modules/'.$module_dir.'/frontend_body.js')) {
-                    $include_body_links .= '<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend_body.js" type="text/javascript"></script>'."\n";
+                    $include_body_links .= "\t".'<script src="'.WB_URL.'/modules/'.$module_dir.'/frontend_body.js" ></script>'."\n";
                     $include_body_file = 'frontend_body.js';
                 }
             }
@@ -325,11 +325,8 @@ if (!function_exists('page_content')) {
                  require (WB_PATH.'/modules/'.$module.'/view.php') ;
                  $content = ob_get_clean() ;
                  if($content != '') {
-                   //                        ob_start(); // fetch original content<div id="Sec103" class="section  m_modulename user-defined-class" >
                    $sBeforeContent = ($sSectionIdPrefix == 'none') ? '' : "\n".'<div id="'.$sSectionIdPrefix.$section_id.'" class="section m_'.$module.'" >'."\n" ;
-                   //                        echo $content;
                    $sAfterContent = ($sSectionIdPrefix == 'none') ? '' : "\n".'</div><!-- '.$module.$section_id.' -->'."\n" ;
-                   //                        $content = ob_get_clean();
                    $content = $sBeforeContent.$content.$sAfterContent ;
                  }
                 } else {
@@ -372,9 +369,10 @@ if (!function_exists('show_content')) {
 
 if (!function_exists('show_breadcrumbs'))
 {
-    function show_breadcrumbs($sep = ' &raquo; ',$level = 0, $links = true, $depth = -1, $title = '')
+    function show_breadcrumbs($sep = ' &raquo; ',$level = 0, $links = true, $depth = -1, $title = '', $print=true)
     {
         global $wb,$database,$MENU;
+        $retVal = '';
         $page_id = $wb->page_id;
         $title = (trim($title) == '') ? $MENU['BREADCRUMB'] : $title;
         if ($page_id != 0)
@@ -391,7 +389,7 @@ if (!function_exists('show_breadcrumbs'))
             // if empty array, set orginal links
             $crumbs = (!empty($crumbs)) ?  $crumbs : $wb->page_trail;
             $total_crumbs = ( ($depth <= 0) || ($depth > sizeof($crumbs)) ) ? sizeof($crumbs) : $depth;
-            print '<div class="breadcrumb"><span class="title">'.$title.'</span>';
+            $retVal .= '<div class="breadcrumb">'.PHP_EOL.'<span class="title">'.$title.'</span>'.PHP_EOL;
           //  print_r($crumbs);
             foreach ($crumbs as $temp)
             {
@@ -401,28 +399,29 @@ if (!function_exists('show_breadcrumbs'))
                     $query_menu = $database->query($sql);
                     $page = $query_menu->fetchRow();
                     $show_crumb = (($links == true) && ($temp != $page_id))
-                            ? '<a href="'.page_link($page['link']).'" class="link">'.$page['menu_title'].'</a>'
-                            : '<span class="crumb">'.$page['menu_title'].'</span>';
+                            ? '<a href="'.page_link($page['link']).'" class="link">'.$page['menu_title'].'</a>'.PHP_EOL
+                            : '<span class="crumb">'.$page['menu_title'].'</span>'.PHP_EOL;
                     // Permission
                     switch ($page['visibility'])
                     {
                         case 'none' :
                         case 'hidden' :
                         // if show, you know there is an error in a hidden page
-                            print $show_crumb.'&nbsp;';
+                            $retVal .= $show_crumb.'&nbsp;';
                             break;
                         default :
-                            print $show_crumb;
+                            $retVal .= $show_crumb;
                             break;
                     }
 
                     if ( ( $counter <> $total_crumbs-1 ) )
                     {
-                        print '<span class="separator">'.$sep.'</span>';
+                        $retVal .= '<span class="separator">'.$sep.'</span>'.PHP_EOL;
                     }
                 $counter++;
             }
-            print "</div>\n";
+            $retVal .=  "</div>".PHP_EOL;
+            if ($print) { print $retVal;} else {return $retVal;}
         }
     }
 }
@@ -480,32 +479,33 @@ if (!function_exists('page_footer')) {
 
 function bind_jquery ($file_id='jquery')
 {
+    global $page_id;
         $jquery_links = '';
         /* include the Javascript jquery api  */
         if( $file_id == 'jquery' && file_exists(WB_PATH .'/include/jquery/jquery-min.js'))
         {
             $wbpath = str_replace('\\','/',WB_PATH);  // fixed localhost problem with ie
-            $jquery_links .= "<script type=\"text/javascript\">\n"
-                ."var URL = '".WB_URL."';\n"
-                ."var WB_URL = '".WB_URL."';\n"
-                ."var THEME_URL = '".THEME_URL."';\n"
-                ."var TEMPLATE_DIR = '".TEMPLATE_DIR."';\n"
-                ."var TEMPLATE = '".TEMPLATE."';\n"
-                ."var EDITOR = '".WYSIWYG_EDITOR."';\n"
-                ."</script>\n";
-            $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-min.js" type="text/javascript"></script>'."\n";
-            $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-insert.js" type="text/javascript"></script>'."\n";
-            $jquery_links .= '<script src="'.WB_URL.'/include/jquery/jquery-include.js" type="text/javascript"></script>'."\n";
+            $jquery_links .= "\t"."<script>\n"
+                ."\t\t"."var URL = '".WB_URL."';\n"
+                ."\t\t"."var WB_URL = '".WB_URL."';\n"
+                ."\t\t"."var THEME_URL = '".THEME_URL."';\n"
+                ."\t\t"."var TEMPLATE_DIR = '".TEMPLATE_DIR."';\n"
+                ."\t\t"."var TEMPLATE = '".TEMPLATE."';\n"
+                ."\t\t"."var EDITOR = '".WYSIWYG_EDITOR."';\n"
+                ."\t\t"."</script>\n";
+            $jquery_links .= "\t".'<script src="'.WB_URL.'/include/jquery/jquery-min.js"></script>'."\n";
+            $jquery_links .= "\t".'<script src="'.WB_URL.'/include/jquery/jquery-insert.js"></script>'."\n";
+            $jquery_links .= "\t".'<script src="'.WB_URL.'/include/jquery/jquery-include.js"></script>'."\n";
             /* workout to insert ui.css and theme */
             $jquery_theme =  WB_PATH.'/modules/jquery/jquery_theme.js';
-            $jquery_links .=  file_exists($jquery_theme)
-                ? '<script src="'.WB_URL.'/modules/jquery/jquery_theme.js" type="text/javascript"></script>'."\n"
-                : '<script src="'.WB_URL.'/include/jquery/jquery_theme.js" type="text/javascript"></script>'."\n";
+            $jquery_links .=  (file_exists($jquery_theme)
+                ? "\t".'<script src="'.WB_URL.'/modules/jquery/jquery_theme.js"></script>'."\n"
+                : "\t".'<script src="'.WB_URL.'/include/jquery/jquery_theme.js"></script>'."\n");
             /* workout to insert plugins functions, set in templatedir */
             $jquery_frontend_file = TEMPLATE_DIR.'/jquery_frontend.js';
-            $jquery_links .= file_exists(str_replace( WB_URL, WB_PATH, $jquery_frontend_file))
-                ? '<script src="'.$jquery_frontend_file.'" type="text/javascript"></script>'."\n"
-                : '';
+            $jquery_links .= (file_exists(str_replace( WB_URL, WB_PATH, $jquery_frontend_file))
+                ? "\t".'<script src="'.$jquery_frontend_file.'"></script>'."\n"
+                : '');
         }
     return $jquery_links;
 }
@@ -513,7 +513,7 @@ function bind_jquery ($file_id='jquery')
 // Function to add optional module Javascript into the <body> section of the frontend
 if(!function_exists('register_frontend_modfiles_body'))
 {
-    function register_frontend_modfiles_body($file_id="js")
+    function register_frontend_modfiles_body($file_id="js", $print=true)
     {
         // sanity check of parameter passed to the function
         $file_id = strtolower($file_id);
@@ -531,7 +531,7 @@ if(!function_exists('register_frontend_modfiles_body'))
 
         if($file_id !== "css" && $file_id == "js" && $file_id !== "jquery")
         {
-            $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend_body.js" type="text/javascript"></script>';
+            $base_link = "\t".'<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend_body.js" type="text/javascript"></script>';
             $base_file = "frontend_body.js";
 
             // ensure that frontend_body.js is only added once per module type
@@ -567,22 +567,23 @@ if(!function_exists('register_frontend_modfiles_body'))
                 }
             }
         }
-
-        print $body_links."\n"; ;
+        if ($print) { print $body_links."\n";} else {return $body_links."\n";}
+//        print $body_links."\n"; ;
     }
 }
-
 
 // Function to add optional module Javascript or CSS stylesheets into the <head> section of the frontend
 if(!function_exists('register_frontend_modfiles'))
 {
-    function register_frontend_modfiles($file_id="css")
+
+    function register_frontend_modfiles($file_id="css", $bOutput=true)
     {
+        global $wb, $database, $include_head_link_css, $include_head_links, $page_id;
+        $page_id = (@$page_id?:$wb->page_id);
         // sanity check of parameter passed to the function
         $file_id = strtolower($file_id);
         $aAllowedAction = array( 'css', 'script', 'js', 'jquery', 'javascript' );
         if (!in_array($file_id, $aAllowedAction)) { return false; }
-        global $wb, $database, $include_head_link_css, $include_head_links, $page_id;
         // define default baselink and filename for optional module javascript and stylesheet files
         $head_links = "";
         $base_file = '';
@@ -590,8 +591,8 @@ if(!function_exists('register_frontend_modfiles'))
         switch ($file_id)
         {
             case 'css':
-                $base_link = '<link href="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.css"';
-                $base_link.= ' rel="stylesheet" media="screen" type="text/css" />';
+                $base_link = "\t".'<link rel="stylesheet" href="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.css"';
+                $base_link.= ' media="screen" />'."\n";
                 $base_file = "frontend.css";
                 if(!empty($include_head_link_css))
                 {
@@ -615,7 +616,7 @@ if(!function_exists('register_frontend_modfiles'))
                 $bLoadJs = !isset($aFilterSettings[$key]);
                 $bLoadJs = @!$aFilterSettings[$key] ?: $bLoadJs;
                 if ($bLoadJs) {
-                    $base_link = '<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js" type="text/javascript"></script>';
+                    $base_link = "\t".'<script src="'.WB_URL.'/modules/{MODULE_DIRECTORY}/frontend.js"></script>'."\n";
                     $base_file = "frontend.js";
                     if (!empty($include_head_links))
                     {
@@ -632,7 +633,6 @@ if(!function_exists('register_frontend_modfiles'))
         if( $file_id != 'jquery_old')
         {
             // gather information for all models embedded on actual page
-//            $page_id = $wb->page_id;
             $sql  = 'SELECT `module` FROM `'.TABLE_PREFIX.'sections` '
                   . 'WHERE `page_id` = '.(int)$page_id;
             if( ($oModules = $database->query($sql)) )
@@ -660,8 +660,8 @@ if(!function_exists('register_frontend_modfiles'))
                 }
             }
         }
-        print $head_links;
-//        return $head_links;
+        if ($bOutput) { print $head_links."\n";} else {return $head_links."\n";}
+//        print $head_links;
     }
 }
 

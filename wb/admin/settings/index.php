@@ -37,10 +37,10 @@ foreach($cfg as $key=>$value) {
 
 // Setup template object, parse vars to it, then parse it
 // Create new template object
-$template = new Template(dirname($admin->correct_theme_source('settings.htt')), 'remove');
+    $template = new Template(dirname($admin->correct_theme_source('settings.htt')), 'remove');
 // $template->debug = true;
-$template->set_file('page',  'settings.htt');
-$template->set_block('page', 'main_block', 'main');
+    $template->set_file('page',  'settings.htt');
+    $template->set_block('page', 'main_block', 'main');
 /*---------------------------------------------------------------------------------------------------*/
     $template->set_block('main_block', 'show_page_level_limit_block', 'show_page_level_limit');
     $template->set_block('main_block', 'show_checkbox_1_block',       'show_checkbox_1');
@@ -53,6 +53,7 @@ $template->set_block('page', 'main_block', 'main');
     $template->set_block('main_block', 'show_search_block',           'show_search');
     $template->set_block('main_block', 'show_access_block',           'show_access');
     $template->set_block('main_block', 'show_chmod_js_block',         'show_chmod_js');
+    $template->set_block('main_block', 'show_setting_js_block',       'show_setting_js');
 /*---------------------------------------------------------------------------------------------------*/
 // Query current settings in the db, then loop through them and print them
 $query = "SELECT * FROM `".TABLE_PREFIX."settings`";
@@ -810,9 +811,11 @@ if($is_advanced && $admin->get_user_id()=='1')
 {
     $template->parse('show_access', 'show_access_block', true);
     $template->parse('show_chmod_js', 'show_chmod_js_block', true);
+    $template->parse('show_setting_js', 'show_setting_js_block', true);
 }else {
-    $template->set_block('show_access', '');
-    $template->set_block('show_chmod_js', '');
+    $template->set_block('show_access_block', '');
+    $template->set_block('show_chmod_js_block', '');
+    $template->set_block('show_setting_js_block', '');
 }
 /*---------------------------------------------------------------------------------------------------*/
 // Parse template objects output

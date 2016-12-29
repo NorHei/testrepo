@@ -1,14 +1,14 @@
 <!-- BEGIN main_block -->
 <!-- BEGIN add_block -->
 <h2>{HEADING_ADD_PAGE}</h2>
-<div class="{DISPLAY_ADD} block-outer">
+<div class="{DISPLAY_ADD} block-outer" style="float: left; width: 100%; padding-top: 1.925em;">
 <form name="add" action="add.php" method="post">
 {FTAN}
     <table style="border-collapse: separate; width: 40%; float: left;" class="pages_add" >
         <tbody>
             <tr style="margin: 0.525em 0;">
               <td  style="width: 13.525em;">{TEXT_TITLE}:</td>
-              <td  style="width: 20.525em;"><input type="text" name="title" style="width: 20.225em;" /></td>
+              <td  style="width: 20.525em;"><input type="text" name="title" style="width: 20.525em;" /></td>
             </tr>
             <tr>
               <td >{TEXT_TYPE}:</td>
@@ -48,7 +48,7 @@
             </tr>
             <tr>
               <td >&nbsp;</td>
-              <td colspan="4">
+              <td>
                   <input type="submit" name="submit" value="{TEXT_ADD}" style="min-width: 7.525em; padding: 0 0.9525em;" />
                   <input  type="reset" name="reset" value="{TEXT_RESET}" style="min-width: 7.525em; padding: 0 0.9525em;" />
               </td>
@@ -59,7 +59,7 @@
             </tr>
         </tbody>
     </table>
-    <table style="border-collapse: separate; width: 48%;" class="pages_groups" >
+    <table style="border-collapse: separate; width: 58%; padding-left: 1.225em;" class="pages_groups" >
         <tbody>
             <tr>
               <td style=" width: 55%; vertical-align: top;">{TEXT_ADMINISTRATORS}:

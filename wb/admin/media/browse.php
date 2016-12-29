@@ -210,11 +210,10 @@ if(!empty($currentdir)) {
     $usedFiles = $Dse->getMatchesFromDir( $currentdir, DseTwo::RETURN_USED);
 }
 
+$DIR  = array();
+$FILE = array();
 // Check for potentially malicious files
 $forbidden_file_types  = preg_replace( '/\s*[,;\|#]\s*/','|',RENAME_FILES_ON_UPLOAD);
-
-
-
 if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
     // Loop through the files and dirs an add to list
    while (false !== ($file = readdir($handle))) {
@@ -234,14 +233,20 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
             }
         }
     }
-
-
+closedir($handle);
+}
+    $iSortFlags = ((version_compare(PHP_VERSION, '5.4.0', '<'))?SORT_REGULAR:SORT_NATURAL|SORT_FLAG_CASE);
+    sort($DIR, $iSortFlags);
+    sort($FILE, $iSortFlags);
+    $aListDir = array_merge($DIR,$FILE);
     // Now parse these values to the template
     $temp_id = 0;
     $row_bg_color = 'FFF';
-    if(isset($DIR)) {
-        sort($DIR);
-        foreach($DIR AS $name) {
+    if(isset($aListDir)) {
+        foreach($aListDir AS $name)
+        {
+            $sFileName = WB_PATH.'/'.MEDIA_DIRECTORY.$directory.'/'.$name;
+            if (is_dir($sFileName)){
             $link_name = str_replace(' ', '%20', $name);
             $temp_id++;
             $template->set_var(array(
@@ -265,17 +270,9 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
                         );
             $template->parse('list', 'list_block', true);
             // Code to alternate row colors
-            if($row_bg_color == 'FFF') {
-                $row_bg_color = 'ECF1F3';
-            } else {
-                $row_bg_color = 'FFF';
-            }
-        }
-    }
-    if(isset($FILE)) {
-        sort($FILE);
+            $row_bg_color = (($row_bg_color == 'FFF') ?'ECF1F3':'FFF');
+    }else {
         $filepreview = array('jpg','gif','tif','tiff','png','txt','css','js','cfg','conf','pdf','zip','gz','doc');
-        foreach($FILE AS $name) {
             $size = filesize(WB_PATH.'/'.MEDIA_DIRECTORY.$directory.'/'.$name);
             $bytes = byte_convert($size);
             $fdate = filemtime(WB_PATH.'/'.MEDIA_DIRECTORY.$directory.'/'.$name);
@@ -293,7 +290,6 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
             // $icon = THEME_URL.'/images/blank_16.gif';
             $icon = '';
             $tooltip = '';
-
             if (!$pathsettings['global']['show_thumbs']) {
                 $info = getimagesize(WB_PATH.MEDIA_DIRECTORY.$directory.'/'.$name);
                 if ($info[0]) {
@@ -329,9 +325,9 @@ if($handle = opendir(WB_PATH.MEDIA_DIRECTORY.'/'.$directory)) {
             } else {
                 $row_bg_color = 'FFF';
             }
-        }
     }
-}
+        } #foreach
+    }
 
 // If no files are in the media folder say so
 if($temp_id == 0) {

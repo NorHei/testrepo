@@ -22,6 +22,14 @@ if ( !class_exists('admin', false) ) { require(WB_PATH.'/framework/class.admin.p
 
 // suppress to print the header, so no new FTAN will be set
 $admin = new admin('Access', 'groups_add', false);
+$requestMethod = '_'.($GLOBALS['_SERVER']['REQUEST_METHOD']);
+$aRequestVars  = (@(${$requestMethod}) ? : null);
+
+$bAdvanced       = intval(@$aRequestVars['advanced'] ?: 0);
+$bAdvancedSave   = intval(@$aRequestVars['advanced_extended'] ?: 0);
+$bResetSystem    = intval(@$aRequestVars['reset_system'] ?: 0);
+$bResetModules   = intval(@$aRequestVars['reset_modules'] ?: 0);
+$bResetTemplates = intval(@$aRequestVars['reset_templates'] ?: 0);
 // Create a javascript back link
 $js_back = ADMIN_URL.'/groups/index.php';
 $action = 'save';
@@ -32,7 +40,7 @@ $action = (isset($_POST['cancel']) ? 'cancel' : $action );
             header('Location: '.$js_back);
             exit;
         default:
-        
+
         break;
     endswitch;
 
@@ -57,7 +65,7 @@ if($group_name == "") {
 $sql = 'SELECT COUNT(*) FROM `'.TABLE_PREFIX.'groups` '
      . 'WHERE `name`=\''.$group_name.'\'';
 if ($database->get_one($sql)) {
-    $admin->print_error($MESSAGE['GROUPS_GROUP_NAME_EXISTS'], $js_back);  
+    $admin->print_error($MESSAGE['GROUPS_GROUP_NAME_EXISTS'], $js_back);
 }
 $system_permissions = array();
 // Get system and module permissions
@@ -79,4 +87,3 @@ if (($database->query($sql))) {
 }
 // Print admin footer
 $admin->print_footer();
-

@@ -35,32 +35,40 @@ $admin = new admin('Addons', 'modules', false, false);
  * @param string $element: witch HTML-tag use to cover the message
  * @return void
  */
-function status_msg($message, $class='check', $element='span')
+function status_msg($message, $class='check', $element='p')
 {
     // returns a status message
     $msg  = '<'.$element.' class="'.$class.'" style="padding: 0 0 2.00em 0.825em; ">';
-    $msg .= '<h2>'.strtoupper(strtok($class, ' ')).'</h2>';
+#    $msg .= '<h4>'.strtoupper(strtok($class, ' ')).'</h4>';
     $msg .= $message.'</'.$element.'>';
-    echo '<h3>'.$msg.'</h3>';
+    echo '<div class="message">'.$msg.'</div>';
 }
 
     // pls add all addons to the blacklist array, which don't have a valid upgrade.php'
     $aModuleBlackList = array ( 'guestbook', 'lib_jquery', 'bookings_v2.36', 'oneforall' );
-    $aModuleWhiteList = array (
-                              'captcha_control',
-                              'ckeditor',
-                              'code',
-                              'droplets',
-                              'form',
-                              'jsadmin',
-                              'menu_link',
-                              'mod_multilingual',
-                              'news',
-                              'output_filter',
-                              'show_menu2',
-                              'wrapper',
-                              'wysiwyg'
-    );
+
+    if (is_readable(WB_PATH.'/install/ModuleWhiteList')){
+        $aModuleWhiteList = file(WB_PATH.'/install/ModuleWhiteList', FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
+    } else {
+        $aModuleWhiteList =
+              array (
+                    'captcha_control',
+                    'ckeditor',
+                    'code',
+                    'droplets',
+                    'form',
+                    'jsadmin',
+                    'menu_link',
+                    'mod_multilingual',
+                    'news',
+                    'output_filter',
+                    'show_menu2',
+                    'wrapper',
+                    'wysiwyg'
+            );
+    }
+
+
 // database tables including in WB package
 $table_list = array ('settings','groups','addons','pages','sections','search','users');
 /*
@@ -77,7 +85,7 @@ $OK               = ' <span class="ok">OK</span> ';
 $FAIL             = ' <span class="error">FAILED</span> ';
 $DEFAULT_THEME    = 'DefaultTheme';
 $DEFAULT_TEMPLATE = (@DEFAULT_TEMPLATE?:'DefaultTemplate');
-$sThemeUrl = (is_readable(WB_URL.'/templates/'.$DEFAULT_THEME) ? WB_URL.'/templates/'.$DEFAULT_THEME:THEME_URL);
+$sThemeUrl = WB_URL.'/templates/'.(is_readable(WB_URL.'/templates/'.$DEFAULT_THEME) ? $DEFAULT_THEME:'DefaultTheme');
 $stepID = 0;
 $dirRemove = array(
             '[INCLUDE]lightbox/',
@@ -94,6 +102,7 @@ $dirRemove = array(
 $filesRemove = array(
             '[ROOT]SP5_UPGRADE_DE',
             '[ROOT]SP5_UPGRADE_EN',
+            '[ROOT]SP6_UPGRADE_EN',
 
             '[ACCOUNT]template.html',
 
@@ -107,8 +116,8 @@ $filesRemove = array(
             '[FRAMEWORK]SecureForm.mtab.php',
             '[FRAMEWORK]SecureForm.php',
 
-            '[INSTALL]install_sruct.sql',
-            '[INSTALL]install_datat.sql',
+            '[INSTALL]install_struct.sql',
+            '[INSTALL]install_data.sql',
 /*  */
             '[MODULES]ckeditor/ckeditor/plugins/plugin.js',
 
@@ -116,6 +125,7 @@ $filesRemove = array(
             '[MODULES]jsadmin/uninstall.php',
             '[MODULES]menu_link/uninstall.php',
             '[MODULES]output_filter/uninstall.php',
+            '[MODULES]output_filter/filters/canonical.php',
             '[MODULES]output_filter/filters/filterScript.php',
             '[MODULES]output_filter/filters/filterSysvarMedia.php',
             '[MODULES]show_menu2/uninstall.php',
@@ -306,23 +316,26 @@ h3 { font-size: 120%; }
 
 .ok, .error { font-weight:bold; }
 .ok { color:green; }
-.error { color:red; }
+.error { color: red; }
 .check { color:#555; }
-
+.content { margin-left: 1.925em; }
 .warning {
     width: 98%;
-    background:#FFDBDB;
+    background:#FCDADA;
     padding:0.2em;
     margin-top:0.5em;
     border: 1px solid black;
 }
+.error p { color: #369; }
+
 .info {
     width: 98%;
-    background:#99CC99;
+    background:#C3E3C3;
     padding:0.2em;
     margin-top:0.5em;
     border: 1px solid black;
 }
+.message { padding: 0; }
 
 </style>
 </head>
@@ -332,7 +345,7 @@ h3 { font-size: 120%; }
 <h1>WebsiteBaker Upgrade</h1>
 <?php
     if( version_compare( WB_VERSION, '2.7', '<' )) {
-        status_msg('It is not possible to upgrade from WebsiteBaker Versions before 2.7.<br />For upgrading to version '.VERSION.' you must upgrade first to v.2.7 at least!!!', 'warning', 'div');
+        status_msg('It is not possible to upgrade from WebsiteBaker Versions before 2.7.<br />For upgrading to version '.VERSION.' you must upgrade first to v.2.8 at least!!!', 'warning', 'div');
         echo '<br />';
         echo "
         </body>
@@ -345,14 +358,16 @@ $oldVersionOutput  = trim(''.WB_VERSION.'+'.( defined('WB_SP') ? WB_SP : ''), '+
 $newVersionOutput  = trim(''.VERSION.'+'.( defined('SP') ? SP : ''), '+').' (r'.REVISION.')';
 $oldVersion  = trim(''.WB_VERSION.'+'.WB_REVISION.'+'.( defined('WB_SP') ? WB_SP : ''), '+');
 $newVersion  = trim(''.VERSION.'+'.REVISION.'+'.( defined('SP') ? SP : ''), '+');
-if ( version_compare($oldVersion, $newVersion, '>') === true ) {
-    status_msg('It is not possible to upgrade from WebsiteBaker Versions '.$oldVersionOutput.'!<br />For upgrading to version '.$newVersionOutput.' you have to upgrade first to v.2.8.3 at least!!!', 'warning', 'div');
-    echo '<br />';
-    echo "
-    </body>
-    </html>
-    ";
-    exit();
+if ( WB_VERSION != '2.8.4'){
+    if (version_compare($oldVersion, $newVersion, '>') === true) {
+        status_msg('It is not possible to upgrade from WebsiteBaker Versions '.WB_VERSION.'!<br />For upgrading to version '.$newVersionOutput.' you have to upgrade first to v.2.8.3 at least!!!', 'warning', 'div');
+        echo '<br />';
+        echo "
+        </body>
+        </html>
+        ";
+        exit();
+    }
 }
 if($admin->get_user_id()!=1){
   status_msg('<br /><h3>WebsiteBaker upgrading is not possible!<br />Before upgrading '
@@ -413,15 +428,14 @@ if (!(isset($_POST['backup_confirmed']) && $_POST['backup_confirmed'] == 'confir
 <p>It is highly recommended to <strong>create a manual backup</strong> of the entire <strong>/pages folder</strong> and the <strong>MySQL database</strong> before proceeding.<br /><strong class="error">Note: </strong>The upgrade script alters some settings of your existing database!!! You need to confirm the disclaimer before proceeding.</p>
 
 <form name="send" action="<?php echo $_SERVER['SCRIPT_NAME'];?>" method="post">
-<textarea cols="80" rows="5">DISCLAIMER: The WebsiteBaker upgrade script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. One needs to confirm that a manual backup of the /pages folder (including all files and subfolders contained in it) and backup of the entire WebsiteBaker MySQL database was created before you can proceed.</textarea>
-<br /><br /><input name="backup_confirmed" type="checkbox" value="confirmed" />&nbsp;I confirm that a manual backup of the /pages folder and the MySQL database was created.
-<br /><br /><input name="send" type="submit" value="Start upgrade script" />
-</form>
-<br />
-
+    <textarea cols="80" rows="5">DISCLAIMER: The WebsiteBaker upgrade script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. One needs to confirm that a manual backup of the /pages folder (including all files and subfolders contained in it) and backup of the entire WebsiteBaker MySQL database was created before you can proceed.</textarea>
+    <br /><br /><input name="backup_confirmed" type="checkbox" value="confirmed" />&nbsp;I confirm that a manual backup of the /pages folder and the MySQL database was created.
+    <br /><br /><input name="send" type="submit" value="Start upgrade script" />
+    </form>
+    <br />
 <?php
-    status_msg('<h4>Notice:You need to confirm that you have created a manual backup of the /pages directory and the MySQL database before you can proceed.', 'warning', 'div');
-    echo '</h4><br />';
+    status_msg('<h4>You need to confirm that you have created a manual backup of the /pages directory and the MySQL database before you can proceed.</h4>', 'warning', 'div');
+    echo '<br />';
     echo "</div>
     </body>
     </html>
@@ -484,7 +498,7 @@ function db_add_field($table, $field, $desc) {
         if (($oSettings = $oDb->query($sql))) {
             // backup all entries and remove duplicate entries
             while (($aEntry = $oSettings->fetchArray(MYSQLI_ASSOC))) {
-                $aSettings [] = array('name' => $aEntry ['name'], 'value' => $aEntry ['value']);
+                $aSettings[$aEntry ['name']] = $aEntry ['value'];
             }
             // drop the old table
             $sql = 'DROP TABLE IF EXISTS `'.$sTablePrefix.'settings`';
@@ -497,10 +511,10 @@ function db_add_field($table, $field, $desc) {
                  . ')ENGINE=MyIsam DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
             if (!($oDb->query($sql))) { $sRetval = 'unable to recreate table `settings`'; goto end; }
             // insert backed up entries into the new table
-            foreach ($aSettings as $aEntry) {
+            foreach ($aSettings as $sName => $sValue) {
                 $sql = 'INSERT INTO  `'.$sTablePrefix.'settings`'
-                     . 'SET `name`=\''.$oDb->escapeString($aEntry['name']).'\', '
-                     .     '`value`=\''.$oDb->escapeString($aEntry['value']).'\'';
+                     . 'SET `name`=\''.$oDb->escapeString($sName).'\', '
+                     .     '`value`=\''.$oDb->escapeString($sValue).'\'';
                 if (!($oDb->query($sql))) { $sRetval = 'unable to insert values into new table `settings`'; goto end;}
             }
         } else {
@@ -519,7 +533,7 @@ end:
     // $check_tables = mysqlCheckTables( DB_NAME ) ;
     if(sizeof($all_tables) == sizeof($table_list))
     {
-        echo '<h4>NOTICE: Your database '.DB_NAME.' has '.sizeof($all_tables).' '.$check_text.' tables from '.sizeof($table_list).' included in package '.$OK.'</h4>';
+        echo ('<h2>Step '.(++$stepID).' Your database '.DB_NAME.' has '.sizeof($all_tables).' '.$check_text.' tables from '.sizeof($table_list).' included in package '.$OK.'</h2>');
     }
     else
     {
@@ -549,16 +563,15 @@ end:
     }
 echo '<h2>Step '.(++$stepID).' : clear Translate cache if exists</h2>';
 //**********************************************************
-if (file_exists(WB_PATH.'/temp/cache')) {
-    $oTrans = Translate::getInstance();
-    $oTrans->clearCache();
+if (is_writable(WB_PATH.'/temp/cache')) {
+    Translate::getInstance()->clearCache();
 }
 
 if (defined('DEBUG') && DEBUG){
     echo '<h2>Step '.(++$stepID).' : Adding/Updating settings table</h2>';
     echo "<br />Set DEBUG Modus to false in settings table<br />";
     db_update_key_value('settings', 'debug', 'false');
-    $msg = '<br /><br /> The upgrade-script has be run properly, therefor the property Debug was set to the value false.<br /><br />Please restart the upgrade-script!<br /><br /><br />';
+    $msg = '<p> The upgrade-script has be run properly, therefore the property Debug was set to the value false.</p><p>Please restart the upgrade-script!</p>';
     status_msg($msg, 'error warning', 'div');
     echo '<p style="font-size:120%;"><strong>WARNING: The upgrade script failed ...</strong></p>';
     echo '<form action="'.$_SERVER['SCRIPT_NAME'].'">';
@@ -582,58 +595,109 @@ $sInstallStruct = WB_PATH.'/install/install-struct.sql';
 if (is_readable($sInstallStruct))
 {
     if (!$database->SqlImport($sInstallStruct, TABLE_PREFIX, true )){
+        echo '<div class="content">';
         echo $database->get_error(). $FAIL.'(Index already exists)<br />';
+        echo '</div>';
     } else {
+        echo '<div class="content">';
         echo 'Upgrade Core Tables '. $OK.'<br />';
+        echo '</div>';
         echo '<h2>Step '.(++$stepID).' Clear default title value in sections table</h2>';
+        echo '<div class="content">';
         $sDescription = 'UPDATE `'.TABLE_PREFIX.'sections` SET `title` = REPLACE(`title`,\'Section-ID 0\',\'\') WHERE `title` LIKE \'%Section-ID%\'';
         if (!$database->query($sDescription)){
           echo 'Upgrading sections Table (empty title field) '. $FAIL.'<br />';
         } else {
           echo 'Upgrade sections Table '. $OK.'<br />';
         }
-
+        echo '</div>';
     }
 } else {
-    echo '<strong>\'missing or not readable file [install-struct.sql]\'</strong> '.$FAIL.'<br />';
+
+    if (!is_readable(WB_PATH.'/install')) {
+    $msg = '<p>\'Missing or not readable install folder\' '.$FAIL.'</p>';
+    } else {
+    $msg = '<p>\'Missing or not readable file [install-struct.sql]\'</p> '.$FAIL.'';
+    }
+/*
+            $sWbPath = str_replace('\\', '/', WB_PATH );
+            array_walk($aMsg, function(&$sMsg) use ($sWbPath) { $sMsg = str_replace($sWbPath, '', $sMsg); });
+            $msg = implode('<br />', $aMsg).'<br />';
+*/
+    $msg = $msg.'<p>Check if the install folder exist.<br />Please upload install folder
+            using FTP and restart upgrade-script!</p>';
+    status_msg($msg, 'error warning', 'div');
+    echo '<p style="font-size:120%;">>WARNING: The upgrade script failed ...</p>';
+    echo '<form action="'.$_SERVER['SCRIPT_NAME'].'">';
+    echo '&nbsp;<input name="send" type="submit" value="Restart upgrade script" />';
+    echo '</form>';
+    echo '<br /><br /></div></body></html>';
+    exit;
 }
 
 // --- modify table `settings` -----------------------------------------------------------
     echo '<h2>Step '.(++$stepID).' : Modify PRIMARY KEY in settings table</h2>';
+    echo '<div class="content">';
     $msg = MigrateSettingsTable($database, TABLE_PREFIX);
     echo ($msg!=''?$msg.' '.$FAIL:'Add PRIMARY Index name '.$OK).'<br />';
+    echo '</div>';
 
-echo '<h2>Step '.(++$stepID).' : Updating default_theme/default_template in settings table</h2>';
+    echo '<h2>Step '.(++$stepID).' : Updating default_theme/default_template in settings table</h2>';
 /**********************************************************
  *  - Adding field default_theme to settings table
  */
-echo "Adding default_theme to settings table<br />";
-db_update_key_value('settings', 'default_theme', $DEFAULT_THEME);
-echo "Adding default_template to settings table<br />";
-db_update_key_value('settings', 'default_template', $DEFAULT_TEMPLATE);
+    echo '<div class="content">';
+    echo "Adding default_theme to settings table<br />";
+    db_update_key_value('settings', 'default_theme', $DEFAULT_THEME);
+    echo "Adding default_template to settings table<br />";
+    db_update_key_value('settings', 'default_template', $DEFAULT_TEMPLATE);
+    echo '</div>';
 
-echo '<h2>Step '.(++$stepID).' : checking database entries</h2>';
+#echo '<h2>Step '.(++$stepID).' : checking database entries</h2>';
     $check_tables = mysqlCheckTables( DB_NAME ) ;
+
 /**********************************************************
  *  - install droplets
- */
 echo '<h2>Step '.(++$stepID).' : checking table droplets</h2>';
+    echo '<div class="content">';
     $drops = (!in_array ( TABLE_PREFIX."mod_droplets", $check_tables)) ? "Install droplets" : "Upgrade droplets";
     echo '<b>'.$drops.'</b><br />';
      $file_name = (!in_array ( TABLE_PREFIX."mod_droplets", $check_tables) ? "install.php" : "upgrade.php");
      require_once (WB_PATH."/modules/droplets/".$file_name);
+    echo '</div>';
+ */
+
 /**********************************************************
  *  - Adding field sec_anchor to settings table
  */
-echo '<h2>Step '.(++$stepID).' : Adding/Updating settings table</h2>';
-echo "<br />Adding sec_anchor and website_signature to settings table<br />";
-$cfg = array(
-    'sec_anchor' => (defined('SEC_ANCHOR')?SEC_ANCHOR:'wb_'),
-    'website_signature' => (defined('WEBSITE_SIGNATURE')?WEBSITE_SIGNATURE:'')
-);
-foreach($cfg as $key=>$value) {
-    db_add_key_value($key, $value);
-}
+    echo '<h2>Step '.(++$stepID).' : Adding/Updating settings table</h2>';
+    echo '<div class="content">';
+    echo "<br />Adding string_dir_mode and string_file_mode to settings table<br />";
+    $cfg = array(
+        'confirmed_registration' => (defined('CONFIRMED_REGISTRATION')?CONFIRMED_REGISTRATION:'0'),
+        'groups_updated' => (defined('GROUPS_UPDATED')?GROUPS_UPDATED:''),
+        'page_icon_dir' => (defined('PAGE_ICON_DIR')?PAGE_ICON_DIR:'/templates/*/title_images'),
+        'system_locked' => (defined('SYSTEM_LOCKED')?SYSTEM_LOCKED:'0'),
+        'string_dir_mode' => (defined('STRING_DIR_MODE')?STRING_DIR_MODE:'0755'),
+        'string_file_mode' => (defined('STRING_FILE_MODE')?STRING_FILE_MODE:'0644')
+    );
+    foreach($cfg as $key=>$value) {
+        db_add_key_value($key, $value);
+    }
+
+/**********************************************************
+ *  - Adding field sec_anchor to settings table
+ */
+    echo '<h2>Step '.(++$stepID).' : Adding/Updating settings table</h2>';
+    echo '<div class="content">';
+    echo "<br />Adding sec_anchor and website_signature to settings table<br />";
+    $cfg = array(
+        'sec_anchor' => (defined('SEC_ANCHOR')?SEC_ANCHOR:'wb_'),
+        'website_signature' => (defined('WEBSITE_SIGNATURE')?WEBSITE_SIGNATURE:'')
+    );
+    foreach($cfg as $key=>$value) {
+        db_add_key_value($key, $value);
+    }
 
 /**********************************************************
  *  - Adding redirect timer to settings table
@@ -696,6 +760,7 @@ foreach($cfg as $key=>$value) {
  */
 echo "<br />Adding field redirect_type to mod_menu_link table<br />";
 db_add_field('mod_menu_link', 'redirect_type', "INT NOT NULL DEFAULT '301' AFTER `target_page_id`");
+echo '</div>';
 
 /**********************************************************
  *  - Update search no results database filed to create
@@ -831,28 +896,46 @@ if (version_compare(WB_VERSION, '2.8', '<'))
 
 /**********************************************************
  * upgrade modules if newer version is available
+    $aModuleList = array_intersect($aModuleDirList, $aModuleWhiteList);
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r( in_array($sModulName, $aModuleWhiteList).'O) '.$sModulName.'=='.$aModuleWhiteList[$sModulName] ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
  */
 
     echo '<h2>Step '.(++$stepID).' : Checking all addons with a newer version (upgrade)</h2>';
-    $aModuleList = glob(WB_PATH.'/modules/*', GLOB_ONLYDIR );
-    $upgradeID = 0;
-    foreach($aModuleList as $sModul) {
-        if( in_array( basename($sModul), $aModuleWhiteList ) && file_exists($sModul.'/upgrade.php') ) {
-            $currModulVersion = get_modul_version (basename($sModul), false);
-            $newModulVersion =  get_modul_version (basename($sModul), true);
-//            echo '<h4>Step '.(++$upgradeID).' : Upgrade module \''.$sModul.'\' to version '.$newModulVersion.'</h4>';
-            if((version_compare($currModulVersion, $newModulVersion, '<=' ) )) {
-                echo '<h5> '.sprintf("[%2s]", (++$upgradeID)).' : Upgrade module \''.basename($sModul).'\' from version '.$currModulVersion.' to version'.$newModulVersion.'</h5>';
-
-                require_once($sModul.'/upgrade.php');
+    echo '<div class="content">';
+    $aModuleDirList = glob(WB_PATH.'/modules/*', GLOB_ONLYDIR|GLOB_ONLYDIR );
+    $i = $upgradeID = 0;
+#    $aModuleWhiteList = array_flip($aModuleWhiteList);
+    foreach($aModuleDirList as $sModul)
+    {
+        $sModulName = basename($sModul);
+        $i++;
+        if (in_array($sModulName, $aModuleWhiteList) && file_exists($sModul.'/upgrade.php'))
+        {
+            $currModulVersion = get_modul_version ($sModulName, false);
+            $newModulVersion =  get_modul_version ($sModulName, true);
+            if((version_compare($currModulVersion, $newModulVersion, '<' ) )) {
+                require($sModul.'/upgrade.php');
+                load_module($sModul);
+                echo '<h5> '.sprintf("[%2s]", (++$upgradeID)).' : Upgrade module \''.$sModulName.'\' from version '.$currModulVersion.' to version'.$newModulVersion.'</h5>';
+            } else {
+                echo '<h5 style="color: #16702B"> '.sprintf("[%2s]", (++$upgradeID)).' : Module \''.$sModulName.'\' - Your current version is '.$currModulVersion.'</h5>';
             }
+        } else {
+            echo '<h5 style="color: #C26106"> '.sprintf("[%2s]", (++$upgradeID)).' : Unchecked Module \''.$sModulName.'\' is not registered in /install/ModuleWhiteList</h5>';
+
         }
     }
+    echo '</div>';
 /**********************************************************
  *  - Reload all addons
  */
 
     echo '<h2>Step '.(++$stepID).' : Reload all addons database entry (no upgrade)</h2>';
+    echo '<div class="content">';
+    echo '<br />Modules will be reloaded<br />';
+/*
+*/
     ////delete modules
     $sql = 'DELETE FROM `'.TABLE_PREFIX.'addons` '
          . 'WHERE `type` = \'module\'';
@@ -867,8 +950,6 @@ if (version_compare(WB_VERSION, '2.8', '<'))
         }
         closedir($handle);
     }
-    echo '<br />Modules reloaded<br />';
-
     ////delete templates
     //$database->query("DELETE FROM ".TABLE_PREFIX."addons WHERE type = 'template'");
     // Load all templates
@@ -911,17 +992,18 @@ if (version_compare(WB_VERSION, '2.8', '<'))
 /**********************************************************
  *  - Set Version to new Version
  */
-    echo '<br />Update database version number to '.VERSION.' '.SP.' '.' Revision ['.REVISION.'] : ';
+    echo '<br />Reload all addons database entry (no upgrade)<br />';
+    echo '</div>';
+    echo '<h2>Step '.(++$stepID).' : Update WebsiteBaker version number to '.VERSION.' '.SP.' '.' Revision ['.REVISION.'] </h2>';
     // echo ($database->query("UPDATE `".TABLE_PREFIX."settings` SET `value`='".VERSION."' WHERE `name` = 'wb_version'")) ? " $OK<br />" : " $FAIL<br />";
     db_update_key_value('settings', 'wb_version', VERSION);
     db_update_key_value('settings', 'wb_revision', REVISION);
     db_update_key_value('settings', 'wb_sp', SP);
 
-    echo '<p style="font-size:120%;"><strong>Congratulations: The upgrade script is finished ...</strong></p>';
-    status_msg('<strong>Warning:</strong><br />Please delete the file <strong>upgrade-script.php</strong> via FTP before proceeding.', 'warning', 'div');
+    status_msg('<h2>Congratulations: The upgrade script is finished ...</h2>', 'info', 'div');
+
     // show buttons to go to the backend or frontend
     echo '<br />';
-
     if(defined('WB_URL')) {
         echo '<form action="'.WB_URL.'/">';
         echo '&nbsp;<input type="submit" value="kick me to the Frontend" />';

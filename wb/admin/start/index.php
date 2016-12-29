@@ -126,9 +126,9 @@ $get_permission ('access');
 
 // Check if installation directory still exists
 if (file_exists(WB_PATH.'/upgrade-script.php') ) {
-    // Check if user is part of Adminstrators group
-    if(in_array(1, $admin->get_groups_id()))
-    {
+// Check if user is part of Adminstrators group / better be a Systemadministrator
+//    if ($admin->ami_group_member(1)){
+    if ($admin->get_user_id() == 1) {
         $template->set_var('WARNING', $msg );
     } else {
         $template->set_var('DISPLAY_WARNING', 'display:none;');

@@ -21,7 +21,7 @@ if(defined('WB_PATH') == false)
     die('Cannot access '.basename(__DIR__).'/'.basename(__FILE__).' directly');
 } else {
 /*---------------------------------------------------------------------------------------------------------------*/
-// merge extended system_permission  
+// merge extended system_permission
     $system_permissions = array_flip($system_permissions);
 // Get system permissions
     $system_permissions = (@$bResetSystem?array():$system_permissions);
@@ -59,14 +59,15 @@ if(defined('WB_PATH') == false)
             $aValidAccess   = preg_replace('/^(groups.*|users.*)$/', 'access', $aValidView);
             $aValidSettings = preg_replace('/^(settings.*)$/', 'settings_basic', $aValidView);
             $aPermissions   = array_merge(
-                              $aTmpPermissions, 
-                              array_flip($aValidType), 
-                              array_flip($aValidView), 
+                              $aTmpPermissions,
+                              array_flip($aValidType),
+                              array_flip($aValidView),
                               array_flip($aValidAccess),
                               array_flip($aValidAddons),
-                              array_flip($aValidSettings) 
+                              array_flip($aValidSettings)
                               );
-            ksort ($aPermissions,  SORT_NATURAL|SORT_FLAG_CASE);
+            $iSortFlags = ((version_compare(PHP_VERSION, '5.4.0', '<'))?SORT_REGULAR:SORT_NATURAL|SORT_FLAG_CASE);
+            ksort ($aPermissions, $iSortFlags);
         }
         return $aPermissions;
     }
@@ -76,7 +77,8 @@ if(defined('WB_PATH') == false)
     $system_permissions = ($bAdvancedSave ? array_intersect_key($aRequestSystemPermissions, $system_permissions):$system_permissions);
     $aSystemPermissions = array_merge($aRequestSystemPermissions, $system_permissions);
     $aSystemPermissions = (@$bResetSystem?array():$aSystemPermissions);
-    ksort ($aSystemPermissions,  SORT_NATURAL|SORT_FLAG_CASE);
+    $iSortFlags = ((version_compare(PHP_VERSION, '5.4.0', '<'))?SORT_REGULAR:SORT_NATURAL|SORT_FLAG_CASE);
+    ksort ($aSystemPermissions, $iSortFlags);
     // Implode system permissions
     $aAllowedSystemPermissions = array();
 /*------------------------------------------------------------------------------------------------------------*/
@@ -104,4 +106,5 @@ if(defined('WB_PATH') == false)
     $module_permissions   = getPermissionsFromPost('module', $bResetModules);
     // Get template permissions
     $template_permissions = getPermissionsFromPost('template', $bResetTemplates);
+
 }

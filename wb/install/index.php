@@ -276,6 +276,11 @@ But this solution does not guarranty a correct displaying of the content from al
             <td style="color: #666666;"><?php print $wb_root ?>/temp/</td>
             <td><?php if(is_writable('../temp/')) { echo '<span class="good">Writeable</span>'; } elseif(!file_exists('../temp/')) {$installFlag = false; echo '<span class="bad">Directory Not Found</span>'; } else { echo '<span class="bad">Unwriteable</span>'; } ?></td>
         </tr>
+        <tr>
+            <td style="color: #666666;"><?php print $wb_root ?>/var/</td>
+            <td><?php if(is_writable('../var/')) { echo '<span class="good">Writeable</span>'; } elseif(!file_exists('../languages/')) {$installFlag = false; echo '<span class="bad">Directory Not Found</span>'; } else { echo '<span class="bad">Unwriteable</span>'; } ?></td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
         </tbody>
         </table>
 <?php  if($installFlag == true) {     ?>
@@ -335,7 +340,9 @@ But this solution does not guarranty a correct displaying of the content from al
 */
     $sLangDir = str_replace('\\', '/', dirname(dirname(__FILE__)).'/languages/');
     $aAllowedLanguages = preg_replace('/^.*\/([A-Z]{2})\.php$/iU', '\1', glob($sLangDir.'??.php'));
-    sort($aAllowedLanguages, SORT_NATURAL);
+
+    $iSortFlags = ((version_compare(PHP_VERSION, '5.4.0', '<'))?SORT_REGULAR:SORT_NATURAL|SORT_FLAG_CASE);
+    sort($aAllowedLanguages, $iSortFlags);
     $sOutput = PHP_EOL;
     foreach ($aAllowedLanguages as $sLangCode) {
         if (is_readable($sLangDir.$sLangCode.'.php')) {

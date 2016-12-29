@@ -36,20 +36,24 @@ $template->set_block('module_detail_block', 'module_detail_select_block', 'modul
 $template->set_block('main_block', 'module_uninstall_block', 'module_uninstall');
 $template->set_block('module_uninstall_block', 'module_uninstall_select_block', 'module_uninstall_select');
 $aPreventFromUninstall = array ( 'captcha_control', 'jsadmin', 'output_filter', 'wysiwyg', 'menu_link' );
-$sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` '
-      . 'WHERE `type` =\'module\''
-      . 'ORDER BY `name`';
-if($oAddons = $database->query($sql)) {
 
+$sql  = 'SELECT * FROM `'.TABLE_PREFIX.'addons` '
+      . 'WHERE `type`=\'module\' '
+      . 'ORDER BY `name`'
+      . '';
+if($oAddons = $database->query($sql)) {
     while ($aAddon = $oAddons->fetchRow( MYSQLI_ASSOC )) {
-        if( !$admin->get_permission( $aAddon['directory'], 'module' )) { continue; }
+        if (!$admin->get_permission( $aAddon['directory'], 'module' )) { continue; }
+        $sAddsonsPath = WB_PATH.'/modules/'.$aAddon['directory'];
         $template->set_var('VALUE', $aAddon['directory']);
         $template->set_var('NAME', $aAddon['name']);
         $template->parse('module_detail_select', 'module_detail_select_block', true);
-        if (!preg_match('/'.$aAddon['directory'].'/si', implode('|', $aPreventFromUninstall))) {
-            $template->set_var('UNINSTALL_VALUE', $aAddon['directory']);
-            $template->set_var('UNINSTALL_NAME', $aAddon['name']);
-            $template->parse('module_uninstall_select', 'module_uninstall_select_block', true);
+        if (is_readable($sAddsonsPath.'/uninstall.php') && is_readable($sAddsonsPath . '/info.php')) {
+            if (!preg_match('/'.$aAddon['directory'].'/si', implode('|', $aPreventFromUninstall))) {
+                $template->set_var('UNINSTALL_VALUE', $aAddon['directory']);
+                $template->set_var('UNINSTALL_NAME', $aAddon['name']);
+                $template->parse('module_uninstall_select', 'module_uninstall_select_block', true);
+            }
         }
     }
 }
@@ -60,17 +64,15 @@ $template->set_block('module_advanced_block', 'manuell_install_block', 'manuell_
 $template->set_block('module_advanced_block', 'manuell_upgrade_block', 'manuell_upgrade');
 $template->set_block('module_advanced_block', 'manuell_uninstall_block', 'manuell_uninstall');
 // Insert modules which includes a install.php file to install list
+$template->set_block('manuell_install_block', 'manuell_install_select_block', 'manuell_install_select');
 $module_files = glob(WB_PATH . '/modules/*', GLOB_ONLYDIR|GLOB_NOSORT );
 natcasesort($module_files);
-$template->set_block('manuell_install_block', 'manuell_install_select_block', 'manuell_install_select');
 foreach ($module_files as $index => $sAddsonsPath)
 {
     if( !$admin->get_permission( basename($sAddsonsPath), 'module' )) { continue; }
     if (is_dir($sAddsonsPath)) {
-        if (is_readable($sAddsonsPath . '/info.php')) {
-           require $sAddsonsPath . '/info.php';
-        }
-        if (file_exists($sAddsonsPath . '/install.php')) {
+        if (is_readable($sAddsonsPath . '/install.php') && is_readable($sAddsonsPath . '/info.php')) {
+            require $sAddsonsPath . '/info.php';
             $show_block = true;
             $template->set_var('INSTALL_VISIBLE', '');
             $template->set_var('INSTALL_VALUE', basename($sAddsonsPath));
@@ -89,7 +91,7 @@ foreach ($module_files as $index => $sAddsonsPath)
     while ($aAddon = $oAddons->fetchRow( MYSQLI_ASSOC )) {
         if( !$admin->get_permission( $aAddon['directory'], 'module' )) { continue; }
         $sAddsonsPath = WB_PATH.'/modules/'.$aAddon['directory'];
-        if (file_exists($sAddsonsPath.'/upgrade.php')) {
+        if (is_readable($sAddsonsPath.'/upgrade.php') && is_readable($sAddsonsPath . '/info.php')) {
             $show_block = true;
             $template->set_var('UPGRADE_VISIBLE', '');
             $template->set_var('UPGRADE_VALUE', $aAddon['directory']);
@@ -98,12 +100,14 @@ foreach ($module_files as $index => $sAddsonsPath)
         } else {
 //          echo ''.$sAddsonsPath.'/upgrade.php<br />';
         }
-        if (!preg_match('/'.$aAddon['directory'].'/si', implode('|', $aPreventFromUninstall))) {
-            $show_block = true;
-            $template->set_var('UNINSTALL_VISIBLE', '');
-            $template->set_var('UNINSTALL_VALUE', $aAddon['directory']);
-            $template->set_var('UNINSTALL_NAME', $aAddon['name']);
-            $template->parse('manuell_uninstall_select', 'manuell_uninstall_select_block', true);
+        if (is_readable($sAddsonsPath.'/uninstall.php') && is_readable($sAddsonsPath . '/info.php')) {
+            if (!preg_match('/'.$aAddon['directory'].'/si', implode('|', $aPreventFromUninstall))) {
+                $show_block = true;
+                $template->set_var('UNINSTALL_VISIBLE', '');
+                $template->set_var('UNINSTALL_VALUE', $aAddon['directory']);
+                $template->set_var('UNINSTALL_NAME', $aAddon['name']);
+                $template->parse('manuell_uninstall_select', 'manuell_uninstall_select_block', true);
+            }
         } else {
 //          echo ''.$sAddsonsPath.'/uninstall.php<br />';
         }

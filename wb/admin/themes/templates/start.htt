@@ -1,6 +1,6 @@
 <!-- BEGIN main_block -->
 <div id="start-block">
-    <h3 style="text-align: center;">{WELCOME_MESSAGE}. {CURRENT_USER} {DISPLAY_NAME}</h3>
+    <h5 style="text-align: center;">{WELCOME_MESSAGE}. {CURRENT_USER} {DISPLAY_NAME}</h5>
     <p class="warnung" style="color: #FF0000; font-weight: bold; text-align: center;">{WARNING}</p>
     <ul class="start-block">
     <!-- BEGIN show_pages_block -->

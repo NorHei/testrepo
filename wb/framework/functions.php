@@ -1011,7 +1011,11 @@ function load_template($directory)
                   . '`author`=\''.$database->escapeString($template_author).'\', '
                   . '`license`=\''.$database->escapeString($template_license).'\' '
                   . $sqlwhere;
-            $retVal = $database->query($sql);
+            if ($database->query($sql)){
+                $retVal = true;
+            } else {
+              $retVal = $database->get_errno();
+            }
         }
     }
     return $retVal;
@@ -1033,7 +1037,7 @@ function load_language($file)
         $language_author = get_variable_content('language_author', $data, false, false);
         $language_version = get_variable_content('language_version', $data, false, false);
         $language_platform = get_variable_content('language_platform', $data, false, false);
-        $language_description = get_variable_content('language_platform', $data, false, false);
+        $language_description = get_variable_content('language_description', $data, false, false);
         if(isset($language_name))
         {
             if(!isset($language_license)) { $language_license = 'GNU General Public License'; }

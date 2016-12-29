@@ -38,7 +38,7 @@
             header('Location: '.$js_back);
             exit;
         default:
-        
+
         break;
     endswitch;
 
@@ -97,7 +97,6 @@ if($database->is_error()) {
     $modifyUrl = ADMIN_URL.'/groups/groups.php?modify=&group_id='.$group_id.'&advanced='.!$bAdvanced;
     $admin->print_success($MESSAGE['GROUPS_SAVED'], $modifyUrl);
 }
-
 
 // Print admin footer
 $admin->print_footer();

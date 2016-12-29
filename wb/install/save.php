@@ -280,7 +280,7 @@ $config_filename = dirname(dirname(__FILE__)).'/config.php';
 $config_content
     = '<?php'."\n"
     .  "\n"
-    . 'define(\'DEBUG\', false);'."\n"
+//    . 'define(\'DEBUG\', false);'."\n"
     . 'define(\'DB_TYPE\', \'mysqli\');'."\n"
     . 'define(\'DB_HOST\', \''.$database_host.'\');'."\n"
     . (isset($database_port) ? 'define(\'DB_PORT\', \''.$database_port.'\');'."\n" : '')
@@ -289,8 +289,9 @@ $config_content
     . 'define(\'DB_PASSWORD\', \''.$database_password.'\');'."\n"
     . 'define(\'DB_CHARSET\', \''.$database_charset.'\');'."\n"
     . 'define(\'TABLE_PREFIX\', \''.$table_prefix.'\');'."\n"
-    . "\n"
-    . 'define(\'WB_URL\', \''.$wb_url.'\');'."\n"
+   . "\n"
+    . 'define(\'WB_URL\', \''.$wb_url.'\');'
+    . '// no trailing slash or backslash!!'."\n"
     . 'define(\'ADMIN_DIRECTORY\', \'admin\');'
     . '// no leading/trailing slash or backslash!! A simple directory name only!!'."\n";
 // Check if the file exists and is writable first.

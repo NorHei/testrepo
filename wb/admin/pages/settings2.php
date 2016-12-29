@@ -32,7 +32,7 @@ function fix_page_trail($parent,$root_parent)
             // Fix page trail
             $sql = 'UPDATE `'.TABLE_PREFIX.'pages` '
                  . 'SET `page_trail`=\''.get_page_trail($page['page_id']).'\' '
-                 .     ($root_parent != 0 ? '`root_parent`='.(int)$root_parent.', ' : '')
+                 .     ($root_parent != 0 ? ',`root_parent`='.(int)$root_parent.' ' : '')
                  . 'WHERE `page_id`='.(int)$page['page_id'];
             $database->query($sql);
             // Run this query on subs

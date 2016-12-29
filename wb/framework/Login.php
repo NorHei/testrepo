@@ -88,6 +88,8 @@ class Login extends admin {
             $this->default_url = isset($aDefaultUrl['host']) &&($sServerUrl==$aDefaultUrl['host']) ? $this->default_url:$sServerScheme.'://'.$sServerUrl;
             $this->url = $this->default_url;
         }
+print '<pre  class="mod-pre rounded">function <span>'.__FUNCTION__.'( '.''.' );</span>  filename: <span>'.basename(__FILE__).'</span>  line: '.__LINE__.' -> <br />';
+print_r(  ); print '</pre>'; flush (); //  ob_flush();;sleep(10); die();
 */
     // get username & password and validate it
         $username_fieldname = (string)$this->get_post('username_fieldname');
@@ -128,11 +130,11 @@ class Login extends admin {
                 // Authentication successful
                 $this->send_header($this->url);
             } else {
-                $this->message = $this->oTrans['LOGIN_AUTHENTICATION_FAILED'];
+                $this->message = $this->_oTrans->MESSAGE_LOGIN_AUTHENTICATION_FAILED;
                 $this->increase_attemps();
             }
         } else {
-            $this->message = $this->oTrans['LOGIN_BOTH_BLANK'];
+            $this->message = $this->_oTrans->MESSAGE_LOGIN_BOTH_BLANK;
             $this->display_login();
         }
     }
@@ -293,49 +295,70 @@ class Login extends admin {
         global $MESSAGE;
         global $MENU;
         global $TEXT;
+
+        $Trans = $GLOBALS['oTrans'];
+        $ThemeName = (defined('DEFAULT_THEME')?DEFAULT_THEME:'DefaultTheme');
+        $Trans->enableAddon('templates\\'.$ThemeName);
+        $aLang = $Trans->getLangArray();
         // If attemps more than allowed, warn the user
         if($this->get_session('ATTEMPS') > $this->max_attemps) {
             $this->warn();
         }
         // Show the login form
         if($this->frontend != true) {
-            require_once(WB_PATH.'/include/phplib/template.inc');
-            // $template = new Template($this->template_dir);
+//            require_once(WB_PATH.'/include/phplib/template.inc');
+            $aWebsiteTitle['value'] = WEBSITE_TITLE;
+            $sql = 'SELECT `value` FROM `'.TABLE_PREFIX.'settings` '
+                 . 'WHERE `name`=\'website_title\'';
+            if ($get_title = $this->oDb->query($sql)){
+                $aWebsiteTitle= $get_title->fetchRow( MYSQLI_ASSOC );
+            }
             // Setup template object, parse vars to it, then parse it
             $template = new Template(dirname($this->correct_theme_source($this->template_file)));
             $template->set_file('page', $this->template_file);
             $template->set_block('page', 'mainBlock', 'main');
             $template->set_var('DISPLAY_REMEMBER_ME', ($this->remember_me_option ? '' : 'display: none;'));
-            $template->set_var(array(
-                'ACTION_URL' => $this->login_url,
-                'ATTEMPS' => $this->get_session('ATTEMPS'),
-                'USERNAME' => $this->username,
-                'USERNAME_FIELDNAME' => $this->username_fieldname,
-                'PASSWORD_FIELDNAME' => $this->password_fieldname,
-                'MESSAGE' => $this->message,
-                'INTERFACE_DIR_URL' =>  ADMIN_URL.'/interface',
-                'MAX_USERNAME_LEN' => $this->max_username_len,
-                'MAX_PASSWORD_LEN' => $this->max_password_len,
-                'ADMIN_URL' => ADMIN_URL,
-                'WB_URL' => WB_URL,
-                'URL' => $this->redirect_url,
-                'THEME_URL' => THEME_URL,
-                'VERSION' => VERSION,
-                'REVISION' => REVISION,
-                'LANGUAGE' => strtolower(LANGUAGE),
-                'FORGOTTEN_DETAILS_APP' => $this->forgotten_details_app,
-                'TEXT_FORGOTTEN_DETAILS' => $TEXT['FORGOTTEN_DETAILS'],
-                'TEXT_USERNAME' => $TEXT['USERNAME'],
-                'TEXT_PASSWORD' => $TEXT['PASSWORD'],
-                'TEXT_REMEMBER_ME' => $TEXT['REMEMBER_ME'],
-                'TEXT_LOGIN' => $TEXT['LOGIN'],
-                'TEXT_SAVE' => $TEXT['SAVE'],
-                'TEXT_RESET' => $TEXT['RESET'],
-                'TEXT_HOME' => $TEXT['HOME'],
-                'PAGES_DIRECTORY' => PAGES_DIRECTORY,
-                'SECTION_LOGIN' => $MENU['LOGIN']
-                )
+
+            $template->set_var(
+                array(
+                    'ACTION_URL' => $this->login_url,
+                    'ATTEMPS' => $this->get_session('ATTEMPS'),
+                    'USERNAME' => $this->username,
+                    'USERNAME_FIELDNAME' => $this->username_fieldname,
+                    'PASSWORD_FIELDNAME' => $this->password_fieldname,
+                    'MESSAGE' => $this->message,
+                    'INTERFACE_DIR_URL' =>  ADMIN_URL.'/interface',
+                    'MAX_USERNAME_LEN' => $this->max_username_len,
+                    'MAX_PASSWORD_LEN' => $this->max_password_len,
+                    'ADMIN_URL' => ADMIN_URL,
+                    'WB_URL' => WB_URL,
+                    'URL' => $this->redirect_url,
+                    'THEME_URL' => THEME_URL,
+                    'VERSION' => VERSION,
+                    'REVISION' => REVISION,
+                    'LANGUAGE' => strtolower(LANGUAGE),
+                    'FORGOTTEN_DETAILS_APP' => $this->forgotten_details_app,
+                    'WEBSITE_TITLE'       => ($aWebsiteTitle['value']),
+                    'TEXT_ADMINISTRATION' => $TEXT['ADMINISTRATION'],
+//                    'TEXT_FORGOTTEN_DETAILS' => $Trans->TEXT_FORGOTTEN_DETAILS,
+                    'TEXT_USERNAME' => $TEXT['USERNAME'],
+                    'TEXT_PASSWORD' => $TEXT['PASSWORD'],
+                    'TEXT_REMEMBER_ME' => $TEXT['REMEMBER_ME'],
+                    'TEXT_LOGIN' => $TEXT['LOGIN'],
+                    'TEXT_SAVE' => $TEXT['SAVE'],
+                    'TEXT_RESET' => $TEXT['RESET'],
+                    'TEXT_HOME' => $TEXT['HOME'],
+                    'PAGES_DIRECTORY' => PAGES_DIRECTORY,
+                    'SECTION_LOGIN' => $MENU['LOGIN'],
+                    'LOGIN_DISPLAY_HIDDEN'   => !$this->is_authenticated() ? 'hidden' : '',
+                    'LOGIN_DISPLAY_NONE'     => !$this->is_authenticated() ? 'none' : '',
+                    'LOGIN_LINK'             => $_SERVER['SCRIPT_NAME'],
+                    'LOGIN_ICON'             => 'login',
+                    'START_ICON'             => 'blank',
+                    'URL_HELP'               => 'http://wiki.websitebaker.org/',
+                    )
             );
+            $template->set_var($aLang);
             $template->set_var('CHARSET', (defined('DEFAULT_CHARSET') ? DEFAULT_CHARSET : 'utf-8'));
             $template->parse('main', 'mainBlock', false);
             $template->pparse('output', 'page');

@@ -17,10 +17,15 @@
  */
 
 // Include the config file
-require('../config.php');
+//require('../config.php');
+if ( !defined( 'WB_PATH' ) ){ require(dirname(__DIR__).'/config.php'); }
+if ( !class_exists('frontend')) { require(WB_PATH.'/framework/class.frontend.php');  }
+// Create new frontend object
+if (!isset($wb) || !($wb instanceof frontend)) { $wb = new frontend(); }
 
 // Required page details
 $page_id = 0;
+$page_id = @$_SESSION['PAGE_ID'] ?: 0;
 $page_description = '';
 $page_keywords = '';
 define('PAGE_ID', 0);

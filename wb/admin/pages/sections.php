@@ -416,7 +416,7 @@ switch ($action):
                         $tpl->set_var(
                                     'VAR_MOVE_UP_URL',
                                     '<a href="'.ADMIN_URL.'/pages/move_up.php?page_id='.$page_id.'&amp;section_id='.$section['section_id'].'">
-                                    <img src="'.THEME_URL.'/images/up_16.png" alt="{TEXT_MOVE_UP}" />
+                                    <img src="'.THEME_URL.'/images/up_16.png" alt="up" />
                                     </a>' );
                     } else {
                         $tpl->set_var(array(
@@ -428,7 +428,7 @@ switch ($action):
                         $tpl->set_var(
                                     'VAR_MOVE_DOWN_URL',
                                     '<a href="'.ADMIN_URL.'/pages/move_down.php?page_id='.$page_id.'&amp;section_id='.$section['section_id'].'">
-                                    <img src="'.THEME_URL.'/images/down_16.png" alt="{TEXT_MOVE_DOWN}" />
+                                    <img src="'.THEME_URL.'/images/down_16.png" alt="down" />
                                     </a>' );
                     } else {
                         $tpl->set_var(array(
